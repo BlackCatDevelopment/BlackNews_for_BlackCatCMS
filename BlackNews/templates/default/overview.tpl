@@ -13,7 +13,7 @@
 	{foreach $entries as entry}
 	<section class="blacknews_content">
 		<article class="blacknews_short">
-		{if $entry.image_path != ''}<img class="blacknews_preview_img" src="{makeThumb( $entry.image_path, 'blacknews_',600,100)}" alt="" />{/if}
+		{if $entry.image_path != ''}<img class="blacknews_preview_img" src="{makeThumb( $entry.image_path, 'blacknews_',100,600)}" alt="" />{/if}
 		<h2>{$entry.title}</h2>
 		{if $entry.subtitle != ''}<h4>{$entry.subtitle}</h4>{/if}
 			{$entry.short}

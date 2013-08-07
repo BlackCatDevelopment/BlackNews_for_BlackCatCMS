@@ -122,9 +122,9 @@ if ( isset( $_FILES['image']['name'] ) && $_FILES['image']['name'] != '' )
 				CAT_Helper_Image::getInstance()->make_thumb(
 					$folder_path . '/' . $current->file_dst_name,
 					$folder_path . '/' . $current->file_dst_name,
-					200,
 					1024,
-					'crop'
+					1024,
+					'fit'
 				);
 				$picture	= $current->file_dst_name;
 				$current->clean();

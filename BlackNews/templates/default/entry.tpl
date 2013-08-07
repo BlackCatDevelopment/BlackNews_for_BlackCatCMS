@@ -12,7 +12,7 @@
 {if $entry}
 <div id="blacknews_{$section_id}">
 	<h1>{$entry.title}</h2>
-	{if $entry.image_path != ''}<img src="{makeThumb( $entry.image_path, 'blacknews_',600,200)}" alt="" />{/if}
+	{if $entry.image_path != ''}<img src="{makeThumb( $entry.image_path, 'blacknews_',200,600)}" alt="" />{/if}
 	{if $entry.subtitle}<h2>{$entry.subtitle}</h2>{/if}
 	<div>
 		{$entry.content}
