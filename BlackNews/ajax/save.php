@@ -116,9 +116,12 @@ if ( isset( $_FILES['image']['name'] ) && $_FILES['image']['name'] != '' )
 			$current->file_overwrite		= true;
 			$current->file_new_name_body	= 'news_' . $section_id . '_' . $news_id;
 			$current->process( $folder_path . '/' );
-
 			if ( $current->processed )
 			{
+				$old_thumbs		= glob(CAT_PATH . '/temp/media/blacknews_news_' . $section_id . '_' . $news_id . '_*');
+				foreach( $old_thumbs as $thumb ){
+					CAT_Helper_Directory::removeDirectory( $thumb );
+				}
 				CAT_Helper_Image::getInstance()->make_thumb(
 					$folder_path . '/' . $current->file_dst_name,
 					$folder_path . '/' . $current->file_dst_name,

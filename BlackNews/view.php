@@ -101,6 +101,7 @@ if ( isset($entries) && $entries->numRows() > 0)
 	}
 }
 
+
 if ( isset($news_ids) && count($news_ids) > 0 )
 {
 	$select	= '';
