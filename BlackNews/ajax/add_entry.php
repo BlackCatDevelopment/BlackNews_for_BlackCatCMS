@@ -81,10 +81,13 @@ if ( !$check_options )
 
 $time		= time();
 $user_id	= $user->get_user_id();
+$position	= $PageHelper->db()->get_one("SELECT `position` FROM " . CAT_TABLE_PREFIX . "mod_blacknews_entry ORDER BY position DESC LIMIT 1");
+
+if ( $position == '' ) $position = 0;
 
 if ( $PageHelper->db()->query("INSERT INTO " . CAT_TABLE_PREFIX . "mod_blacknews_entry
-	(page_id, section_id, active, updated, created, created_by) VALUES
-	('$page_id', '$section_id', '0', '$time', '$time', '$user_id' )") )
+	(page_id, section_id, active, updated, created, created_by, position) VALUES
+	('$page_id', '$section_id', '0', '$time', '$time', '$user_id', '$position' )") )
 	{
 		$news_id				= $PageHelper->db()->get_one("SELECT LAST_INSERT_ID()");
 		$title					= $backend->lang()->translate('New title');

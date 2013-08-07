@@ -50,6 +50,7 @@ if(defined('CAT_URL'))
 		. ' `created_by` INT NOT NULL,'
 		. ' `categories` VARCHAR(2048) NOT NULL,'
 		. ' `highlight` TINYINT(1) NOT NULL,'
+		. ' `position` INT NOT NULL,'
 		. ' PRIMARY KEY ( `news_id` )'
 		. ' )';
 	$page_helper->db()->query($mod_create_table);
@@ -145,6 +146,7 @@ if(defined('CAT_URL'))
 			'ajax/delete_entry.php',
 			'ajax/get_info.php',
 			'ajax/publish.php',
+			'ajax/reorder.php',
 			'ajax/save.php'
 		)
 		as $file

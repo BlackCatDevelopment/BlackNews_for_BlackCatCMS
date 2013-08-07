@@ -302,4 +302,46 @@ $(document).ready(function(){
 			current.closest('.blacknews_container')
 		);
 	});
+	$('.blacknews_entries').sortable(
+	{
+		axis:			'y',
+		update:			function(event, ui)
+		{
+			var current			= $(this),
+				form			= current.closest('.blacknews_container').find('form'),
+				dates			= {
+				'positions':		current.sortable('toArray'),
+				'section_id':		form.find('input[name=section_id]').val(),
+				'page_id':			form.find('input[name=page_id]').val(),
+				'_cat_ajax':		1
+			};
+			$.ajax(
+			{
+				type:		'POST',
+				url:		CAT_URL + '/modules/blacknews/ajax/reorder.php',
+				dataType:	'json',
+				data:		dates,
+				cache:		false,
+				beforeSend:	function( data )
+				{
+					data.process	= set_activity( 'Sort entries' );
+				},
+				success:	function( data, textStatus, jqXHR  )
+				{
+					console.log(data);
+					if ( data.success === true )
+					{
+						return_success( jqXHR.process, data.message );
+					}
+					else {
+						return_error( jqXHR.process , data.message );
+					}
+				},
+				error:		function(jqXHR, textStatus, errorThrown)
+				{
+					return_error( jqXHR.process , errorThrown.message);
+				}
+			});
+		}
+	});
 });

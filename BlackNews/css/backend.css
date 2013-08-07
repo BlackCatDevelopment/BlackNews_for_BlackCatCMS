@@ -83,7 +83,9 @@
 .blacknews_options .blacknews_label {
 	width: 200px;
 }
-
+.blacknews_show_image {
+	max-width: 50%;
+}
 .blacknews_show_image img {
 	max-height: 200px;
 	max-width: 100%;
@@ -101,6 +103,7 @@
 }
 .blacknews_delete {
 	margin-bottom: 1em;
+	margin-right: 2em;
 }
 
 .blacknews_content_options {
@@ -109,7 +112,7 @@
 		border-bottom: 1px solid #9da8b2;
 		border-top: 1px solid #9da8b2;
 	}
-		.blacknews_content_options > div > div {
+		.blacknews_content_options .zwei_spalten {
 			padding: 1em 1em;
 			float: left;
 			width: 50%;

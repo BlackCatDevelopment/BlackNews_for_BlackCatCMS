@@ -56,7 +56,7 @@ $parser_data	= array(
 // =============================== 
 
 $entries	= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_entry
-					WHERE section_id = '$section_id' ORDER BY created DESC");
+					WHERE section_id = '$section_id' ORDER BY position ASC");
 
 if ( isset($entries) && $entries->numRows() > 0)
 {

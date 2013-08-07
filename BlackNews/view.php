@@ -68,7 +68,7 @@ if ( !$news_id )
 	$entries			= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_entry
 							WHERE section_id = '$section_id' AND
 							active = '1'
-							ORDER BY created DESC
+							ORDER BY position ASC
 							LIMIT " . $entries_per_page );
 }
 else {
