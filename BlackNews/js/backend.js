@@ -259,6 +259,7 @@ $(document).ready(function(){
 	$('button.bn_icon-feed').click( function(e)
 	{
 		e.preventDefault();
+
 		var current		= $(this),
 			form		= current.closest('form'),
 			page_id		= form.find('input[name=page_id]').val(),
@@ -312,55 +313,35 @@ $(document).ready(function(){
 	$('.blacknews_delete ').click( function(e)
 	{
 		e.preventDefault();
-		var answer = confirm("Möchten Sie dieses Sliderelement wirklich löschen?");
-		if (!answer){
-			return false;
-		}
-		else {
+
 		var current		= $(this).closest('form'),
-			page_id		= current.find('input[name=page_id]').val(),
-			section_id	= current.find('input[name=section_id]').val(),
-			news_id		= current.find('input[name=id]').val(),
-			url			= CAT_URL + '/modules/blacknews/ajax/delete_entry.php',
 			dates		= {
-				'section_id':			section_id,
-				'page_id':				page_id,
-				'news_id':				news_id,
+				'section_id':			current.find('input[name=section_id]').val(),
+				'page_id':				current.find('input[name=page_id]').val(),
+				'news_id':				current.find('input[name=id]').val(),
 				'_cat_ajax':			1
 			};
-		$.ajax(
-		{
-			type:		'POST',
-			context:	current.closest('.blacknews_container'),
-			url:		url,
-			dataType:	'JSON',
-			data:		dates,
-			cache:		false,
-			beforeSend:	function( data )
-			{
-				data.process	= set_activity( 'Deleting entry' );
-			},
-			success:	function( data, textStatus, jqXHR  )
+		dialog_confirm( 
+			cattranslate( 'Do you really want to delete this entry?' ),
+			cattranslate( 'Deleting entry' ),
+			CAT_URL + '/modules/blacknews/ajax/delete_entry.php',
+			dates,
+			'POST',
+			'JSON',
+			false,
+			function( data, textStatus, jqXHR )
 			{
 				var current			= $(this);
-				if ( data.success === true )
-				{
-					return_success( jqXHR.process , data.message);
-
-					var current_li	= current.find('input[value=' + data.news_id + ']').closest('.bn_icon-feed');
-					if( current_li.index() > 0 ){
-						current_li.prev('li').click();
-					}
-					else {
-						current_li.next('li').click();
-					};
-					current_li.remove();
+				var current_li		= current.find('input[value=' + data.news_id + ']').closest('.bn_icon-feed');
+				if( current_li.index() > 0 ){
+					current_li.prev('li').click();
 				}
 				else {
-					return_error( jqXHR.process , data.message);
-				}
-			}
-		});
-		}
+					current_li.next('li').click();
+				};
+				current_li.remove();
+			},
+			current.closest('.blacknews_container')
+		);
 	});
 });
