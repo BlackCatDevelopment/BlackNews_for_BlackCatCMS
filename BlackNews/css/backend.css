@@ -1,0 +1,115 @@
+/**
+ * This file is part of an ADDON for use with Black Cat CMS Core.
+ * This ADDON is released under the GNU GPL.
+ * Additional license terms can be seen in the info.php of this module.
+ *
+ * @module			blacknews
+ * @version			see info.php of this module
+ * @author			Matthias Glienke, creativecat
+ * @copyright		2013, Black Cat Development
+ * @link			http://blackcat-cms.org
+ * @license			http://www.gnu.org/licenses/gpl.html
+ *
+ */
+
+.blacknews_container {
+	border: 1px solid #9da8b2;
+	display: table;
+	width: 100%;
+}
+
+.blacknews_options.active {
+	padding: 1em 1em;
+	border: 1px solid #9da8b2;
+	border-bottom: none;
+}
+
+	.blacknew_search {
+		clear: both;
+		border: 1px solid #9da8b2;
+		border-bottom: none;
+		padding: 0.4em;
+	}
+
+	.blacknews_sidebar {
+		width: 200px;
+		padding: 0em 0.4em;
+		display: table-cell;
+		border-right: 1px solid #9da8b2;
+		position: relative;
+		overflow-y: scroll;
+	}
+		.blacknews_sidebar > p {
+		}
+		.blacknews_sidebar ul {
+			position: absolute;
+			height: 100%;
+		}
+		.blacknews_sidebar ul,
+		.blacknews_sidebar li {
+			margin: 0px;
+			padding: 0px;
+		}
+		.blacknews_sidebar li {
+			margin: 0.4em 0em;
+			cursor: pointer;
+		}
+		.drafted {
+			color: #687a8a;
+		}
+			.drafted .is_published,
+			.published .not_published {
+				display: none;
+			}
+			.drafted .not_published,
+			.published .is_published {
+				display: inline-block;
+			}
+
+	.blacknews_content {
+		display: table-cell;
+	}
+		.blacknews_content_header {
+			padding: 1em 1em;
+		}
+		.blacknews_content p {
+			padding: 1em 1em 0em 1em;
+		}
+
+.blacknews_label {
+	width: 100px;
+	display: inline-block;
+}
+.blacknews_options .blacknews_label {
+	width: 200px;
+}
+
+.right {
+	text-align: left;
+}
+.small {
+	font-size: 0.9em;
+}
+.line_before {
+	padding: 1em 1em 0em 1em;
+	border-top: 1px solid #9da8b2;
+}
+.blacknews_delete {
+	margin-bottom: 1em;
+}
+
+.blacknews_content_options {
+}
+	.blacknews_content_options > div {
+		border-bottom: 1px solid #9da8b2;
+		border-top: 1px solid #9da8b2;
+	}
+		.blacknews_content_options > div > div {
+			padding: 1em 1em;
+			float: left;
+			width: 50%;
+		}
+			.show_more_options {
+				float: right;
+				margin: 1em;
+			}
