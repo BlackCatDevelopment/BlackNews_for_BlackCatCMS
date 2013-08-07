@@ -89,7 +89,8 @@ if ( isset($contents) && $contents->numRows() > 0)
 			$ajax['values'], array (
 				'title'					=> stripcslashes( $row['title'] ),
 				'subtitle'				=> stripcslashes( $row['subtitle'] ),
-				'image'					=> $row['image'],
+				'image'					=> $row['image'] != '' ?
+											CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $row['image'] : '',
 				'auto_generate'			=> $row['auto_generate'] == 0 ? false : true,
 				'auto_generate_size'	=> $row['auto_generate_size'],
 				'content_short'			=> stripcslashes( $row['short'] ),

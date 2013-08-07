@@ -21,3 +21,6 @@
 .blacknews_link {
 	margin-top: 1.5em;
 }
+.blacknews_preview_img {
+	max-width: 100%;
+}

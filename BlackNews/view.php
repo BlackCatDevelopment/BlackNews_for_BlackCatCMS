@@ -135,7 +135,10 @@ if ( isset($news_ids) && count($news_ids) > 0 )
 				array(
 					'title'					=> stripcslashes( htmlspecialchars( $row['title'] ) ),
 					'subtitle'				=> stripcslashes( htmlspecialchars( $row['subtitle'] ) ),
-					'image'					=> $row['image'],
+					'image_path'			=> $row['image'] != '' ? 
+												CAT_PATH . MEDIA_DIRECTORY . '/blacknews/' . $row['image'] : '',
+					'image_url'				=> $row['image'] != '' ?
+												CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $row['image'] : '',
 					'auto_generate'			=> $row['auto_generate'] == 0 ? false : true,
 					'auto_generate_size'	=> $row['auto_generate_size'],
 					'short'					=> $row['auto_generate'] == 0 ?

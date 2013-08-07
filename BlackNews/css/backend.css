@@ -84,6 +84,11 @@
 	width: 200px;
 }
 
+.blacknews_show_image img {
+	max-height: 200px;
+	max-width: 100%;
+}
+
 .right {
 	text-align: left;
 }

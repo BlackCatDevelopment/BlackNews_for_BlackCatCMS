@@ -89,7 +89,6 @@ $(document).ready(function(){
 					current_ul		= current.closest('.blacknews_all').find('.blacknews_entries');
 				if ( data.success === true )
 				{
-					console.log(data);
 					current_ul.children('li').not(current).removeClass('fc_active');
 					current_ul.prepend('<li class="bn_icon-feed drafted"><input type="hidden" name="news_id" value="' + data.values.news_id + '" /> ' + data.values.title + '</li>');
 
@@ -100,7 +99,7 @@ $(document).ready(function(){
 						blacknews_short ='blacknews_short_' +  data.values.section_id;
 
 
-					current.find('input[name=id]').val( data.values.news_id );
+					current.find('input[name=news_id]').val( data.values.news_id );
 					current.find('input[name=title]').val( data.values.title );
 					current.find('input[name=subtitle]').val( data.values.subtitle );
 					current.find('input[name=category]').val( data.values.category );
@@ -164,7 +163,7 @@ $(document).ready(function(){
 
 					var	blacknews_long ='blacknews_long_' +  data.values.section_id,
 						blacknews_short ='blacknews_short_' +  data.values.section_id;
-					current.find('input[name=id]').val( data.values.news_id );
+					current.find('input[name=news_id]').val( data.values.news_id );
 					current.find('input[name=title]').val( data.values.title );
 					current.find('input[name=subtitle]').val( data.values.subtitle );
 					current.find('input[name=category]').val( data.values.category );
@@ -173,6 +172,9 @@ $(document).ready(function(){
 					current.find('.info_last_update').text( data.values.updated );
 					current.find('.blacknews_short_check').prop( 'checked', data.values.auto_generate ).change();
 					current.find('input[name=auto_generate_size]').val( data.values.auto_generate_size );
+					if ( data.values.image )
+						$('.blacknews_show_image').html('<img src="' + data.values.image + '" alt="Preview" />');
+					else $('.blacknews_show_image').html('<span class="small">' + cattranslate('There was no picture added.') + '</span>');
 
 					CKEDITOR.instances[blacknews_long].setData( data.values.content );
 					CKEDITOR.instances[blacknews_short].setData( data.values.content_short );
@@ -196,65 +198,21 @@ $(document).ready(function(){
 		$('.blacknews_add').click();
 	}
 
-	$('.blacknews_form').on('submit', function (e)
-	{
-		e.preventDefault();
-		var current			= $(this),
-			options			= current.closest('.blacknews_container').prev().prev(),
-			section_id		= current.find('input[name=section_id]').val(),
-			page_id			= current.find('input[name=page_id]').val(),
-
-			blacknews_long		= 'blacknews_long_' + section_id,
-			blacknews_short		= 'blacknews_short_' + section_id,
-
-			url		= CAT_URL + '/modules/blacknews/ajax/save.php',
-			dates		= {
-				'section_id':			section_id,
-				'page_id':				page_id,
-				'news_id':				current.find('input[name=id]').val(),
-				'auto_generate':		current.find('input[name=auto_generate]').val(),
-				'auto_generate_size':	current.find('input[name=auto_generate_size]').val(),
-				'title':				current.find('input[name=title]').val(),
-				'subtitle':				current.find('input[name=subtitle]').val(),
-				'category':				current.find('input[name=category]').val(),
-				'short_check':			current.find('.blacknews_short_check').val(),
-				'start':				current.find('input[name=start]').val(),
-				'end':					current.find('input[name=end]').val(),
-				'short_cont':			CKEDITOR.instances[blacknews_short].getData(),
-				'long_cont':			CKEDITOR.instances[blacknews_long].getData(),
-				'entries_per_page':		options.find('input[name=entries_per_page]').val(),
-				'variant':				options.find('select[name=variant]').val(),
-				
-				'_cat_ajax':			1
-			};
-		$.ajax(
+	dialog_form(
+		$('.blacknews_form'),
+		false,
+		function( data, textStatus, jqXHR )
 		{
-			type:		'POST',
-			context:	current,
-			url:		url,
-			dataType:	'JSON',
-			data:		dates,
-			cache:		false,
-			beforeSend:	function( data )
-			{
-				data.process	= set_activity( 'Saving entry' );
-			},
-			success:	function( data, textStatus, jqXHR  )
-			{
-				var current			= $(this);
-				if ( data.success === true )
-				{
-					current.find('.info_last_update').text( data.time );
-					current.closest('.blacknews_all')
-						.find('input[name=news_id_' + data.news_id + ']').next('span').text( data.title );
-					return_success( jqXHR.process , data.message);
-				}
-				else {
-					return_error( jqXHR.process , data.message);
-				}
-			}
-		});
-	});
+			var current			= $(this);
+			current.find('input:file').val('');
+			current.find('.info_last_update').text( data.time );
+			current.closest('.blacknews_all')
+				.find('input[name=news_id_' + data.news_id + ']').next('span').text( data.title );
+			if ( data.image )
+				$('.blacknews_show_image').html('<img src="' + data.image + '" alt="Preview" />');
+		},
+		'JSON'
+	);
 
 	$('button.bn_icon-feed').click( function(e)
 	{
@@ -264,7 +222,7 @@ $(document).ready(function(){
 			form		= current.closest('form'),
 			page_id		= form.find('input[name=page_id]').val(),
 			section_id	= form.find('input[name=section_id]').val(),
-			news_id		= form.find('input[name=id]').val(),
+			news_id		= form.find('input[name=news_id]').val(),
 			url			= CAT_URL + '/modules/blacknews/ajax/publish.php',
 			dates		= {
 				'section_id':			section_id,
@@ -287,7 +245,7 @@ $(document).ready(function(){
 			},
 			success:	function( data, textStatus, jqXHR  )
 			{
-				var current			= $(this).closest('form'),
+				var current			= $(this).closest('form').submit(),
 					cur_parent		= current.closest('.blacknews_container');
 				if ( data.success === true )
 				{
@@ -318,7 +276,7 @@ $(document).ready(function(){
 			dates		= {
 				'section_id':			current.find('input[name=section_id]').val(),
 				'page_id':				current.find('input[name=page_id]').val(),
-				'news_id':				current.find('input[name=id]').val(),
+				'news_id':				current.find('input[name=news_id]').val(),
 				'_cat_ajax':			1
 			};
 		dialog_confirm( 

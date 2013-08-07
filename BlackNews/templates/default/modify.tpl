@@ -36,10 +36,11 @@
 				{/foreach}
 			</ul>
 		</div>
-		<form action="{$CAT_URL}/modules/blacknews/save.php" method="post" enctype="multipart/form-data" class="blacknews_content blacknews_form">
+		<form action="{$CAT_URL}/modules/blacknews/ajax/save.php" method="post" enctype="multipart/form-data" class="blacknews_content blacknews_form">
 			<input type="hidden" name="page_id" value="{$page_id}" />
 			<input type="hidden" name="section_id" value="{$section_id}" />
-			<input type="hidden" name="id" value="" />
+			<input type="hidden" name="news_id" value="" />
+			<input type="hidden" name="fc_form_title" value="{translate('Saving entry')}" />
 			<div class="blacknews_content_header">
 				<button name="save" class="fc_gradient_blue fc_gradient_hover right">{translate('Save')}</button><br/>
 				<button name="publish" class="clear fc_gradient1 fc_gradient_hover right bn_icon-feed{if $entry.active} published{else} drafted{/if}">
@@ -62,7 +63,7 @@
 						<span class="blacknews_label">{translate('Publish on')}:</span><input type="text" name="start" value="" /><br/>
 						<span class="blacknews_label">{translate('Publish until')}:</span><input type="text" name="end" value="" />
 					</div>
-					<p class="clear"></p>
+					<p class="clear blacknews_show_image"></p>
 				</div>
 			</div>
 			<h2 class="line_before">{translate('Full content')}:</h2>
