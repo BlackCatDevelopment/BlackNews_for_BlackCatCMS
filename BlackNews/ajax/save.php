@@ -210,6 +210,9 @@ if ( $backend->is_error() )
 }
 else
 {
+	$update_when_modified = true;
+	CAT_Backend::updateWhenModified();
+
 	$ajax	= array(
 		'message'	=> $backend->lang()->translate( 'Entry saved successfully!' ),
 		'title'		=> $title,
