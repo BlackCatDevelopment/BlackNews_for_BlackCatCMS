@@ -36,6 +36,7 @@ $PageHelper	= CAT_Helper_Page::getInstance();
 $userHelper	= CAT_Users::getInstance();
 $dateHelper	= CAT_Helper_DateTime::getInstance();
 
+$info			= CAT_Helper_Addons::checkInfo( CAT_PATH . '/modules/blacknews/' );
 
 $parser_data	= array(
 	'CAT_URL'				=> CAT_URL,
@@ -44,91 +45,22 @@ $parser_data	= array(
 	'page_id'				=> $page_id,
 	'section_id'			=> $section_id,
 	'version'				=> CAT_Helper_Addons::getModuleVersion('blacknews'),
-	'variants'				=> array(
-		'default',
-		'custom'
-	)
+	'module_variants'		=> $info['module_variants'],
 );
 
 
 // =============================== 
 // ! Get columns in this section   
 // =============================== 
+include_once( 'class.news.php' );
 
-$entries	= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_entry
-					WHERE section_id = '$section_id' ORDER BY position ASC");
+$BlackNews	= new BlackNews();
 
-if ( isset($entries) && $entries->numRows() > 0)
-{
-	$parser_data['entries']	= array();
+$parser_data['options']	= $BlackNews->getOptions();
 
-	while( !false == ($row = $entries->fetchRow( MYSQL_ASSOC ) ) )
-	{
-		$user	= $userHelper->get_user_details( $row['created_by'] );
+$entries_per_page		= $BlackNews->setEPP();
 
-		$parser_data['entries'][$row['news_id']]	= array(
-			'news_id'		=> $row['news_id'],
-			'active'		=> $row['active'] == 0 ? false : true,
-			'start'			=> $dateHelper->getDateTime( $row['start'] ),
-			'end'			=> $dateHelper->getDateTime( $row['end'] ),
-			'created'		=> $dateHelper->getDateTime( $row['created'] ),
-			'updated'		=> $dateHelper->getDateTime( $row['updated'] ),
-			'created_by'	=> $user['username'],
-			'categories'	=> $row['categories'],
-			'highlight'		=> $row['highlight']
-		);
-	}
-}
-
-
-
-$contents	= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_content
-					WHERE section_id = '$section_id'");
-
-if ( isset($contents) && $contents->numRows() > 0)
-{
-	while( !false == ($row = $contents->fetchRow( MYSQL_ASSOC ) ) )
-	{
-		$parser_data['entries'][$row['news_id']]	= array_merge(
-			$parser_data['entries'][$row['news_id']],
-			array(
-				'title'					=> htmlspecialchars( $row['title'] ),
-				'subtitle'				=> htmlspecialchars( $row['subtitle'] ),
-				'image'					=> $row['image'],
-				'auto_generate_size'	=> $row['auto_generate_size'],
-				'auto_generate'			=> $row['auto_generate'] == 1 ? true : false,
-				'short'					=> htmlspecialchars( $row['short'] ),
-				'content'				=> htmlspecialchars( $row['content'] )
-			)
-		);
-	}
-}
-
-$options	= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_options
-					WHERE section_id = '$section_id'");
-
-if ( isset($options) && $options->numRows() > 0)
-{
-	$parser_data['options']	= array();
-
-	while( !false == ($row = $options->fetchRow( MYSQL_ASSOC ) ) )
-	{
-		$parser_data['options'][$row['name']]	= $row['value'];
-	}
-}
-
-$options	= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_content_options
-					WHERE section_id = '$section_id'");
-
-if ( isset($options) && $options->numRows() > 0)
-{
-	while( !false == ($row = $options->fetchRow( MYSQL_ASSOC ) ) )
-	{
-		$parser_data['entries'][$row['news_id']]	= array(
-			$row['name']		=> $row['value']
-		);
-	}
-}
+$parser_data['entries']	= $BlackNews->getEntries( NULL );
 
 $parser_data['WYSIWYG']		= array(
 	'long'			=> 'blacknews_long_' . $section_id,

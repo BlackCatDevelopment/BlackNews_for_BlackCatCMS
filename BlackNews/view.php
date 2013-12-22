@@ -32,6 +32,8 @@ if (defined('CAT_PATH')) {
 }
 // end include class.secure.php
 
+
+
 $PageHelper	= CAT_Helper_Page::getInstance();
 $userHelper	= CAT_Users::getInstance();
 $dateHelper	= CAT_Helper_DateTime::getInstance();
@@ -44,120 +46,41 @@ $parser_data	= array(
 	'section_id'			=> $section_id
 );
 
-$news_id		= $val->sanitizeGet('news_id','numeric');
+$news_id		= defined( 'NEWS_ID' ) ? NEWS_ID : $val->sanitizeGet('news_id','numeric');
+
+// only to be sure, that $news_id is an integer
+settype( $news_id, 'int' );
+
 $page			= $val->sanitizeGet('page','numeric');
 
-$options		= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_options
-					WHERE section_id = '$section_id'");
 
-if ( isset($options) && $options->numRows() > 0)
-{
-	$parser_data['options']	= array();
+include_once( 'class.news.php' );
 
-	while( !false == ($row = $options->fetchRow( MYSQL_ASSOC ) ) )
-	{
-		$parser_data['options'][$row['name']]	= $row['value'];
-	}
-}
+$BlackNews	= new BlackNews( $news_id );
 
-if ( !$news_id )
-{
-	$entries_per_page	= $parser_data['options']['entries_per_page'] > 0 ?
-							$parser_data['options']['entries_per_page'] : 10;
+$parser_data['options']	= $BlackNews->getOptions();
 
-	$entries			= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_entry
-							WHERE section_id = '$section_id' AND
-							active = '1'
-							ORDER BY position ASC
-							LIMIT " . $entries_per_page );
-}
-else {
-	$entries			= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_entry
-							WHERE section_id = '$section_id' AND news_id = '$news_id'");
-}
+$entries_per_page		= $BlackNews->setEPP();
 
-if ( isset($entries) && $entries->numRows() > 0)
-{
-	$parser_data['entries']	= array();
-	$news_ids				= array();
-
-	while( !false == ($row = $entries->fetchRow( MYSQL_ASSOC ) ) )
-	{
-		$user	= $userHelper->get_user_details( $row['created_by'] );
-
-		$news_ids[]		= $row['news_id'];
-
-		$parser_data['entries'][$row['news_id']]	= array(
-			'news_id'		=> $row['news_id'],
-			'active'		=> $row['active'] == 0 ? false : true,
-			'start'			=> $dateHelper->getDateTime( $row['start'] ),
-			'end'			=> $dateHelper->getDateTime( $row['end'] ),
-			'created'		=> $dateHelper->getDateTime( $row['created'] ),
-			'updated'		=> $dateHelper->getDateTime( $row['updated'] ),
-			'created_by'	=> $user['username'],
-			'categories'	=> $row['categories'],
-			'highlight'		=> $row['highlight']
-		);
-	}
-}
+$parser_data['entries']	= $BlackNews->getEntries( );
 
 
-if ( isset($news_ids) && count($news_ids) > 0 )
-{
-	$select	= '';
-	foreach ( $news_ids as $id )
-	{
-		$select	.= ' OR news_id = ' . $id;
-	}
-	$select		= 'AND (' . substr($select, 3) . ')';
-	
-	$options	= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_content_options
-						WHERE section_id = '$section_id'" . $select );
-	
-	if ( isset($options) && $options->numRows() > 0)
-	{
-		while( !false == ($row = $options->fetchRow( MYSQL_ASSOC ) ) )
-		{
-			$parser_data['entries'][$row['news_id']]	= array(
-				$row['name']		=> $row['value']
-			);
-		}
-	}
+$parser_data['entry']		= $news_id > 0 ? $parser_data['entries'][$news_id] : NULL;
 
-	$contents	= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_content
-						WHERE section_id = '$section_id'" . $select );
-	
-	if ( isset($contents) && $contents->numRows() > 0)
-	{
-		while( !false == ($row = $contents->fetchRow( MYSQL_ASSOC ) ) )
-		{
-			$parser_data['entries'][$row['news_id']]	= array_merge(
-				$parser_data['entries'][$row['news_id']],
-				array(
-					'title'					=> stripcslashes( htmlspecialchars( $row['title'] ) ),
-					'subtitle'				=> stripcslashes( htmlspecialchars( $row['subtitle'] ) ),
-					'image_path'			=> $row['image'] != '' ? 
-												CAT_PATH . MEDIA_DIRECTORY . '/blacknews/' . $row['image'] : '',
-					'image_url'				=> $row['image'] != '' ?
-												CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $row['image'] : '',
-					'auto_generate'			=> $row['auto_generate'] == 0 ? false : true,
-					'auto_generate_size'	=> $row['auto_generate_size'],
-					'short'					=> $row['auto_generate'] == 0 ?
-														stripcslashes( $row['short'] ) :
-														substr( stripcslashes ( $row['content'] ), 0, $row['auto_generate_size'] ) . '...',
-					'content'				=> stripcslashes( $row['content'] )
-				)
-			);
-		}
-	}
-}
-$parser_data['pagelink']	= $PageHelper->getLink( $page_id );
+//$parser_data['entries']		= array_reverse( $parser_data['entries'] );
+$parser_data['entries_ci']	= array_values( $parser_data['entries'] );
 
+$parser_data['pagelink']	= CAT_URL . $BlackNews->permalink;
 
+$BlackNews->checkRedirect();
+
+/*
+header("HTTP/1.1 301 Moved Permanently");
+// Weiterleitungsziel. Wohin soll eine permanente Weiterleitung erfolgen?
+header("Location:" . CAT_URL . $BlackNews->permalink);
+*/
 $variant	= $parser_data['options']['variant'] != '' ? $parser_data['options']['variant'] : 'default';
-$template	= $news_id != '' ? 'entry' : 'overview';
-
-$parser_data['entry']	= $news_id != '' ? $parser_data['entries'][$news_id] : NULL;
+$template	= $news_id ? 'entry' : 'overview';
 
 $parser->setPath( dirname(__FILE__) . '/templates/' . $variant );
 

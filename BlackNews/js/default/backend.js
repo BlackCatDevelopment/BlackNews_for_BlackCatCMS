@@ -19,7 +19,7 @@ $(document).ready(function(){
 	{
 		e.preventDefault();
 		var current	= $(this),
-			content	= current.next('div');
+			content	= current.next('form');
 		if ( current.hasClass('active') )
 		{
 			content.slideUp(300, function() {
@@ -89,15 +89,13 @@ $(document).ready(function(){
 					current_ul		= current.closest('.blacknews_all').find('.blacknews_entries');
 				if ( data.success === true )
 				{
-					current_ul.children('li').not(current).removeClass('fc_active');
-					current_ul.prepend('<li class="bn_icon-feed drafted"><input type="hidden" name="news_id" value="' + data.values.news_id + '" /> ' + data.values.title + '</li>');
-
+					current_ul.children('li').not(current).removeClass('active');
+					current_ul.prepend('<li class="bn_icon-feed active drafted"><input type="hidden" name="news_id" value="' + data.values.news_id + '" /> ' + data.values.title + '</li>');
 
 					return_success( jqXHR.process , data.message);
 
-					var	blacknews_long ='blacknews_long_' +  data.values.section_id,
-						blacknews_short ='blacknews_short_' +  data.values.section_id;
-
+					var	blacknews_long ='blacknews_long_' +  data.section_id,
+						blacknews_short ='blacknews_short_' +  data.section_id;
 
 					current.find('input[name=news_id]').val( data.values.news_id );
 					current.find('input[name=title]').val( data.values.title );
@@ -108,6 +106,7 @@ $(document).ready(function(){
 					current.find('.info_last_update').text( data.values.time );
 					current.find('.blacknews_short_check').prop( 'checked', data.values.auto_generate ).change();
 					current.find('input[name=auto_generate_size]').val( data.values.auto_generate_size );
+
 
 					CKEDITOR.instances[blacknews_long].setData( data.values.content );
 					CKEDITOR.instances[blacknews_short].setData( data.values.content_short );
@@ -152,17 +151,20 @@ $(document).ready(function(){
 			},
 			success:	function( data, textStatus, jqXHR  )
 			{
-				var current			= $(this).closest('.blacknews_container').find('form'),
-					current_ul		= current.closest('.blacknews_entries');
+				var current_li		= $(this),
+					current			= current_li.closest('.blacknews_container').find('form'),
+					current_ul		=	current_li.closest('.blacknews_entries');
 
-				current_ul.children('li').not(current).removeClass('fc_active');
-				current.addClass('fc_active');
+				current_ul.children('li').removeClass('active').filter( current_li ).addClass('active');
+
 				if ( data.success === true )
 				{
 					return_success( jqXHR.process , data.message);
 
-					var	blacknews_long ='blacknews_long_' +  data.values.section_id,
-						blacknews_short ='blacknews_short_' +  data.values.section_id;
+					var	blacknews_long ='blacknews_long_' +  data.section_id,
+						blacknews_short ='blacknews_short_' +  data.section_id,
+						editor1	= CKEDITOR.instances[blacknews_long],
+						editor2	= CKEDITOR.instances[blacknews_short];
 					current.find('input[name=news_id]').val( data.values.news_id );
 					current.find('input[name=title]').val( data.values.title );
 					current.find('input[name=subtitle]').val( data.values.subtitle );
@@ -176,8 +178,9 @@ $(document).ready(function(){
 						$('.blacknews_show_image').html('<img src="' + data.values.image + '" alt="Preview" />');
 					else $('.blacknews_show_image').html('<span class="small">' + cattranslate('There was no picture added.') + '</span>');
 
-					CKEDITOR.instances[blacknews_long].setData( data.values.content );
-					CKEDITOR.instances[blacknews_short].setData( data.values.content_short );
+
+					editor1.setData( data.values.content );
+					editor2.setData( data.values.content_short );
 
 					if( data.values.active ){
 						current.find('button.bn_icon-feed').removeClass('drafted').addClass('published');
@@ -211,6 +214,22 @@ $(document).ready(function(){
 			if ( data.image )
 				$('.blacknews_show_image').html('<img src="' + data.image + '" alt="Preview" />');
 		},
+		'JSON',
+		function( $form, options )
+		{
+			var	section_id		= $form.find('input[name=section_id]').val(),
+				blacknews_long	='blacknews_long_' + section_id,
+				blacknews_short	='blacknews_short_' + section_id;
+
+			CKEDITOR.instances[blacknews_long].updateElement(),
+			CKEDITOR.instances[blacknews_short].updateElement();
+		}
+	);
+
+	dialog_form(
+		$('.blacknews_form_options'),
+		false,
+		false,
 		'JSON'
 	);
 

@@ -77,25 +77,23 @@ if(defined('CAT_URL'))
 	// Create table
 	$page_helper->db()->query("DROP TABLE IF EXISTS `" . CAT_TABLE_PREFIX . "mod_blacknews_content_options`");
 	$mod_create_table = 'CREATE TABLE  `'.CAT_TABLE_PREFIX.'mod_blacknews_content_options` ('
-		. ' `id` INT NOT NULL AUTO_INCREMENT,'
 		. ' `news_id` INT NOT NULL DEFAULT \'0\','
 		. ' `page_id` INT NOT NULL DEFAULT \'0\','
 		. ' `section_id` INT NOT NULL DEFAULT \'0\','
 		. ' `name` VARCHAR(255) NOT NULL,'
 		. ' `value` VARCHAR(255) NOT NULL,'
-		. ' PRIMARY KEY ( `id` )'
+		. ' PRIMARY KEY ( `news_id`, `page_id`, `section_id`, `name` )'
 		. ' )';
 	$page_helper->db()->query($mod_create_table);
 
 	// Create table
 	$page_helper->db()->query("DROP TABLE IF EXISTS `" . CAT_TABLE_PREFIX . "mod_blacknews_options`");
 	$mod_create_table = 'CREATE TABLE  `'.CAT_TABLE_PREFIX.'mod_blacknews_options` ('
-		. ' `id` INT NOT NULL AUTO_INCREMENT,'
 		. ' `page_id` INT NOT NULL DEFAULT \'0\','
 		. ' `section_id` INT NOT NULL DEFAULT \'0\','
 		. ' `name` VARCHAR(255) NOT NULL,'
 		. ' `value` VARCHAR(255) NOT NULL,'
-		. ' PRIMARY KEY ( `id` )'
+		. ' PRIMARY KEY ( `page_id`, `section_id`, `name` )'
 		. ' )';
 	$page_helper->db()->query($mod_create_table);
 

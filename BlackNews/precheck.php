@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of an ADDON for use with Black Cat CMS Core.
  * This ADDON is released under the GNU GPL.
@@ -31,33 +32,23 @@ if (defined('CAT_PATH')) {
 	}
 }
 // end include class.secure.php
-global $page_id, $section_id;
 
-$PageHelper	= CAT_Helper_Page::getInstance();
-
-$folder		= '/news/';
-$counter	= 0;
-while( file_exists( CAT_PATH . $folder ) )
-{
-	$folder = '/news-' . ++$counter . '/';
+if (defined('CAT_PATH')) {
+    if (defined('CAT_VERSION')) include(CAT_PATH.'/framework/class.secure.php');
+} elseif (file_exists($_SERVER['DOCUMENT_ROOT'].'/framework/class.secure.php')) {
+    include($_SERVER['DOCUMENT_ROOT'].'/framework/class.secure.php');
+} else {
+    $subs = explode('/', dirname($_SERVER['SCRIPT_NAME']));    $dir = $_SERVER['DOCUMENT_ROOT'];
+    $inc = false;
+    foreach ($subs as $sub) {
+        if (empty($sub)) continue; $dir .= '/'.$sub;
+        if (file_exists($dir.'/framework/class.secure.php')) {
+            include($dir.'/framework/class.secure.php'); $inc = true;    break;
+        }
+    }
+    if (!$inc) trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
 }
 
-CAT_Helper_Directory::createDirectory( CAT_PATH . $folder, NULL, false );
-
-include_once( 'class.news.php' );
-
-$BlackNews	= new BlackNews( );
-
-$BlackNews->saveOptions( 'entries_per_page', '10' );
-$BlackNews->saveOptions( 'variant', 'default' );
-
-$BlackNews->saveOptions( 'rss_counter', '10' );
-$BlackNews->saveOptions( 'rss_title', '' );
-$BlackNews->saveOptions( 'rss_description', '' );
-
-$BlackNews->saveOptions( 'permalink', $folder );
-
-$BlackNews->createAccessFile( true, false );
-
+$PRECHECK['CAT_VERSION'] = array('VERSION' => '1.0.2', 'OPERATOR' => '>=');
 
 ?>

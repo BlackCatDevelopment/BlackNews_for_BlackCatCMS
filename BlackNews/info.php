@@ -36,11 +36,12 @@ if (defined('CAT_PATH')) {
 $module_directory	= 'blacknews';
 $module_name		= 'BlackNews';
 $module_function	= 'page';
-$module_version		= '0.1';
+$module_version		= '0.2';
 $module_platform	= '1.x';
 $module_author		= 'Matthias Glienke, creativecat';
 $module_license		= '<a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a>';
 $module_description	= 'With the add on "BlackNews" you publish news on your side in a simple way. For details see <a href="https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS" target="_blank">GitHub</a>.<br/><br/>Done by Matthias Glienke, <a class="icon-creativecat" href="http://creativecat.de"> creativecat</a>';
 $module_guid		= '9ee2f6b5-ccfb-49c5-8a12-417b67cfe367';
+$module_variants	= array( 'default', 'gold' );
 
 ?>

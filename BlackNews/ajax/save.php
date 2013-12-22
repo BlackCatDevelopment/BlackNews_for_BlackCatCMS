@@ -13,25 +13,29 @@
  *
  */
 
+// include class.secure.php to protect this file and the whole CMS!
 if (defined('CAT_PATH')) {	
-    if (defined('CAT_VERSION')) include(CAT_PATH.'/framework/class.secure.php');
-} elseif (file_exists($_SERVER['DOCUMENT_ROOT'].'/framework/class.secure.php')) {
-    include($_SERVER['DOCUMENT_ROOT'].'/framework/class.secure.php');
+	include(CAT_PATH.'/framework/class.secure.php'); 
 } else {
-    $subs = explode('/', dirname($_SERVER['SCRIPT_NAME']));    $dir = $_SERVER['DOCUMENT_ROOT'];
-    $inc = false;
-    foreach ($subs as $sub) {
-        if (empty($sub)) continue; $dir .= '/'.$sub;
-        if (file_exists($dir.'/framework/class.secure.php')) {
-            include($dir.'/framework/class.secure.php'); $inc = true;    break;
+	$oneback = "../";
+	$root = $oneback;
+	$level = 1;
+	while (($level < 10) && (!file_exists($root.'/framework/class.secure.php'))) {
+		$root .= $oneback;
+		$level += 1;
 	}
+	if (file_exists($root.'/framework/class.secure.php')) { 
+		include($root.'/framework/class.secure.php'); 
+	} else {
+		trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
 	}
-    if (!$inc) trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
 }
+// end include class.secure.php
+
+$backend	= CAT_Backend::getInstance('Pages', 'pages_modify', false);
 
 $val		= CAT_Helper_Validate::getInstance();
 $userHelper	= CAT_Users::getInstance();
-$backend	= CAT_Backend::getInstance('Pages', 'pages_modify', false);
 $dateHelper	= CAT_Helper_DateTime::getInstance();
 $PageHelper	= CAT_Helper_Page::getInstance();
 
@@ -40,14 +44,16 @@ header('Content-type: application/json');
 // ===============
 // ! Get page id
 // ===============
-$page_id	= $val->sanitizePost('page_id', 'numeric');
-$section_id	= $val->sanitizePost('section_id', 'numeric');
-$news_id	= $val->sanitizePost('news_id', 'numeric');
+$page_id		= $val->sanitizePost('page_id', 'numeric');
+$section_id		= $val->sanitizePost('section_id', 'numeric');
+$news_id		= $val->sanitizePost('news_id', 'numeric');
+$options		= $val->sanitizePost('options');
+$entry_options	= $val->sanitizePost('entry_options');
 
 // =============
 // ! Get perms
 // =============
-if ( !$section_id || !$page_id || !$news_id )
+if ( !$section_id || !$page_id || ( !$news_id && !$options ) )
 {
 	$ajax	= array(
 		'message'	=> $backend->lang()->translate('You sent an invalid value'),
@@ -70,12 +76,13 @@ if ( $PageHelper->getPagePermission( $page_id, 'admin' ) !== true )
 	exit();
 }
 
+include_once( '../class.news.php' );
+
+$BlackNews	= new BlackNews( $news_id );
 
 $auto_generate			= $val->sanitizePost('auto_generate','numeric') != '' ? 1 : 0;
 $auto_generate_size		= $val->sanitizePost('auto_generate_size','numeric');
 
-$entries_per_page		= $val->sanitizePost('entries_per_page','numeric');
-$variant				= addslashes( $val->sanitizePost('variant') );
 
 $title					= addslashes( $val->sanitizePost('title') );
 $subtitle				= addslashes( $val->sanitizePost('subtitle') );
@@ -154,52 +161,57 @@ if ( isset( $_FILES['image']['name'] ) && $_FILES['image']['name'] != '' )
 	}
 }
 
-
-
-$PageHelper->db()->query("UPDATE " . CAT_TABLE_PREFIX . "mod_blacknews_options SET
-		value	= '$entries_per_page'
-		WHERE name = 'entries_per_page' AND
-		section_id = '$section_id' AND
-		page_id = '$page_id'"
-	);
-$PageHelper->db()->query("UPDATE " . CAT_TABLE_PREFIX . "mod_blacknews_options SET
-		value	= '$variant'
-		WHERE name = 'variant' AND
-		section_id = '$section_id' AND
-		page_id = '$page_id'"
-	);
-
-$time	= time();
-
-$PageHelper->db()->query("UPDATE " . CAT_TABLE_PREFIX . "mod_blacknews_entry SET 
+if ( $options != '' )
+{
+	foreach( array_filter( explode(',', $options) ) as $option )
+	{
+		if( !$BlackNews->saveOptions( $option, $val->sanitizePost( $option ) )) $error = true;
+	}
+}
+else
+{
+	$time	= time();
+	
+	$PageHelper->db()->query("UPDATE " . CAT_TABLE_PREFIX . "mod_blacknews_entry SET 
 		updated		= '$time'
-		WHERE section_id = '$section_id' AND page_id = '$page_id'"
+		WHERE section_id = '$section_id' AND page_id = '$page_id' AND news_id = '$news_id'"
 	);
+	
+	$sql	= "UPDATE " . CAT_TABLE_PREFIX . "mod_blacknews_content SET
+			title				= '$title',
+			subtitle			= '$subtitle',
+			auto_generate		= '$auto_generate',
+			auto_generate_size	= '$auto_generate_size',";
+	
+	$sql	.= isset( $picture ) ? 
+			"image				= '" . $picture . "'," : "";
+	
+	$sql	.= "
+			short				= '$short_cont',
+			content				= '$long_cont',
+			text				= '$text'
+			WHERE section_id = '$section_id' AND
+				page_id = '$page_id' AND
+				news_id = '$news_id'";
 
-$sql	= "UPDATE " . CAT_TABLE_PREFIX . "mod_blacknews_content SET
-		title				= '$title',
-		subtitle			= '$subtitle',
-		auto_generate		= '$auto_generate',
-		auto_generate_size	= '$auto_generate_size',";
+	$PageHelper->db()->query( $sql );
 
-$sql	.= isset( $picture ) ? 
-		"image				= '" . $picture . "'," : "";
+	if ( $entry_options != '' )
+	{
+		foreach( array_filter( explode(',', $entry_options) ) as $option )
+		{
+			if( !$BlackNews->saveEntryOptions( $option, $val->sanitizePost( $option ) )) $error = true;
+		}
+	}
 
-$sql	.= "
-		short				= '$short_cont',
-		content				= '$long_cont',
-		text				= '$text'
-		WHERE section_id = '$section_id' AND
-			page_id = '$page_id' AND
-			news_id = '$news_id'";
-
-$PageHelper->db()->query( $sql );
+	$BlackNews->createAccessFile( $title );
+}
 
 
 // ================================================================ 
 // ! Check if there is a database error, otherwise say successful   
 // ================================================================ 
-if ( $backend->is_error() )
+if ( $backend->is_error() || isset($error) )
 {
 	$ajax	= array(
 		'message'	=> $backend->lang()->translate( $backend->get_error() ),
@@ -210,16 +222,20 @@ if ( $backend->is_error() )
 }
 else
 {
+	$BlackNews->createRSS();
+
 	$update_when_modified = true;
 	CAT_Backend::updateWhenModified();
 
 	$ajax	= array(
-		'message'	=> $backend->lang()->translate( 'Entry saved successfully!' ),
+		'message'	=> $options ? 
+			$backend->lang()->translate( 'Options saved successfully!' ) :
+			$backend->lang()->translate( 'Entry saved successfully!' ),
 		'title'		=> $title,
 		'subtitle'	=> $subtitle,
 		'news_id'	=> $news_id,
 		'image'		=> isset($picture) ? CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $picture : '',
-		'time'		=> CAT_Helper_DateTime::getInstance()->getDateTime( $time ),
+		'time'		=> isset($time) ? CAT_Helper_DateTime::getInstance()->getDateTime( $time ) : '',
 		'success'	=> true
 	);
 	print json_encode( $ajax );

@@ -8,6 +8,8 @@
  *  @platform       see info.php of this template
  *  @requirements   PHP 5.2.x and higher
  *}
+
+
 {if $entries}
 <div id="blacknews_{$section_id}">
 	{foreach $entries as entry}

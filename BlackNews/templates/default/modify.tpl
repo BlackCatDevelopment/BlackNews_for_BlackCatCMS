@@ -14,14 +14,29 @@
 <div class="blacknews_all">
 	<button class="button icon-plus fc_gradient_blue fc_gradient_hover left blacknews_add"> {translate('Add entry')}</button>
 	<button class="button bn_icon-settings fc_gradient1 fc_gradient_hover left blacknews_options_button">{translate('General options')}</button>
-	<div class="blacknews_options fc_gradient1 clear">
+	<form class="blacknews_options blacknews_form_options fc_gradient1 clear" action="{$CAT_URL}/modules/blacknews/ajax/save.php" method="post">
+		<input type="hidden" name="page_id" value="{$page_id}" />
+		<input type="hidden" name="section_id" value="{$section_id}" />
+		<input type="hidden" name="options" value="entries_per_page,variant,permalink,rss_counter,rss_title,rss_description" />
+		<input type="hidden" name="fc_form_title" value="{translate('Saving options')}" />
 		<h3>{translate('Options')}</h3>
-		<span class="blacknews_label">{translate('Entries per pages')}:</span><input type="text" name="entries_per_page" value="{$options.entries_per_page}" /><br/>
-		<span class="blacknews_label">{translate('Variant')}:</span>
-		<select name="variant">
-			{foreach $variants as variant}<option value="{$variant}"{if $options.variant == $variant} selected="selected"{/if}>{$variant}</option>{/foreach}
-		</select>
-	</div>
+		<label for="entries_{$section_id}" class="blacknews_label">{translate('Entries per pages')}:</label>
+		<input id="entries_{$section_id}" type="text" name="entries_per_page" value="{$options.entries_per_page}" /><br/>
+		<label for="variant_{$section_id}" class="blacknews_label">{translate('Variant')}:</label>
+		<select id="variant_{$section_id}" name="variant">
+			{foreach $module_variants as variants}<option value="{$variants}"{if $options.variant == $variants} selected="selected"{/if}>{$variants}</option>{/foreach}
+		</select><br/>
+		<label for="permalink_{$section_id}" class="blacknews_label">{translate('Permalink')}</label>
+		<input id="permalink_{$section_id}" type="text" name="permalink" value="{$options.permalink}" /><br/>
+		<h3>{translate('Options for RSS')}</h3>
+		<label for="rss_counter_{$section_id}" class="blacknews_label">{translate('Entries in RSS file')}:</label>
+		<input id="rss_counter_{$section_id}" type="text" name="rss_counter" value="{$options.rss_counter}" /><br/>
+		<label for="rss_title_{$section_id}" class="blacknews_label">{translate('Title of RSS')}:</label>
+		<input id="rss_title_{$section_id}" type="text" name="rss_title" value="{$options.rss_title}" /><br/>
+		<label for="rss_description_{$section_id}" class="blacknews_label">{translate('Description of RSS')}:</label>
+		<textarea id="rss_description_{$section_id}" name="rss_description">{$options.rss_description}</textarea>
+		<button name="save" class="fc_gradient_blue fc_gradient_hover">{translate('Save options')}</button>
+	</form>
 	<div class="icon-search fc_gradient1 blacknew_search">
 		<input type="text" name="search"  placeholder="{translate('Search')}" />
 	</div>
@@ -40,6 +55,7 @@
 			<input type="hidden" name="page_id" value="{$page_id}" />
 			<input type="hidden" name="section_id" value="{$section_id}" />
 			<input type="hidden" name="news_id" value="" />
+			<input type="hidden" name="entry_options" value="" />
 			<input type="hidden" name="fc_form_title" value="{translate('Saving entry')}" />
 			<div class="blacknews_content_header">
 				<button name="save" class="fc_gradient_blue fc_gradient_hover right">{translate('Save')}</button>

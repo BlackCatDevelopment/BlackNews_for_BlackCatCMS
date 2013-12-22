@@ -13,21 +13,24 @@
  *
  */
 
+// include class.secure.php to protect this file and the whole CMS!
 if (defined('CAT_PATH')) {	
-    if (defined('CAT_VERSION')) include(CAT_PATH.'/framework/class.secure.php');
-} elseif (file_exists($_SERVER['DOCUMENT_ROOT'].'/framework/class.secure.php')) {
-    include($_SERVER['DOCUMENT_ROOT'].'/framework/class.secure.php');
+	include(CAT_PATH.'/framework/class.secure.php'); 
 } else {
-    $subs = explode('/', dirname($_SERVER['SCRIPT_NAME']));    $dir = $_SERVER['DOCUMENT_ROOT'];
-    $inc = false;
-    foreach ($subs as $sub) {
-        if (empty($sub)) continue; $dir .= '/'.$sub;
-        if (file_exists($dir.'/framework/class.secure.php')) {
-            include($dir.'/framework/class.secure.php'); $inc = true;    break;
+	$oneback = "../";
+	$root = $oneback;
+	$level = 1;
+	while (($level < 10) && (!file_exists($root.'/framework/class.secure.php'))) {
+		$root .= $oneback;
+		$level += 1;
 	}
+	if (file_exists($root.'/framework/class.secure.php')) { 
+		include($root.'/framework/class.secure.php'); 
+	} else {
+		trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
 	}
-    if (!$inc) trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
 }
+// end include class.secure.php
 
 $val		= CAT_Helper_Validate::getInstance();
 $userHelper	= CAT_Users::getInstance();
@@ -67,15 +70,17 @@ if ( $PageHelper->getPagePermission( $page_id, 'admin' ) !== true )
 	exit();
 }
 
+$counter	= count($positions);
 foreach ( $positions as $index => $position )
 {
 	$news_id	= str_replace( 'blacknews_' . $section_id . '_', '', $position );
 	$PageHelper->db()->query("UPDATE " . CAT_TABLE_PREFIX . "mod_blacknews_entry SET 
-		position		= '$index'
+		position		= '$counter'
 		WHERE section_id = '$section_id' AND
 		page_id = '$page_id' AND
 		news_id = '$news_id'"
 	);
+	$counter--;
 }
 $ajax	= array(
 	'message'	=> $backend->lang()->translate( 'Entries sorted successfully!' ),

@@ -31,33 +31,5 @@ if (defined('CAT_PATH')) {
 	}
 }
 // end include class.secure.php
-global $page_id, $section_id;
-
-$PageHelper	= CAT_Helper_Page::getInstance();
-
-$folder		= '/news/';
-$counter	= 0;
-while( file_exists( CAT_PATH . $folder ) )
-{
-	$folder = '/news-' . ++$counter . '/';
-}
-
-CAT_Helper_Directory::createDirectory( CAT_PATH . $folder, NULL, false );
-
-include_once( 'class.news.php' );
-
-$BlackNews	= new BlackNews( );
-
-$BlackNews->saveOptions( 'entries_per_page', '10' );
-$BlackNews->saveOptions( 'variant', 'default' );
-
-$BlackNews->saveOptions( 'rss_counter', '10' );
-$BlackNews->saveOptions( 'rss_title', '' );
-$BlackNews->saveOptions( 'rss_description', '' );
-
-$BlackNews->saveOptions( 'permalink', $folder );
-
-$BlackNews->createAccessFile( true, false );
-
 
 ?>

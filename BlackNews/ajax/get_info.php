@@ -31,11 +31,12 @@ if (defined('CAT_PATH')) {
 	}
 }
 // end include class.secure.php
+
 $val		= CAT_Helper_Validate::getInstance();
-$userHelper	= CAT_Users::getInstance();
+//$userHelper	= CAT_Users::getInstance();
 $backend	= CAT_Backend::getInstance('Pages', 'pages_modify', false);
-$dateHelper	= CAT_Helper_DateTime::getInstance();
-$PageHelper	= CAT_Helper_Page::getInstance();
+//$dateHelper	= CAT_Helper_DateTime::getInstance();
+//$PageHelper	= CAT_Helper_Page::getInstance();
 
 header('Content-type: application/json');
 
@@ -53,6 +54,20 @@ if ( !$news_id || !$section_id )
 	exit();
 }
 
+include_once( '../class.news.php' );
+
+$BlackNews	= new BlackNews( $news_id );
+
+
+// Get the content and options of the entry by news_id
+$getValues			= $BlackNews->getEntries( $news_id );
+$ajax['values']		= $getValues[$news_id];
+
+// Set section_id
+$ajax['section_id']	= $section_id;
+
+/*
+$ajax['options']	= $BlackNews->getOptions();
 
 $entries	= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_entry
 					WHERE news_id = '$news_id'");
@@ -99,9 +114,10 @@ if ( isset($contents) && $contents->numRows() > 0)
 		);
 	}
 }
+*/
 
 
-$options	= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_content_options
+/*$options	= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_content_options
 					WHERE news_id = '$news_id'");
 
 if ( isset($options) && $options->numRows() > 0)
@@ -112,7 +128,7 @@ if ( isset($options) && $options->numRows() > 0)
 			$row['name']		=> $row['value']
 		);
 	}
-}
+}*/
 
 $ajax['message']	= $backend->lang()->translate('Loading successful');
 $ajax['success']	= true;

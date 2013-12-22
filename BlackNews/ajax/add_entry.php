@@ -63,47 +63,54 @@ if ( $PageHelper->getPagePermission( $page_id, 'admin' ) !== true )
 	exit();
 }
 
-$check_options		= $PageHelper->db()->query("SELECT * FROM " . CAT_TABLE_PREFIX . "mod_blacknews_options
-					WHERE section_id = '$section_id'");
-if ( !$check_options )
-{
-	$PageHelper->db()->query("INSERT INTO " . CAT_TABLE_PREFIX . "mod_blacknews_options 
-		(page_id, section_id, name, value ) VALUES
-		('$page_id', '$section_id', 'entries_per_page', '10' )"
-	);
+$time		= time();
+$user_id	= $user->get_user_id();
 
-	$PageHelper->db()->query("INSERT INTO " . CAT_TABLE_PREFIX . "mod_blacknews_options 
-		(page_id, section_id, name, value ) VALUES
-		('$page_id', '$section_id', 'variant', 'default' )"
+$position	= $PageHelper->db()->get_one( sprintf(
+	"SELECT `%s` FROM %smod_%s
+	ORDER BY %s DESC LIMIT 1",
+	'position',
+	CAT_TABLE_PREFIX,
+	'blacknews_entry',
+	'position'
+	)
+);
+
+if ( $position == '' ) $position = 0;
+$position++;
+
+if ( $PageHelper->db()->query( sprintf(
+			"INSERT INTO `%smod_%s`
+			(%s) VALUES (%s)",
+			CAT_TABLE_PREFIX,
+			'blacknews_entry',
+			'page_id, section_id, active, updated, created, created_by, position',
+			"'$page_id', '$section_id', '0', '$time', '$time', '$user_id', '$position'"
+		)
+	)
+)
+{
+	$news_id				= $PageHelper->db()->get_one("SELECT LAST_INSERT_ID()");
+	$title					= $backend->lang()->translate('New title');
+	$subtitle				= '';//$backend->lang()->translate('New subtitle');
+	$auto_generate_size		= 300;
+	$auto_generate			= 1;
+
+	$PageHelper->db()->query( sprintf(
+			"INSERT INTO `%smod_%s`
+			(%s) VALUES (%s)",
+			CAT_TABLE_PREFIX,
+			'blacknews_content',
+			'page_id, section_id, news_id, title, subtitle, auto_generate_size, auto_generate, content, short',
+			"'$page_id', '$section_id', '$news_id', '$title', '$subtitle', '$auto_generate_size', '$auto_generate', '', ''"
+		)
 	);
 }
 
-
-$time		= time();
-$user_id	= $user->get_user_id();
-$position	= $PageHelper->db()->get_one("SELECT `position` FROM " . CAT_TABLE_PREFIX . "mod_blacknews_entry ORDER BY position DESC LIMIT 1");
-
-if ( $position == '' ) $position = 0;
-
-if ( $PageHelper->db()->query("INSERT INTO " . CAT_TABLE_PREFIX . "mod_blacknews_entry
-	(page_id, section_id, active, updated, created, created_by, position) VALUES
-	('$page_id', '$section_id', '0', '$time', '$time', '$user_id', '$position' )") )
-	{
-		$news_id				= $PageHelper->db()->get_one("SELECT LAST_INSERT_ID()");
-		$title					= $backend->lang()->translate('New title');
-		$subtitle				= '';//$backend->lang()->translate('New subtitle');
-		$auto_generate_size		= 300;
-		$auto_generate			= 1;
-
-		$PageHelper->db()->query("INSERT INTO " . CAT_TABLE_PREFIX . "mod_blacknews_content
-			(page_id, section_id, news_id, title, subtitle, auto_generate_size, auto_generate, content, short) VALUES
-			('$page_id', '$section_id', '$news_id', '$title', '$subtitle', '$auto_generate_size', '$auto_generate', '', '' )");
-	}
-
 $ajax	= array(
 	'message'	=> $backend->lang()->translate('Entry added successfully'),
+	'section_id'	=> $section_id,
 	'values'	=> array(
-		'section_id'			=> $section_id,
 		'news_id'				=> $news_id,
 		'title'					=> $title,
 		'subtitle'				=> $subtitle,

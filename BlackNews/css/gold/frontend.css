@@ -1,0 +1,81 @@
+/**
+ * This file is part of an ADDON for use with Black Cat CMS Core.
+ * This ADDON is released under the GNU GPL.
+ * Additional license terms can be seen in the info.php of this module.
+ *
+ * @module			blacknews
+ * @version			see info.php of this module
+ * @author			Matthias Glienke, creativecat
+ * @copyright		2013, Black Cat Development
+ * @link			http://blackcat-cms.org
+ * @license			http://www.gnu.org/licenses/gpl.html
+ *
+ */
+
+
+.blacknews_content {
+	margin: auto;
+	margin-bottom: 2em;
+	padding-bottom: 1.5em;
+	border-bottom: 1px dotted #daae55;
+	width: 990px;
+}
+
+	.blacknews_content article {
+		padding: 2em 1em;
+	}
+	.blacknews_content img {
+		float: left;
+		margin: 0px 0px 1em 0px;
+	}
+
+.blacknews_top {
+	margin: 2em 0em 0em 0em;
+	border-bottom: 1px dotted #dfc25c;
+}
+	.blacknews_top img {
+		float: left;
+		margin: 0px 2em 0px 0px;
+	}
+.blacknews_three {
+	width: 33%;
+	float: left;
+}
+
+
+.blacknews_short {
+	display: inline-block;
+	float: left;
+	width: 50%;
+}
+
+.gold-news {
+	margin: auto;
+	width: 990px;
+}
+
+
+
+.blacknews_content h2 {
+	color: #4c535c;
+}
+.blacknews_content h3 {
+	
+}
+
+.blacknews_link {
+	margin-top: 1.5em;
+}
+.blacknews_preview_img {
+	max-width: 100%;
+}
+
+
+.blacknews_single_entry {
+	width: 990px;
+	margin: 2em auto;
+}
+
+.blacknews_single_entry_img {
+	float: left;
+}
