@@ -333,7 +333,11 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					$this->options[$row['name']]	= $row['value'];
 				}
 			}
-			if ( $name ) return $this->options[$name];
+			if ( $name )
+                if ( isset($this->options[$name]) )
+                    return $this->options[$name];
+                else
+                    return NULL;
 			return $this->options;
 		} // end getOptions()
 
@@ -352,7 +356,8 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			if ( $name == 'permalink' 
 				&& $value != ''
 			) {
-				if ( str_replace( '/', '', $value ) != str_replace( '/', '', self::getOptions( 'permalink' ) )
+				if (   self::getOptions( 'permalink' ) != ''
+                    && str_replace( '/', '', $value ) != str_replace( '/', '', self::getOptions( 'permalink' ) )
 					&& !$this->renameAccessFolder(
 						CAT_PATH . '/' . self::getOptions( 'permalink' ),
 						CAT_PATH . '/' . $value

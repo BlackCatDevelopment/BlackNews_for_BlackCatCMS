@@ -176,7 +176,7 @@ $(document).ready(function(){
 					current.find('input[name=auto_generate_size]').val( data.values.auto_generate_size );
 					if ( data.values.image )
 						$('.blacknews_show_image').html('<img src="' + data.values.image + '" alt="Preview" />');
-					else $('.blacknews_show_image').html('<span class="small">' + cattranslate('There was no picture added.') + '</span>');
+					else $('.blacknews_show_image').html('<span class="small">' + cattranslate('There was no picture added.','','','blacknews') + '</span>');
 
 
 					editor1.setData( data.values.content );
@@ -299,8 +299,8 @@ $(document).ready(function(){
 				'_cat_ajax':			1
 			};
 		dialog_confirm( 
-			cattranslate( 'Do you really want to delete this entry?' ),
-			cattranslate( 'Deleting entry' ),
+			cattranslate( 'Do you really want to delete this entry?','','','blacknews' ),
+			cattranslate( 'Deleting entry','','','blacknews' ),
 			CAT_URL + '/modules/blacknews/ajax/delete_entry.php',
 			dates,
 			'POST',

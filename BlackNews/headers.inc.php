@@ -121,7 +121,10 @@ $mod_headers = array(
 		'jquery' => array(
 			array(
 				'core'			=> true
-			)
+			),
+            array(
+                'all' => array( 'cattranslate' )
+            ),
 		)
 	),
 	'frontend' => array(
