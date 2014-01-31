@@ -36,7 +36,7 @@ if (defined('CAT_PATH')) {
 $module_directory	= 'blacknews';
 $module_name		= 'BlackNews';
 $module_function	= 'page';
-$module_version		= '0.2';
+$module_version		= '0.2.1';
 $module_platform	= '1.x';
 $module_author		= 'Matthias Glienke, creativecat';
 $module_license		= '<a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a>';

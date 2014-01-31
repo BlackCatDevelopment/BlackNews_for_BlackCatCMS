@@ -53,6 +53,7 @@ $LANG = array(
 	'More options' => 'Weitere Optionen',
 	'New title' => 'Neuer Titel',
 	'Number of characters for preview' => 'Anzahl Zeichen für Vorschau',
+	'Options for RSS'	=> 'Optionen für RSS',
 	'Published' => 'Veröffentlicht',
 	'Publish on' => 'Veröffentlichen am',
 	'Publish until' => 'Veröffentlichen bis',
