@@ -580,8 +580,8 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		 **/
 		public function checkRedirect()
 		{
-			$curURL	= explode('/', str_replace( CAT_URL, '', $this->getPageURL() ) );
-			if ( $curURL[1] != str_replace( '/', '', self::getOptions( 'permalink' ) ) )
+			$curURL	= array_filter(explode('/', str_replace( CAT_URL, '', $this->getPageURL() ) ));
+			if ( $curURL[ count($curURL) ] != str_replace( '/', '', self::getOptions( 'permalink' ) ) )
 			{
 				header("HTTP/1.1 301 Moved Permanently");
 				// Weiterleitungsziel. Wohin soll eine permanente Weiterleitung erfolgen?

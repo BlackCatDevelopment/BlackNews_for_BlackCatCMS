@@ -16,35 +16,35 @@
 	{foreach $entries_ci index entry}
 		{if $index == 0}
 		<article class="blacknews_top">
-			{if $entry.image_path != ''}<a href="{$entry.url}">
+			{if $entry.image_path != ''}<a href="{CAT_URL}/{$entry.url}">
 				<img class="blacknews_preview_img" src="{makeThumb( $entry.image_path, 'blacknews_', 300, 600 )}" alt="" />
 			</a>{/if}
 			<h2>{$entry.title}</h2>
 			{if $entry.subtitle != ''}<h3>{$entry.subtitle}</h3>{/if}
 			{if $entry.short}{$entry.short}{else}{truncateHTML($entry.content, $entry.auto_generate_size)}{/if}<br/>
-			<a class="blacknews_link button" href="{$entry.url}">{translate('Read more...')}</a>
+			<a class="blacknews_link button" href="{CAT_URL}/{$entry.url}">{translate('Read more...')}</a>
 			<div class="clear"></div>
 		</article>
 		{elseif $index < 3}
 		<article class="blacknews_short">
-			{if $entry.image_path != ''}<a href="{$entry.url}">
+			{if $entry.image_path != ''}<a href="{CAT_URL}/{$entry.url}">
 				<img class="blacknews_preview_img" src="{makeThumb( $entry.image_path, 'blacknews_', 200, 450, 'crop' )}" alt="" />
 			</a>{/if}
 			<h2>{$entry.title}</h2>
 			{if $entry.subtitle != ''}<h3>{$entry.subtitle}</h3>{/if}
 			{if $entry.short}{$entry.short}{else}{truncateHTML($entry.content, $entry.auto_generate_size)}{/if}<br/>
-			<a class="blacknews_link button" href="{$entry.url}">{translate('Read more...')}</a>
+			<a class="blacknews_link button" href="{CAT_URL}/{$entry.url}">{translate('Read more...')}</a>
 		</article>
 		{else}
 		{if $index % 3 == 0}<div class="clear"></div>{/if}
 		<article class="blacknews_three">
-			{if $entry.image_path != ''}<a href="{$entry.url}">
+			{if $entry.image_path != ''}<a href="{CAT_URL}/{$entry.url}">
 				<img class="blacknews_preview_img" src="{makeThumb( $entry.image_path, 'blacknews_', 200, 330, 'crop' )}" alt="" />
 			</a>{/if}
 			<h2>{$entry.title}</h2>
 			{if $entry.subtitle != ''}<h3>{$entry.subtitle}</h3>{/if}
 			{if $entry.short}{$entry.short}{else}{truncateHTML($entry.content, $entry.auto_generate_size)}{/if}<br/>
-			<a class="blacknews_link button" href="{$entry.url}">{translate('Read more...')}</a>
+			<a class="blacknews_link button" href="{CAT_URL}/{$entry.url}">{translate('Read more...')}</a>
 		</article>
 		{/if}
 	{/foreach}
