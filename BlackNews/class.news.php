@@ -97,7 +97,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 				"SELECT * FROM `%smod_%s`
 					WHERE `%s` = '%s'%s
 					ORDER BY position DESC
-					LIMIT %s",
+					%s",
 
 					CAT_TABLE_PREFIX,
 					'blacknews_entry',
@@ -106,7 +106,8 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					$option ? 
 						( $option === true ? ' AND `active` = \'1\'' : ' AND `news_id` = \'' . intval($option) . '\'' )
 						: '',
-					$rss ? $this->setRSSCounter() : $this->setEPP()
+					$rss ? 'LIMIT ' . $this->setRSSCounter() : 
+						$rss == 'backend' ? '' : 'LIMIT ' . $this->setEPP()
 				)
 			);
 

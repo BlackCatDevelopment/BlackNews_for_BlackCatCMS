@@ -60,7 +60,7 @@ $parser_data['options']	= $BlackNews->getOptions();
 
 $entries_per_page		= $BlackNews->setEPP();
 
-$parser_data['entries']	= $BlackNews->getEntries( NULL );
+$parser_data['entries']	= $BlackNews->getEntries( NULL, true, 'backend' );
 
 $parser_data['WYSIWYG']		= array(
 	'long'			=> 'blacknews_long_' . $section_id,

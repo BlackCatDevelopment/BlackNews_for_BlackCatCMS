@@ -90,7 +90,7 @@ $(document).ready(function(){
 				if ( data.success === true )
 				{
 					current_ul.children('li').not(current).removeClass('active');
-					current_ul.prepend('<li class="bn_icon-feed active drafted"><input type="hidden" name="news_id" value="' + data.values.news_id + '" /> ' + data.values.title + '</li>');
+					current_ul.prepend('<li class="bn_icon-feed active drafted"><input type="hidden" name="news_id_' + data.values.news_id + '" value="' + data.values.news_id + '" /> <span>' + data.values.title + '</span></li>');
 
 					return_success( jqXHR.process , data.message);
 
