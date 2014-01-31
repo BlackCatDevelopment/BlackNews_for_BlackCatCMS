@@ -46,6 +46,8 @@ $parser_data	= array(
 	'section_id'			=> $section_id
 );
 
+$getInfo		= CAT_Helper_Addons::checkInfo( CAT_PATH . '/modules/blacknews/' );
+
 $news_id		= defined( 'NEWS_ID' ) ? NEWS_ID : $val->sanitizeGet('news_id','numeric');
 
 // only to be sure, that $news_id is an integer
@@ -79,7 +81,11 @@ header("HTTP/1.1 301 Moved Permanently");
 // Weiterleitungsziel. Wohin soll eine permanente Weiterleitung erfolgen?
 header("Location:" . CAT_URL . $BlackNews->permalink);
 */
-$variant	= $parser_data['options']['variant'] != '' ? $parser_data['options']['variant'] : 'default';
+$variant	= $parser_data['options']['variant'] != ''
+				&& isset($getInfo['module_variants'][$parser_data['options']['variant']]) ?
+						$getInfo['module_variants'][$parser_data['options']['variant']] : 
+						'default';
+
 $template	= $news_id ? 'entry' : 'overview';
 
 $parser->setPath( dirname(__FILE__) . '/templates/' . $variant );

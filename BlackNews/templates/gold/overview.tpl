@@ -36,7 +36,7 @@
 			<a class="blacknews_link button" href="{$entry.url}">{translate('Read more...')}</a>
 		</article>
 		{else}
-		{if $index == 3}<div class="clear"></div>{/if}
+		{if $index % 3 == 0}<div class="clear"></div>{/if}
 		<article class="blacknews_three">
 			{if $entry.image_path != ''}<a href="{$entry.url}">
 				<img class="blacknews_preview_img" src="{makeThumb( $entry.image_path, 'blacknews_', 200, 330, 'crop' )}" alt="" />

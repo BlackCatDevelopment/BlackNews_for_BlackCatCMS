@@ -32,112 +32,44 @@ if (defined('CAT_PATH')) {
 }
 // end include class.secure.php
 
-global $page_id;
 
-$getVariant	= CAT_Helper_Page::getInstance()->db()->query(
+$getVariant	= CAT_Helper_Page::getInstance()->db()->get_one(
 			sprintf(
-				'SELECT `value` FROM `%smod_%s` WHERE `%s` = \'%s\' AND `%s` = \'%s\'',
+				'SELECT `value` FROM `%smod_%s`
+					WHERE `section_id` = \'%s\'
+					AND `name` = \'%s\'',
 					CAT_TABLE_PREFIX,
 					'blacknews_options',
-					'page_id',
-					$page_id,
-					'name',
+					$section['section_id'],
 					'variant'
 			)
 );
 
 $getInfo	= CAT_Helper_Addons::checkInfo( CAT_PATH . '/modules/blacknews/' );
 
-$variants	= array();
-$f_css		= array();
-$f_js		= array();
-$b_css		= array();
-$b_js		= array();
 
 $module_path	= '/modules/blacknews/';
 
-if ( isset($getVariant) && $getVariant->numRows() > 0 )
-{
-	while ( !false == ( $row = $getVariant->fetchRow( MYSQL_ASSOC ) ) )
-	{
-		$variant	= isset($row['value']) ?
-			$row['value'] : 
-			'default';
+$variant	= $getVariant != '' && isset($getInfo['module_variants'][$getVariant]) ?
+	$getInfo['module_variants'][$getVariant] : 
+	'default';
 
-		if ( file_exists( CAT_PATH . $module_path .'css/' . $variant . '/frontend.css' ) )
-			$f_css[]	= array(
-				'media'		=> 'all',
-				'file'		=> $module_path . 'css/' . $variant . '/frontend.css'
-			);
-		elseif ( file_exists( CAT_PATH . $module_path .'css/default/frontend.css' ) )
-			$f_css[]	= array(
-				'media'		=> 'all',
-				'file'		=> $module_path . 'css/default/frontend.css'
-			);
+if ( file_exists( CAT_PATH . $module_path .'headers_inc/' . $variant . '/headers.inc.php' ) )
+	include_once( CAT_PATH . $module_path .'headers_inc/' . $variant . '/headers.inc.php' );
+elseif ( file_exists( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' ) )
+	include_once( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' );
 
-		if ( file_exists( CAT_PATH . $module_path .'css/' . $variant . '/backend.css' ) )
-			$b_css[]	= array(
-				'media'		=> 'all',
-				'file'		=> $module_path . 'css/' . $variant . '/backend.css'
-			);
-		elseif ( file_exists( CAT_PATH . $module_path .'css/default/backend.css' ) )
-			$b_css[]	= array(
-				'media'		=> 'all',
-				'file'		=> $module_path . 'css/default/backend.css'
-			);
 
-		if ( file_exists( CAT_PATH . $module_path .'js/' . $variant . '/frontend.js' ) )
-			$f_js[]	= $module_path . 'js/' . $variant . '/frontend.js';
-		elseif ( file_exists( CAT_PATH . $module_path .'js/default/frontend.js' ) )
-			$f_js[]	= $module_path . 'js/default/frontend.js';
 
-		if ( file_exists( CAT_PATH . $module_path .'js/' . $variant . '/backend.js' ) )
-			$b_js[]	= $module_path . 'js/' . $variant . '/backend.js';
-		elseif ( file_exists( CAT_PATH . $module_path .'js/default/backend.js' ) )
-			$b_js[]	= $module_path . 'js/default/backend.js';
-	}
-}
-else {
-	$f_css		= array(
-		'media'		=> 'all',
-		'file'		=> $module_path . 'css/default/frontend.css'
+if( !isset($mod_headers['frontend']['meta']) ) {
+	$mod_headers['frontend']['meta']	= array(
+		array( '<link rel="alternate" type="application/rss+xml" title="RSS" href="" />' )
 	);
-	$f_js		= array(
-		$module_path . 'js/default/frontend.js'
-	);
-	$b_css		= array(
-		'media'		=> 'all',
-		'file'		=> $module_path . 'css/default/backend.css'
-	);
-	$b_js		= array(
-		$module_path . 'js/default/backend.js'
+} else {
+	array_push(
+		$mod_headers['frontend']['meta'],
+		array( '<link rel="alternate" type="application/rss+xml" title="RSS" href="" />' )
 	);
 }
 
-$mod_headers = array(
-	'backend' => array(
-		'css'	=> $b_css,
-		'js'	=> $b_js,
-		'jquery' => array(
-			array(
-				'core'			=> true
-			),
-            array(
-                'all' => array( 'cattranslate' )
-            ),
-		)
-	),
-	'frontend' => array(
-		'css'	=> $f_css,
-		'js'	=> $f_js,
-		'meta' => array(
-			array( '<link rel="alternate" type="application/rss+xml" title="RSS" href="" />' )
-		),
-		'jquery' => array(
-			array(
-				'core'			=> true
-			)
-		)
-	)
-);
-
+?>

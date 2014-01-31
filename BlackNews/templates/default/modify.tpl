@@ -24,7 +24,7 @@
 		<input id="entries_{$section_id}" type="text" name="entries_per_page" value="{$options.entries_per_page}" /><br/>
 		<label for="variant_{$section_id}" class="blacknews_label">{translate('Variant')}:</label>
 		<select id="variant_{$section_id}" name="variant">
-			{foreach $module_variants as variants}<option value="{$variants}"{if $options.variant == $variants} selected="selected"{/if}>{$variants}</option>{/foreach}
+			{foreach $module_variants index variants}<option value="{$index}"{if $options.variant == $variants} selected="selected"{/if}>{$variants}</option>{/foreach}
 		</select><br/>
 		<label for="permalink_{$section_id}" class="blacknews_label">{translate('Permalink')}</label>
 		<input id="permalink_{$section_id}" type="text" name="permalink" value="{$options.permalink}" /><br/>

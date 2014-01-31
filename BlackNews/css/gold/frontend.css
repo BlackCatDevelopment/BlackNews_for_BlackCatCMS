@@ -18,7 +18,8 @@
 	margin-bottom: 2em;
 	padding-bottom: 1.5em;
 	border-bottom: 1px dotted #daae55;
-	width: 990px;
+	width: 100%;
+	max-width: 990px;
 }
 
 	.blacknews_content article {
@@ -51,7 +52,8 @@
 
 .gold-news {
 	margin: auto;
-	width: 990px;
+	width: 100%;
+	max-width: 990px;
 }
 
 
@@ -72,7 +74,8 @@
 
 
 .blacknews_single_entry {
-	width: 990px;
+	width: 100%;
+	max-width: 990px;
 	margin: 2em auto;
 }
 

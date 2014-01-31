@@ -14,7 +14,7 @@
  */
 
 // include class.secure.php to protect this file and the whole CMS!
-if (defined('CAT_PATH')) {	
+if (defined('CAT_PATH')) {
 	include(CAT_PATH.'/framework/class.secure.php'); 
 } else {
 	$oneback = "../";
@@ -31,30 +31,42 @@ if (defined('CAT_PATH')) {
 	}
 }
 // end include class.secure.php
-global $page_id, $section_id;
 
-$PageHelper	= CAT_Helper_Page::getInstance();
-
-$folder		= '/news/';
-$counter	= 0;
-while( file_exists( CAT_PATH . $folder ) )
-{
-	$folder = '/news-' . ++$counter . '/';
-}
-
-CAT_Helper_Directory::createDirectory( CAT_PATH . $folder, NULL, false );
-
-include_once( 'class.news.php' );
-
-$BlackNews	= new BlackNews( );
-
-$BlackNews->saveOptions( 'entries_per_page', '10' );
-$BlackNews->saveOptions( 'variant', 'default' );
-$BlackNews->saveOptions( 'permalink', $folder );
-$BlackNews->saveOptions( 'rss_counter', '15' );
-$BlackNews->saveOptions( 'rss_title', '' );
-$BlackNews->saveOptions( 'rss_description', '' );
-
-$BlackNews->createAccessFile( true, false );
-
+$mod_headers = array(
+	'backend' => array(
+		'css' => array(
+			array(
+				'media'		=> 'all',
+				'file'		=> 'modules/blacknews/css/default/backend.css'
+			)
+		),
+		'js' => array(
+			'/modules/blacknews/js/default/backend.js',
+		),
+		'jquery' => array(
+			array(
+				'core'			=> true
+			),
+			array(
+				'all' => array( 'cattranslate' )
+			)
+		),
+	),
+	'frontend' => array(
+		'css' => array(
+			array(
+				'media'		=> 'all',
+				'file'		=> 'modules/blacknews/css/gold/frontend.css'
+			)
+		),
+		'js' => array(
+			'/modules/blacknews/js/default/frontend.js'
+		),
+		'jquery' => array(
+			array(
+				'core'			=> true
+			)
+		)
+	)
+);
 ?>
