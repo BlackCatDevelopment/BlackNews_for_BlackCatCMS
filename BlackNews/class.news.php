@@ -96,7 +96,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			$entries	= CAT_Helper_Page::getInstance()->db()->query( sprintf(
 				"SELECT * FROM `%smod_%s`
 					WHERE `%s` = '%s'%s
-					ORDER BY position DESC
+					ORDER BY position %s
 					%s",
 
 					CAT_TABLE_PREFIX,
@@ -106,8 +106,9 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					$option ? 
 						( $option === true ? ' AND `active` = \'1\'' : ' AND `news_id` = \'' . intval($option) . '\'' )
 						: '',
-					$rss ? 'LIMIT ' . $this->setRSSCounter() : 
-						$rss == 'backend' ? '' : 'LIMIT ' . $this->setEPP()
+					$rss ? ( $rss == 'backend' ? 'DESC' : 'ASC' ) : 'DESC',
+					$rss ? ( $rss == 'backend' ? '' : 'LIMIT ' . $this->setRSSCounter() ) : 
+						 'LIMIT ' . $this->setEPP()
 				)
 			);
 
@@ -580,8 +581,13 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		 **/
 		public function checkRedirect()
 		{
-			$curURL	= array_filter(explode('/', str_replace( CAT_URL, '', $this->getPageURL() ) ));
-			if ( $curURL[ count($curURL) ] != str_replace( '/', '', self::getOptions( 'permalink' ) ) )
+			$curURL	= array_values(
+				array_filter(
+					explode('/', str_replace( CAT_URL, '', $this->getPageURL() ) )
+				)
+			);
+
+			if ( $curURL[0] != str_replace( '/', '', self::getOptions( 'permalink' ) ) )
 			{
 				header("HTTP/1.1 301 Moved Permanently");
 				// Weiterleitungsziel. Wohin soll eine permanente Weiterleitung erfolgen?
