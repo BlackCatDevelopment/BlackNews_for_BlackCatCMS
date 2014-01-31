@@ -75,6 +75,9 @@
 		.blacknews_content_header {
 			padding: 1em 1em;
 		}
+		.blacknews_content_header input[type=text] {
+			width: 38%;
+		}
 		.blacknews_content p {
 			padding: 1em 1em 0em 1em;
 		}
