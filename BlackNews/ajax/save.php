@@ -243,7 +243,7 @@ else
 		'title'		=> $title,
 		'subtitle'	=> $subtitle,
 		'news_id'	=> $news_id,
-		'image'		=> isset($picture) ? CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $picture : '',
+		'image_url'	=> isset($picture) ? CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $picture : '',
 		'time'		=> isset($time) ? CAT_Helper_DateTime::getInstance()->getDateTime( $time ) : '',
 		'success'	=> true
 	);

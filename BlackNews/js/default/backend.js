@@ -177,8 +177,8 @@ $(document).ready(function(){
 					current.find('.info_last_update').text( data.values.updated );
 					current.find('.blacknews_short_check').prop( 'checked', data.values.auto_generate ).change();
 					current.find('input[name=auto_generate_size]').val( data.values.auto_generate_size );
-					if ( data.values.image )
-						$('.blacknews_show_image').html('<img src="' + data.values.image + '" alt="Preview" />');
+					if ( data.values.image_url )
+						$('.blacknews_show_image').html('<img src="' + data.values.image_url + '" alt="Preview" />');
 					else $('.blacknews_show_image').html('<span class="small">' + cattranslate('There was no picture added.','','','blacknews') + '</span>');
 
 
@@ -214,8 +214,8 @@ $(document).ready(function(){
 			current.find('.info_last_update').text( data.time );
 			current.closest('.blacknews_all')
 				.find('input[name=news_id_' + data.news_id + ']').next('span').text( data.title );
-			if ( data.image )
-				$('.blacknews_show_image').html('<img src="' + data.image + '" alt="Preview" />');
+			if ( data.image_url )
+				$('.blacknews_show_image').html('<img src="' + data.image_url + '" alt="Preview" />');
 		},
 		'JSON',
 		function( $form, options )
