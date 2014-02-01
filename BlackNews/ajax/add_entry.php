@@ -102,7 +102,7 @@ if ( $PageHelper->db()->query( sprintf(
 
 	$title					= $backend->lang()->translate('New entry');
 	$url_title				= $backend->lang()->translate('New entry');
-	$url					= $BlackNews->createTitleURL($url_title);
+	$url					= $BlackNews->createTitleURL( $url_title );
 	$counter				= 0;
 	while( file_exists( CAT_PATH . '/' . $permalink . '/' . $url ) )
 	{
@@ -118,8 +118,17 @@ if ( $PageHelper->db()->query( sprintf(
 			(%s) VALUES (%s)",
 			CAT_TABLE_PREFIX,
 			'blacknews_content',
-			'`page_id`, `section_id`, `news_id`, `title`, `subtitle`, `url`, `auto_generate_size`, `auto_generate`, `content`, `short`',
-			"'$page_id', '$section_id', '$news_id', '$title', '$subtitle', '$url', '$auto_generate_size', '$auto_generate', '', ''"
+			'`page_id`, `section_id`, `news_id`, `title`, `subtitle`, `auto_generate_size`, `auto_generate`, `content`, `short`',
+			"'$page_id', '$section_id', '$news_id', '$title', '$subtitle', '$auto_generate_size', '$auto_generate', '', ''"
+		)
+	);
+	$PageHelper->db()->query( sprintf(
+			"INSERT INTO `%smod_%s`
+			(%s) VALUES (%s)",
+			CAT_TABLE_PREFIX,
+			'blacknews_content',
+			'`page_id`, `section_id`, `news_id`, `title`, `subtitle`, `auto_generate_size`, `auto_generate`, `content`, `short`',
+			"'$page_id', '$section_id', '$news_id', '$title', '$subtitle', '$auto_generate_size', '$auto_generate', '', ''"
 		)
 	);
 }

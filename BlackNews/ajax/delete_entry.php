@@ -63,6 +63,13 @@ if ( $PageHelper->getPagePermission( $page_id, 'admin' ) !== true )
 	exit();
 }
 
+
+include_once( '../class.news.php' );
+
+$BlackNews				= new BlackNews( $news_id );
+
+$BlackNews->removeAccessFolder( $BlackNews->getEntryOptions('url') );
+
 $PageHelper->db()->query("DELETE FROM " . CAT_TABLE_PREFIX . "mod_blacknews_entry WHERE news_id = '$news_id'" );
 $PageHelper->db()->query("DELETE FROM " . CAT_TABLE_PREFIX . "mod_blacknews_content WHERE news_id = '$news_id'" );
 $PageHelper->db()->query("DELETE FROM " . CAT_TABLE_PREFIX . "mod_blacknews_content_options WHERE news_id = '$news_id'" );

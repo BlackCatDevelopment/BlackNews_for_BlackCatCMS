@@ -218,14 +218,14 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 								'image_path'			=> $row['image'] != '' ? 
 															CAT_PATH . MEDIA_DIRECTORY . '/blacknews/' . $row['image'] : '',
 								'image_url'				=> $row['image'] != '' ?
-															CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $row['image'] : '',
+															$this->sanitizeURL( CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $row['image'] ) : '',
 								'auto_generate'			=> $row['auto_generate'] == 0 ? false : true,
 								'auto_generate_size'	=> $row['auto_generate_size'],
 								'short'					=> $row['auto_generate'] == 0 ?
 																	strip_tags( $row['short'] ) : false,
 								'content'				=> $row['content'],
-								'pageurl'				=> stripcslashes( htmlspecialchars( $row['url'] ) ),
-								'url'					=> $this->getOptions( 'permalink' ) . $this->createTitleURL( $row['title'] )
+								'pageurl'				=> $this->sanitizeURL( $this->getEntryOptions('url' , $row['news_id'] ) ),
+								'url'					=> $this->sanitizeURL( $this->getOptions( 'permalink' ) . $this->getEntryOptions('url', $row['news_id']) )
 							)
 						);
 				}
@@ -243,9 +243,10 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		 * @return array()
 		 *
 		 **/
-		public function getEntryOptions( $name = NULL )
+		public function getEntryOptions( $name = NULL, $news_id = NULL )
 		{
-			if ( $name && $this->options[$name] ) return $this->options[$name];
+			$news_id	= $news_id ? $news_id : self::$news_id;
+			if ( $name && isset($this->options[$news_id][$name]) ) return $this->options[$news_id][$name];
 
 			$getOptions		= CAT_Helper_Page::getInstance()->db()->query( sprintf(
 				"SELECT * FROM `%smod_%s`
@@ -256,7 +257,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					'section_id',
 					self::$section_id,
 					'news_id',
-					self::$news_id,
+					$news_id,
 					$name ? ' AND `name` = \'' . $name . '\'' : ''
 				)
 			);
@@ -265,10 +266,16 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			{
 				while( !false == ($row = $getOptions->fetchRow( MYSQL_ASSOC ) ) )
 				{
-					$this->options[$row['name']]	= $row['value'];
+					$this->options[$row['news_id']][$row['name']]	= $row['value'];
 				}
 			}
-			if ( $name ) return $this->options[$name];
+			if ( $name
+				&& $news_id
+				&& isset($this->options[$news_id][$name]) )
+					return $this->options[$news_id][$name];
+			if ( $news_id 
+				&& isset($this->options[$news_id][$name]) )
+					return $this->options[$news_id];
 			return $this->options;
 		} // end getEntryOptions()
 
@@ -440,15 +447,19 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 
 			$dir	= $this->createTitleURL( $title );
 
-			if ( self::$news_id )
+			if ( self::$news_id > 0 )
 			{
-				$old_dir	= $this->getOptions( 'permalink' );
+				$old_dir	= $this->getEntryOptions( 'url' );
 				if ( $dir == $old_dir
 					&& file_exists( CAT_PATH . $this->getOptions( 'permalink' ) . $dir )
 					&& !$recreate
 				) return true;
 			}
-
+			$counter	= 0;
+			while ( file_exists( CAT_PATH . $this->getOptions( 'permalink' ) . $dir ) )
+			{
+				$dir	= $this->createTitleURL( $title . '-' . ++$counter );
+			}
 			if ( $createDir )
 			{
 				$this->createAccessFolder( $dir );
@@ -456,8 +467,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			
 			if ( $this->createIndex( $dir ) )
 			{
-				$old_dir	= $this->saveEntryOptions( 'permalink' );
-				return true;
+				return $dir;
 			}
 			else return false;
 		} // end createAccessFile()
@@ -520,7 +530,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			{
 				$title = $title . '-' . ++$counter . '/';
 			}
-			$this->saveOptions( 'url', $title );
+			$this->saveEntryOptions( 'url', $title );
 			if ( CAT_Helper_Directory::createDirectory( CAT_PATH  . $this->getOptions( 'permalink' ) . $title, NULL, false ) )
 				return true;
 			else return false;
@@ -684,11 +694,11 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 				'items'				=> $this->getEntries( true, true, true ),
 			
 				'RSStitle'			=> $this->getOptions( 'rss_title' ),
-				'RSSlink'			=> CAT_URL . $this->getOptions( 'permalink' ),
+				'RSSlink'			=> $this->sanitizeURL( CAT_URL . $this->getOptions( 'permalink' ) ),
 				'RSSdescription'	=> $this->validateRSScontent( $this->getOptions( 'rss_description' ) ),
 				'RSSpubDate'		=> date("D, d M Y H:i:s O", time()),
 				'RSSlastDate'		=> date("D, d M Y H:i:s O", time()),
-				'RSSdocs'			=> CAT_URL . $this->getOptions( 'permalink' ) . 'rss.xml',
+				'RSSdocs'			=> $this->sanitizeURL( CAT_URL . $this->getOptions( 'permalink' ) ) . 'rss.xml',
 				'RSSEdit'			=> '',
 				'copyright'			=> WEBSITE_TITLE,
 				'managingEditor'	=> SERVER_EMAIL . ' (' . CATMAILER_DEFAULT_SENDERNAME . ')',
@@ -808,6 +818,18 @@ require(\'%sindex.php\');
 					$RSScontent
 			);
 		}   // end _rss_file_code()
+		/**
+		 *
+		 *
+		 *
+		 *
+		 **/
+		public function sanitizeURL( $url = NULL )
+		{
+			if ( !$url ) return false;
+			$parts	= array_filter( explode( '/', $url ) );
+			return	implode('/', $parts);
+		}
 
 	}
 }

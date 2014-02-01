@@ -176,7 +176,7 @@ else
 {
 	$time	= time();
 
-	$old_url	= $BlackNews->getOptions('url');
+	$old_url	= $BlackNews->getEntryOptions('url');
 
 	$PageHelper->db()->query("UPDATE `" . CAT_TABLE_PREFIX . "mod_blacknews_entry` SET 
 		`updated`		= '$time'
@@ -188,7 +188,6 @@ else
 	$sql	= "UPDATE `" . CAT_TABLE_PREFIX . "mod_blacknews_content` SET
 			`title`					= '$title',
 			`subtitle`				= '$subtitle',
-			`url`					= '$url',
 			`auto_generate`			= '$auto_generate',
 			`auto_generate_size`	= '$auto_generate_size',";
 	
@@ -212,8 +211,11 @@ else
 			if( !$BlackNews->saveEntryOptions( $option, $val->sanitizePost( $option ) )) $error = true;
 		}
 	}
-	$BlackNews->removeAccessFolder( $old_url );
-	$BlackNews->createAccessFile( $url );
+	if ( $old_url != $url )
+	{
+		$BlackNews->removeAccessFolder( $old_url );
+		$url	= $BlackNews->createAccessFile( $url );
+	}
 }
 
 
@@ -242,6 +244,7 @@ else
 			$backend->lang()->translate( 'Entry saved successfully!' ),
 		'title'		=> $title,
 		'subtitle'	=> $subtitle,
+		'pageurl'	=> $url,
 		'news_id'	=> $news_id,
 		'image_url'	=> isset($picture) ? CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $picture : '',
 		'time'		=> isset($time) ? CAT_Helper_DateTime::getInstance()->getDateTime( $time ) : '',

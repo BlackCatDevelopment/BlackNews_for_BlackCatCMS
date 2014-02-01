@@ -64,8 +64,9 @@ $parser_data['options']	= $BlackNews->getOptions();
 
 $entries_per_page		= $BlackNews->setEPP();
 
-$parser_data['entries']	= $BlackNews->getEntries( $news_id );
-$parser_data['entries']	= $BlackNews->getEntries( );
+if ($news_id) $parser_data['entries']	= $BlackNews->getEntries( $news_id );
+$parser_data['entries']	= $BlackNews->getEntries( true );
+
 
 $parser_data['entry']		= $news_id > 0 ? $parser_data['entries'][$news_id] : NULL;
 

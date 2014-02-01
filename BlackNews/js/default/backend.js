@@ -212,6 +212,7 @@ $(document).ready(function(){
 			var current			= $(this);
 			current.find('input:file').val('');
 			current.find('.info_last_update').text( data.time );
+			current.find('input[name=url]').val( data.pageurl );
 			current.closest('.blacknews_all')
 				.find('input[name=news_id_' + data.news_id + ']').next('span').text( data.title );
 			if ( data.image_url )

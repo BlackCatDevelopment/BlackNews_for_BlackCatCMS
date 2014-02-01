@@ -17,7 +17,7 @@
 	<form class="blacknews_options blacknews_form_options fc_gradient1 clear" action="{$CAT_URL}/modules/blacknews/ajax/save.php" method="post">
 		<input type="hidden" name="page_id" value="{$page_id}" />
 		<input type="hidden" name="section_id" value="{$section_id}" />
-		<input type="hidden" name="options" value="entries_per_page,variant,permalink,rss_counter,rss_title,rss_description,url" />
+		<input type="hidden" name="options" value="entries_per_page,variant,permalink,rss_counter,rss_title,rss_description" />
 		<input type="hidden" name="fc_form_title" value="{translate('Saving options')}" />
 		<h3>{translate('Options')}</h3>
 		<label for="entries_{$section_id}" class="blacknews_label">{translate('Entries per pages')}:</label>
@@ -55,7 +55,7 @@
 			<input type="hidden" name="page_id" value="{$page_id}" />
 			<input type="hidden" name="section_id" value="{$section_id}" />
 			<input type="hidden" name="news_id" value="" />
-			<input type="hidden" name="entry_options" value="" />
+			<input type="hidden" name="entry_options" value="url" />
 			<input type="hidden" name="fc_form_title" value="{translate('Saving entry')}" />
 			<div class="blacknews_content_header">
 				<button name="save" class="fc_gradient_blue fc_gradient_hover right">{translate('Save')}</button>
