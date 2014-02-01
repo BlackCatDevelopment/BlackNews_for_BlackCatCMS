@@ -551,7 +551,11 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			if ( $old_dir == $new_dir ) return true;
 			if ( file_exists($new_dir) && is_dir($new_dir) ) return false;
 
-			if ( rename( $old_dir, $new_dir ) ) return true;
+			if ( rename( $old_dir, $new_dir ) ){
+				$this->permalink			= $new_dir;
+				$this->options['permalink']	= $new_dir;
+				return true;
+			}
 			else return false;
 		} // end createTitleURL()
 
@@ -563,9 +567,9 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		 * @return array()
 		 *
 		 **/
-		private function removeAccessFolder( $dir = NULL )
+		public function removeAccessFolder( $dir = NULL )
 		{
-			if ( !$dir ) return false;
+			if ( !$dir || strpos( $dir,'../' ) ) return false;
 			if ( CAT_Helper_Directory::removeDirectory( CAT_PATH  . $this->getOptions( 'permalink' ) . $dir, NULL, false ) )
 				return true;
 			else return false;
@@ -635,7 +639,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			if ( file_exists( $create_dir . '/rss.xml' ) )
 				unlink ($create_dir . '/rss.xml');
 
-			if ( $handle = dir( $create_dir ) )
+			if ( file_exists($create_dir) && $handle = dir( $create_dir ) )
 			{
 				$fh = fopen( $create_dir . '/rss.xml', 'w' );
 				fwrite( $fh, $this->_rss_file_code() );
@@ -746,6 +750,7 @@ require(\'%sindex.php\');
 		<link>%s</link>
 		<pubDate>%s</pubDate>
 		<dc:creator>%s</dc:creator>
+		<category>[BETA]</category>
 	</item>
 ',
 					$this->validateRSScontent( $item['title'] ),
