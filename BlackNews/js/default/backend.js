@@ -89,6 +89,7 @@ $(document).ready(function(){
 					current_ul		= current.closest('.blacknews_all').find('.blacknews_entries');
 				if ( data.success === true )
 				{
+					console.log(data.values);
 					current_ul.children('li').not(current).removeClass('active');
 					current_ul.prepend('<li class="bn_icon-feed active drafted"><input type="hidden" name="news_id_' + data.values.news_id + '" value="' + data.values.news_id + '" /> <span>' + data.values.title + '</span></li>');
 
@@ -100,6 +101,7 @@ $(document).ready(function(){
 					current.find('input[name=news_id]').val( data.values.news_id );
 					current.find('input[name=title]').val( data.values.title );
 					current.find('input[name=subtitle]').val( data.values.subtitle );
+					current.find('input[name=url]').val( data.values.pageurl );
 					current.find('input[name=category]').val( data.values.category );
 					current.find('.info_created_by').text( data.values.user );
 					current.find('.info_published').text( data.values.time );
@@ -168,6 +170,7 @@ $(document).ready(function(){
 					current.find('input[name=news_id]').val( data.values.news_id );
 					current.find('input[name=title]').val( data.values.title );
 					current.find('input[name=subtitle]').val( data.values.subtitle );
+					current.find('input[name=url]').val( data.values.pageurl );
 					current.find('input[name=category]').val( data.values.category );
 					current.find('.info_created_by').text( data.values.created_by );
 					current.find('.info_published').text( data.values.created );

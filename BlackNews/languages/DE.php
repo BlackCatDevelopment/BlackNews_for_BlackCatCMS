@@ -51,7 +51,7 @@ $LANG = array(
 	'Last update' => 'Letzte Änderung',
 	'Main title' => 'Hauptüberschrift',
 	'More options' => 'Weitere Optionen',
-	'New title' => 'Neuer Titel',
+	'New entry'	=> 'Neuer Eintrag',
 	'Number of characters for preview' => 'Anzahl Zeichen für Vorschau',
 	'Options for RSS'	=> 'Optionen für RSS',
 	'Published' => 'Veröffentlicht',
@@ -61,6 +61,6 @@ $LANG = array(
 	'Subtitle' => 'Unterzeile',
 	'There was no picture added.' => 'Es wurde kein Bild hinzugefügt',
 	'Title of RSS' => 'RSS Titel',
-	'Unpublished' => 'Unveröffentlicht',
+	'Unpublished' => 'Unveröffentlicht'
 );
 ?>

@@ -17,7 +17,7 @@
 	<form class="blacknews_options blacknews_form_options fc_gradient1 clear" action="{$CAT_URL}/modules/blacknews/ajax/save.php" method="post">
 		<input type="hidden" name="page_id" value="{$page_id}" />
 		<input type="hidden" name="section_id" value="{$section_id}" />
-		<input type="hidden" name="options" value="entries_per_page,variant,permalink,rss_counter,rss_title,rss_description" />
+		<input type="hidden" name="options" value="entries_per_page,variant,permalink,rss_counter,rss_title,rss_description,url" />
 		<input type="hidden" name="fc_form_title" value="{translate('Saving options')}" />
 		<h3>{translate('Options')}</h3>
 		<label for="entries_{$section_id}" class="blacknews_label">{translate('Entries per pages')}:</label>
@@ -66,7 +66,8 @@
 				<button name="delete" class="fc_gradient_red fc_gradient_hover blacknews_delete right"> {translate('Delete')}</button>
 
 				<span class="blacknews_label">{translate('Main title')}:</span><input type="text" name="title" value="" autofocus="autofocus" /><br/>
-				<span class="blacknews_label">{translate('Subtitle')}:</span><input type="text" name="subtitle" value="" />
+				<span class="blacknews_label">{translate('Subtitle')}:</span><input type="text" name="subtitle" value="" /><br/>
+				<span class="blacknews_label">{translate('URL')}:</span><input type="text" name="url" value="" />
 			</div>
 			<div class="blacknews_content_options">
 				<button class="bn_icon-menu show_more_options fc_gradient1 fc_gradient_hover">{translate('More options')}</button>

@@ -224,6 +224,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 								'short'					=> $row['auto_generate'] == 0 ?
 																	strip_tags( $row['short'] ) : false,
 								'content'				=> $row['content'],
+								'pageurl'				=> stripcslashes( htmlspecialchars( $row['url'] ) ),
 								'url'					=> $this->getOptions( 'permalink' ) . $this->createTitleURL( $row['title'] )
 							)
 						);
@@ -442,11 +443,16 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			if ( self::$news_id )
 			{
 				$old_dir	= $this->getOptions( 'permalink' );
-				if ( $dir == $old_dir && file_exists( CAT_PATH . $this->getOptions( 'permalink' ) . $dir ) && !$recreate ) return true;
-				
+				if ( $dir == $old_dir
+					&& file_exists( CAT_PATH . $this->getOptions( 'permalink' ) . $dir )
+					&& !$recreate
+				) return true;
 			}
 
-			if ( $createDir ) $this->createAccessFolder( $dir );
+			if ( $createDir )
+			{
+				$this->createAccessFolder( $dir );
+			}
 			
 			if ( $this->createIndex( $dir ) )
 			{
@@ -512,9 +518,9 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			$counter	= 0;
 			while( file_exists( CAT_PATH . $title ) )
 			{
-			    $title = $title . '-' . ++$counter . '/';
+				$title = $title . '-' . ++$counter . '/';
 			}
-
+			$this->saveOptions( 'url', $title );
 			if ( CAT_Helper_Directory::createDirectory( CAT_PATH  . $this->getOptions( 'permalink' ) . $title, NULL, false ) )
 				return true;
 			else return false;
@@ -529,7 +535,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		 * @return array()
 		 *
 		 **/
-		private function createTitleURL( $title = NULL )
+		public function createTitleURL( $title = NULL )
 		{
 			if ( !$title ) return false;
 

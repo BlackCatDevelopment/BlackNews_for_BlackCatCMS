@@ -86,6 +86,7 @@ $auto_generate_size		= $val->sanitizePost('auto_generate_size','numeric');
 
 $title					= addslashes( $val->sanitizePost('title') );
 $subtitle				= addslashes( $val->sanitizePost('subtitle') );
+$url					= addslashes( $val->sanitizePost('url') );
 $category				= addslashes( $val->sanitizePost('category') );
 $short_check			= $val->sanitizePost('short_check','numeric') != '' ? 1 : 0;
 
@@ -174,28 +175,33 @@ if ( $options != '' )
 else
 {
 	$time	= time();
-	
-	$PageHelper->db()->query("UPDATE " . CAT_TABLE_PREFIX . "mod_blacknews_entry SET 
-		updated		= '$time'
-		WHERE section_id = '$section_id' AND page_id = '$page_id' AND news_id = '$news_id'"
+
+	$old_url	= $BlackNews->getOptions('url');
+
+	$PageHelper->db()->query("UPDATE `" . CAT_TABLE_PREFIX . "mod_blacknews_entry` SET 
+		`updated`		= '$time'
+		WHERE `section_id` = '$section_id'
+		AND `page_id` = '$page_id'
+		AND `news_id` = '$news_id'"
 	);
 	
-	$sql	= "UPDATE " . CAT_TABLE_PREFIX . "mod_blacknews_content SET
-			title				= '$title',
-			subtitle			= '$subtitle',
-			auto_generate		= '$auto_generate',
-			auto_generate_size	= '$auto_generate_size',";
+	$sql	= "UPDATE `" . CAT_TABLE_PREFIX . "mod_blacknews_content` SET
+			`title`					= '$title',
+			`subtitle`				= '$subtitle',
+			`url`					= '$url',
+			`auto_generate`			= '$auto_generate',
+			`auto_generate_size`	= '$auto_generate_size',";
 	
 	$sql	.= isset( $picture ) ? 
-			"image				= '" . $picture . "'," : "";
+			"`image`				= '" . $picture . "'," : "";
 	
 	$sql	.= "
-			short				= '$short_cont',
-			content				= '$long_cont',
-			text				= '$text'
-			WHERE section_id = '$section_id' AND
-				page_id = '$page_id' AND
-				news_id = '$news_id'";
+			`short`				= '$short_cont',
+			`content`			= '$long_cont',
+			`text`				= '$text'
+			WHERE `section_id` = '$section_id' AND
+				`page_id` = '$page_id' AND
+				`news_id` = '$news_id'";
 
 	$PageHelper->db()->query( $sql );
 
@@ -206,8 +212,8 @@ else
 			if( !$BlackNews->saveEntryOptions( $option, $val->sanitizePost( $option ) )) $error = true;
 		}
 	}
-
-	$BlackNews->createAccessFile( $title );
+	$BlackNews->removeAccessFolder( $old_url );
+	$BlackNews->createAccessFile( $url );
 }
 
 

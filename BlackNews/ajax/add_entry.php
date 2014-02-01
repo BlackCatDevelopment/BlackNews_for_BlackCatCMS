@@ -68,7 +68,7 @@ $user_id	= $user->get_user_id();
 
 $position	= $PageHelper->db()->get_one( sprintf(
 	"SELECT `%s` FROM %smod_%s
-	ORDER BY %s DESC LIMIT 1",
+	ORDER BY `%s` DESC LIMIT 1",
 	'position',
 	CAT_TABLE_PREFIX,
 	'blacknews_entry',
@@ -84,14 +84,31 @@ if ( $PageHelper->db()->query( sprintf(
 			(%s) VALUES (%s)",
 			CAT_TABLE_PREFIX,
 			'blacknews_entry',
-			'page_id, section_id, active, updated, created, created_by, position',
+			'`page_id`, `section_id`, `active`, `updated`, `created`, `created_by`, `position`',
 			"'$page_id', '$section_id', '0', '$time', '$time', '$user_id', '$position'"
 		)
 	)
 )
 {
+	$backend->lang()->addFile( LANGUAGE . '.php', sanitize_path(CAT_PATH . '/modules/blacknews/languages') );
+
 	$news_id				= $PageHelper->db()->get_one("SELECT LAST_INSERT_ID()");
-	$title					= $backend->lang()->translate('New title');
+
+	include_once( '../class.news.php' );
+
+	$BlackNews				= new BlackNews( $news_id );
+
+	$permalink				= $BlackNews->getOptions( 'permalink' );
+
+	$title					= $backend->lang()->translate('New entry');
+	$url_title				= $backend->lang()->translate('New entry');
+	$url					= $BlackNews->createTitleURL($url_title);
+	$counter				= 0;
+	while( file_exists( CAT_PATH . '/' . $permalink . '/' . $url ) )
+	{
+		$url				= $BlackNews->createTitleURL( $url_title . '-' . ++$counter );
+	}
+	$BlackNews->createAccessFile( $url );
 	$subtitle				= '';//$backend->lang()->translate('New subtitle');
 	$auto_generate_size		= 300;
 	$auto_generate			= 1;
@@ -101,8 +118,8 @@ if ( $PageHelper->db()->query( sprintf(
 			(%s) VALUES (%s)",
 			CAT_TABLE_PREFIX,
 			'blacknews_content',
-			'page_id, section_id, news_id, title, subtitle, auto_generate_size, auto_generate, content, short',
-			"'$page_id', '$section_id', '$news_id', '$title', '$subtitle', '$auto_generate_size', '$auto_generate', '', ''"
+			'`page_id`, `section_id`, `news_id`, `title`, `subtitle`, `url`, `auto_generate_size`, `auto_generate`, `content`, `short`',
+			"'$page_id', '$section_id', '$news_id', '$title', '$subtitle', '$url', '$auto_generate_size', '$auto_generate', '', ''"
 		)
 	);
 }
@@ -114,6 +131,7 @@ $ajax	= array(
 		'news_id'				=> $news_id,
 		'title'					=> $title,
 		'subtitle'				=> $subtitle,
+		'pageurl'				=> $url,
 		'auto_generate_size'	=> $auto_generate_size,
 		'auto_generate'			=> $auto_generate == 0 ? false : true,
 		'time'					=> CAT_Helper_DateTime::getInstance()->getDateTime( $time ),
