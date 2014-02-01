@@ -659,7 +659,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		private function validateRSScontent($data)
 		{
 			$newData = str_replace("&nbsp;", " ", $data);
-			return '<![CDATA[' . utf8_encode( $newData ) . ']]>';
+			return '<![CDATA[ ' . utf8_encode( $newData ) . ' ]]>';
 		}   // end validateRSScontent()
 
 		/**
@@ -673,7 +673,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			$this->RSS	= array(
 				'items'				=> $this->getEntries( true, true, true ),
 			
-				'RSStitle'			=> $this->validateRSScontent( $this->getOptions( 'rss_title' ) ),
+				'RSStitle'			=> $this->getOptions( 'rss_title' ),
 				'RSSlink'			=> CAT_URL . $this->getOptions( 'permalink' ),
 				'RSSdescription'	=> $this->validateRSScontent( $this->getOptions( 'rss_description' ) ),
 				'RSSpubDate'		=> date("D, d M Y H:i:s O", time()),
@@ -741,23 +741,32 @@ require(\'%sindex.php\');
 	<item> 
 		<title>%s</title>
 		<description>%s</description>
+		<content:encoded>%s</content:encoded>
 		<guid>%s</guid>
 		<link>%s</link>
 		<pubDate>%s</pubDate>
+		<dc:creator>%s</dc:creator>
 	</item>
 ',
 					$this->validateRSScontent( $item['title'] ),
+					$item['short'],
 					$item['image_url'] != '' ? 
 						$this->validateRSScontent( '<a href="' . CAT_URL . $this->getOptions( 'permalink' ) . $this->createTitleURL( $item['title'] ) .'"><img src="' . $item['image_url'] . '"></img></a>' . $item['content'] ) :
 						$this->validateRSScontent( $item['content'] ),
 					CAT_URL . $this->getOptions( 'permalink' ) . $this->createTitleURL( $item['title'] ) ,
 					CAT_URL . $this->getOptions( 'permalink' ) . $this->createTitleURL( $item['title'] ) ,//$item['link'],
-					date("D, d M Y H:i:s O", $item['updated_TS'] )
+					date("D, d M Y H:i:s O", $item['updated_TS'] ),
+					$item['created_by']
 				);
 			}
 			return sprintf(
 				'<?xml version="1.0" encoding="ISO-8859-1" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" 
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+>
 	<channel>
 		<title>%s</title>
 		<link>%s</link>
