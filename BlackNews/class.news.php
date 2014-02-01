@@ -456,9 +456,12 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 				) return true;
 			}
 			$counter	= 0;
-			while ( file_exists( CAT_PATH . $this->getOptions( 'permalink' ) . $dir ) )
+			if ($title !== '' )
 			{
-				$dir	= $this->createTitleURL( $title . '-' . ++$counter );
+				while ( file_exists( CAT_PATH . $this->getOptions( 'permalink' ) . $dir ) )
+				{
+					$dir	= $this->createTitleURL( $title . '-' . ++$counter );
+				}
 			}
 			if ( $createDir )
 			{
@@ -526,9 +529,10 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			if ( !$title ) return false;
 
 			$counter	= 0;
-			while( file_exists( CAT_PATH . $title ) )
+			$folder		= $title;
+			while( file_exists( CAT_PATH . '/' . $title ) )
 			{
-				$title = $title . '-' . ++$counter . '/';
+				$title	= $folder . '-' . ++$counter;
 			}
 			$this->saveEntryOptions( 'url', $title );
 			if ( CAT_Helper_Directory::createDirectory( CAT_PATH  . $this->getOptions( 'permalink' ) . $title, NULL, false ) )
