@@ -126,8 +126,11 @@ if ( isset( $_FILES['image']['name'] ) && $_FILES['image']['name'] != '' )
 			if ( $current->processed )
 			{
 				$old_thumbs		= glob(CAT_PATH . '/temp/media/blacknews_news_' . $section_id . '_' . $news_id . '_*');
-				foreach( $old_thumbs as $thumb ){
-					CAT_Helper_Directory::removeDirectory( $thumb );
+				if ( is_array($old_thumbs) )
+				{
+					foreach( $old_thumbs as $thumb ){
+						CAT_Helper_Directory::removeDirectory( $thumb );
+					}
 				}
 				CAT_Helper_Image::getInstance()->make_thumb(
 					$folder_path . '/' . $current->file_dst_name,
