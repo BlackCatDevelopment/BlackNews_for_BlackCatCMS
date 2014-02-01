@@ -778,8 +778,8 @@ require(\'%sindex.php\');
 					$item['image_url'] != '' ? 
 						$this->validateRSScontent( '<a href="' . CAT_URL . $this->getOptions( 'permalink' ) . $this->createTitleURL( $item['title'] ) .'"><img src="' . $item['image_url'] . '"></img></a>' . $item['content'] ) :
 						$this->validateRSScontent( $item['content'] ),
-					CAT_URL . $this->getOptions( 'permalink' ) . $this->createTitleURL( $item['title'] ) ,
-					CAT_URL . $this->getOptions( 'permalink' ) . $this->createTitleURL( $item['title'] ) ,//$item['link'],
+					CAT_URL . $this->getOptions( 'permalink' ) . $this->getEntryOptions( 'url', $item['news_id'] ) ,
+					CAT_URL . $this->getOptions( 'permalink' ) . $this->getEntryOptions( 'url', $item['news_id'] ) ,//$item['link'],
 					date("D, d M Y H:i:s O", $item['updated_TS'] ),
 					$item['created_by']
 				);
