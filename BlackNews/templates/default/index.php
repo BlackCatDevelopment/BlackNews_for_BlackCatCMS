@@ -14,7 +14,7 @@
  */
 
 // include class.secure.php to protect this file and the whole CMS!
-if (defined('CAT_PATH')) {
+if (defined('CAT_PATH')) {	
 	include(CAT_PATH.'/framework/class.secure.php'); 
 } else {
 	$oneback = "../";
@@ -31,47 +31,5 @@ if (defined('CAT_PATH')) {
 	}
 }
 // end include class.secure.php
-
-
-$mod_headers = array(
-	'backend' => array(
-		'css' => array(
-			array(
-				'media'		=> 'all',
-				'file'		=> 'modules/blacknews/css/default/backend.css'
-			)
-		),
-		'js' => array(
-			'/modules/blacknews/js/default/backend.js',
-		),
-		'jquery' => array(
-			array(
-				'core'			=> true,
-				'all'			=> array ( 'jquery.timepicker' )
-			)
-		),
-		'ui' => array(
-			array(
-				'core'			=> true
-			),
-		)
-	),
-	'frontend' => array(
-		'css' => array(
-			array(
-				'media'		=> 'all',
-				'file'		=> 'modules/blacknews/css/default/frontend.css'
-			)
-		),
-		'js' => array(
-			'/modules/blacknews/js/default/frontend.js'
-		),
-		'jquery' => array(
-			array(
-				'core'			=> true
-			)
-		)
-	)
-);
 
 ?>

@@ -15,7 +15,7 @@
 
 $(document).ready(function(){
 	$('.blacknews_options').slideUp(0);
-	$('.blacknews_options_button').click( function(e)
+	$('.blacknews_options_button').unbind().click( function(e)
 	{
 		e.preventDefault();
 		var current	= $(this),
@@ -33,6 +33,38 @@ $(document).ready(function(){
 		}
 	});
 
+	$.datepicker.setDefaults( $.datepicker.regional[ DEFAULT_LANGUAGE.toLowerCase() ] );
+
+	$( '#publish_date_from' ).datetimepicker(
+	{
+		defaultDate:	'+1w',
+		dateFormat:		DATE_FORMAT,
+		timeFormat:		TIME_FORMAT,
+		firstDay:		1,
+		changeMonth:	true,
+		numberOfMonths:	3,
+		defaultDate:	null,
+		onClose: function( selectedDate )
+		{
+			$( "#publish_date_to" ).datetimepicker( "option", "minDate", selectedDate );
+		}
+	});
+	$( '#publish_date_to' ).datetimepicker(
+	{
+		defaultDate:	'+1w',
+		dateFormat:		DATE_FORMAT,
+		timeFormat:		TIME_FORMAT,
+		firstDay:		1,
+		changeMonth:	true,
+		numberOfMonths:	3,
+		defaultDate:	null,
+		onClose: function( selectedDate )
+		{
+			$( "#publish_date_from" ).datetimepicker( "option", "maxDate", selectedDate );
+		}
+	});
+
+
 	var short_on	= $('.blacknews_short_check');
 	if ( short_on.prop('checked') ){
 		$('.blacknews_short_on').slideDown(0);
@@ -45,11 +77,11 @@ $(document).ready(function(){
 	{
 		e.preventDefault();
 		if ( short_on.prop('checked') ){
-		    $('.blacknews_short_on').slideDown(200);
-		    $('.blacknews_short_off').slideUp(200);
+			$('.blacknews_short_on').slideDown(200);
+			$('.blacknews_short_off').slideUp(200);
 		} else {
-		    $('.blacknews_short_on').slideUp(200);
-		    $('.blacknews_short_off').slideDown(200);
+			$('.blacknews_short_on').slideUp(200);
+			$('.blacknews_short_off').slideDown(200);
 		}
 	});
 
@@ -83,7 +115,7 @@ $(document).ready(function(){
 			{
 				data.process	= set_activity( 'Adding new entry' );
 			},
-			success:	function( data, textStatus, jqXHR  )
+			success:	function( data, textStatus, jqXHR	)
 			{
 				var current			= $(this),
 					current_ul		= current.closest('.blacknews_all').find('.blacknews_entries');
@@ -95,14 +127,16 @@ $(document).ready(function(){
 
 					return_success( jqXHR.process , data.message);
 
-					var	blacknews_long ='blacknews_long_' +  data.section_id,
-						blacknews_short ='blacknews_short_' +  data.section_id;
+					var	blacknews_long ='blacknews_long_' +	data.section_id,
+						blacknews_short ='blacknews_short_' +	data.section_id;
 
 					current.find('input[name=news_id]').val( data.values.news_id );
 					current.find('input[name=title]').val( data.values.title );
 					current.find('input[name=subtitle]').val( data.values.subtitle );
 					current.find('input[name=url]').val( data.values.pageurl );
-					current.find('input[name=category]').val( data.values.category );
+					current.find('input[name=category]').val( data.values.categories );
+					current.find('input[name=start]').val( data.values.start );
+					current.find('input[name=end]').val( data.values.end );
 					current.find('.info_created_by').text( data.values.user );
 					current.find('.info_published').text( data.values.time );
 					current.find('.info_last_update').text( data.values.time );
@@ -151,7 +185,7 @@ $(document).ready(function(){
 			{
 				data.process	= set_activity( 'Loading entry' );
 			},
-			success:	function( data, textStatus, jqXHR  )
+			success:	function( data, textStatus, jqXHR	)
 			{
 				var current_li		= $(this),
 					current			= current_li.closest('.blacknews_container').find('form'),
@@ -162,16 +196,18 @@ $(document).ready(function(){
 				if ( data.success === true )
 				{
 					return_success( jqXHR.process , data.message);
-
-					var	blacknews_long ='blacknews_long_' +  data.section_id,
-						blacknews_short ='blacknews_short_' +  data.section_id,
+					console.log(data.values);
+					var	blacknews_long ='blacknews_long_' +	data.section_id,
+						blacknews_short ='blacknews_short_' +	data.section_id,
 						editor1	= CKEDITOR.instances[blacknews_long],
 						editor2	= CKEDITOR.instances[blacknews_short];
 					current.find('input[name=news_id]').val( data.values.news_id );
 					current.find('input[name=title]').val( data.values.title );
 					current.find('input[name=subtitle]').val( data.values.subtitle );
 					current.find('input[name=url]').val( data.values.pageurl );
-					current.find('input[name=category]').val( data.values.category );
+					current.find('input[name=category]').val( data.values.categories );
+					current.find('input[name=start]').val( data.values.start );
+					current.find('input[name=end]').val( data.values.end );
 					current.find('.info_created_by').text( data.values.created_by );
 					current.find('.info_published').text( data.values.created );
 					current.find('.info_last_update').text( data.values.updated );
@@ -266,7 +302,7 @@ $(document).ready(function(){
 			{
 				data.process	= set_activity( 'Publishing entry' );
 			},
-			success:	function( data, textStatus, jqXHR  )
+			success:	function( data, textStatus, jqXHR	)
 			{
 				var current			= $(this).closest('form').submit(),
 					cur_parent		= current.closest('.blacknews_container');
@@ -349,7 +385,7 @@ $(document).ready(function(){
 				{
 					data.process	= set_activity( 'Sort entries' );
 				},
-				success:	function( data, textStatus, jqXHR  )
+				success:	function( data, textStatus, jqXHR	)
 				{
 					console.log(data);
 					if ( data.success === true )

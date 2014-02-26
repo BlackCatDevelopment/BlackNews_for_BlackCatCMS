@@ -56,7 +56,8 @@ include_once( 'class.news.php' );
 
 $BlackNews	= new BlackNews();
 
-$parser_data['options']	= $BlackNews->getOptions();
+$parser_data['options']			= $BlackNews->getOptions();
+$parser_data['allCategories']	= $BlackNews->getAllCategories();
 
 $entries_per_page		= $BlackNews->setEPP();
 

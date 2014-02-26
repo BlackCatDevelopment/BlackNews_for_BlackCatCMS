@@ -96,7 +96,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			$entries	= CAT_Helper_Page::getInstance()->db()->query( sprintf(
 				"SELECT * FROM `%smod_%s`
 					WHERE `%s` = '%s'%s
-					ORDER BY position %s
+					ORDER BY `position` %s
 					%s",
 
 					CAT_TABLE_PREFIX,
@@ -123,8 +123,10 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					$this->entries[$row['news_id']]	= array(
 						'news_id'		=> $row['news_id'],
 						'active'		=> $row['active'] == 0 ? false : true,
-						'start'			=> CAT_Helper_DateTime::getInstance()->getDateTime( $row['start'] ),
-						'end'			=> CAT_Helper_DateTime::getInstance()->getDateTime( $row['end'] ),
+						'start'			=> $row['start'] > 0 ?
+								CAT_Helper_DateTime::getInstance()->getDateTime( $row['start'] ) : '',
+						'end'			=> $row['end'] > 0 ?
+								CAT_Helper_DateTime::getInstance()->getDateTime( $row['end'] ) : '',
 						'created_TS'	=> $row['created'],
 						'created'		=> CAT_Helper_DateTime::getInstance()->getDateTime( $row['created'] ),
 						'updated_TS'	=> $row['updated'],
@@ -304,8 +306,8 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					self::$page_id,
 					self::$section_id,
 					self::$news_id,
-					addslashes($name),
-					addslashes($value)
+					addslashes( $name ),
+					addslashes( $value )
 				)
 			) ) return true;
 			else return false;
@@ -351,6 +353,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			return $this->options;
 		} // end getOptions()
 
+
 		/**
 		 * get all offers from database
 		 *
@@ -394,6 +397,120 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			) ) return true;
 			else return false;
 		} // end saveOptions()
+
+
+
+
+		/**
+		 * get all categories for an entry
+		 *
+		 * @access public
+		 * @return string
+		 *
+		 **/
+		public function getCategories( $news_id = NULL )
+		{
+			$news_id	= $news_id ? $news_id : self::$news_id;
+
+			$getOptions		= CAT_Helper_Page::getInstance()->db()->query( sprintf(
+				"SELECT `categories` FROM `%smod_%s`
+					WHERE `%s` = '%s'
+					AND `%s` = '%s'",
+					CAT_TABLE_PREFIX,
+					'blacknews_entry',
+					'section_id',
+					self::$section_id,
+					'news_id',
+					$news_id
+				)
+			);
+
+			$this->options['categories']	= array();
+
+			if ( isset($getOptions) && $getOptions->numRows() > 0)
+			{
+				while( !false == ($row = $getOptions->fetchRow( MYSQL_ASSOC ) ) )
+				{
+					$this->options['categories'][]	= $row['categories'];
+				}
+			}
+			return $this->options['categories'];
+		} // end getCategories()
+
+
+
+		/**
+		 * get all categories for an entry
+		 *
+		 * @access public
+		 * @return string
+		 *
+		 **/
+		public function getAllCategories()
+		{
+			if ( !self::$section_id ) return false;
+
+			$getOptions		= CAT_Helper_Page::getInstance()->db()->query( sprintf(
+				"SELECT DISTINCT `categories` FROM `%smod_%s`
+					WHERE `%s` = '%s'",
+					CAT_TABLE_PREFIX,
+					'blacknews_entry',
+					'section_id',
+					self::$section_id
+				)
+			);
+
+			$this->options['allCategories']	= array();
+
+			if ( isset($getOptions) && $getOptions->numRows() > 0)
+			{
+				while( !false == ($row = $getOptions->fetchRow( MYSQL_ASSOC ) ) )
+				{
+					$this->options['allCategories']	= array_merge(
+						$this->options['allCategories'],
+						explode( ',', $row['categories'])
+					);
+				}
+			}
+			return array_unique( array_filter( $this->options['allCategories'] ) );
+		} // end getAllCategories()
+
+
+		/**
+		 * set entry to (un)published
+		 *
+		 * @access public
+		 * @param  number  $status
+		 * @return array()
+		 *
+		 **/
+		public function setPublished( $status = NULL )
+		{
+			if ( $status === NULL || !self::$news_id ) return false;
+
+			$status	= intval( $status );
+
+			if ( CAT_Helper_Page::getInstance()->db()->query( sprintf(
+				"UPDATE `%smod_%s`
+					SET `active`		= '%s'
+					WHERE `news_id`		= '%s'
+					AND `section_id`	= '%s'
+					AND `page_id`		= '%s'",
+					CAT_TABLE_PREFIX,
+					'blacknews_entry',
+					$status,
+					self::$news_id,
+					self::$section_id,
+					self::$page_id
+			) ) )
+			{
+				if ( $status != 1 ) $this->removeAccessFolder( $this->getEntryOptions('url' , self::$news_id ) );
+				else $this->createAccessFile( $this->getEntryOptions('url' , self::$news_id ) );
+
+				return $status == 1 ? 'published' : 'unpublished';
+			}
+			else return false;
+		} // end setPublished()
 
 		/**
 		 * get all offers from database
@@ -590,6 +707,8 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		public function removeAccessFolder( $dir = NULL )
 		{
 			if ( !$dir || strpos( $dir,'../' ) ) return false;
+			if ( substr( $dir, 0, 1 ) != '/' ) $dir	= '/' . $dir;
+			
 			if ( CAT_Helper_Directory::removeDirectory( CAT_PATH  . $this->getOptions( 'permalink' ) . $dir, NULL, false ) )
 				return true;
 			else return false;

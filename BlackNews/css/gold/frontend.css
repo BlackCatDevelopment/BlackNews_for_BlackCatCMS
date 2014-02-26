@@ -56,13 +56,19 @@
 	max-width: 990px;
 }
 
-
-
-.blacknews_content h2 {
-	color: #4c535c;
+.blacknews_content h1,
+.blacknews_single_entry h1 {
+	border-bottom: 1px dotted #daae55;
+	color: #daae55;
 }
+
+.blacknews_content h2,
+.blacknews_single_entry h2 {
+	color: #daae55;
+}
+.blacknews_single_entry h3,
 .blacknews_content h3 {
-	
+	color: #c7d1d3;
 }
 
 .blacknews_link {

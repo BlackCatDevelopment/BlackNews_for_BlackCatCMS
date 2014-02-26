@@ -87,11 +87,15 @@ $auto_generate_size		= $val->sanitizePost('auto_generate_size','numeric');
 $title					= addslashes( $val->sanitizePost('title') );
 $subtitle				= addslashes( $val->sanitizePost('subtitle') );
 $url					= addslashes( $val->sanitizePost('url') );
-$category				= addslashes( $val->sanitizePost('category') );
+$category				= implode(',', array_filter( explode(',', addslashes( $val->sanitizePost('category') ) ) ) );
 $short_check			= $val->sanitizePost('short_check','numeric') != '' ? 1 : 0;
 
 $start					= $val->sanitizePost('start');
 $end					= $val->sanitizePost('end');
+
+$start					= $start != '' && $start > 0 ? strtotime( $start ) : '';
+$end					= $end != '' && $end > 0 ? strtotime( $end ) : '';
+
 $short_cont				= addslashes( $val->sanitizePost( 'blacknews_short_' . $section_id ) );
 $long_cont				= addslashes( $val->sanitizePost( 'blacknews_long_' . $section_id ) );
 $text					= umlauts_to_entities(strip_tags( $short_cont ), strtoupper(DEFAULT_CHARSET), 0) . ' ' .
@@ -179,7 +183,10 @@ else
 	$old_url	= $BlackNews->getEntryOptions('url');
 
 	$PageHelper->db()->query("UPDATE `" . CAT_TABLE_PREFIX . "mod_blacknews_entry` SET 
-		`updated`		= '$time'
+		`updated`		= '$time',
+		`categories`	= '$category',
+		`start`			= '$start',
+		`end`			= '$end'
 		WHERE `section_id` = '$section_id'
 		AND `page_id` = '$page_id'
 		AND `news_id` = '$news_id'"
@@ -190,7 +197,9 @@ else
 			`subtitle`				= '$subtitle',
 			`auto_generate`			= '$auto_generate',
 			`auto_generate_size`	= '$auto_generate_size',";
-	
+
+
+
 	$sql	.= isset( $picture ) ? 
 			"`image`				= '" . $picture . "'," : "";
 	
@@ -244,6 +253,7 @@ else
 			$backend->lang()->translate( 'Entry saved successfully!' ),
 		'title'		=> $title,
 		'subtitle'	=> $subtitle,
+		'category'	=> $category,
 		'pageurl'	=> $url,
 		'news_id'	=> $news_id,
 		'image_url'	=> isset($picture) ? CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $picture : '',

@@ -11,6 +11,54 @@
  * @license			http://www.gnu.org/licenses/gpl.html
  *
  *}
+<script type="text/javascript">
+$(document).ready(function()
+\{
+	var allCategories = [
+		{foreach $allCategories category}
+		"{$category}",
+		{/foreach}
+	];
+	function bn_split( val ) \{
+		return val.split( /,\s*/ );
+	}
+	function bn_extractLast( term ) \{
+		return bn_split( term ).pop();
+	}
+	$( "#bn_category_{$section_id}" )
+	// don't navigate away from the field on tab when selecting an item
+	.bind( "keydown", function( event ) \{
+		if ( event.keyCode === $.ui.keyCode.TAB &&
+		$( this ).data( "ui-autocomplete" ).menu.active ) {
+			event.preventDefault();
+		}
+	})
+	.autocomplete({
+		minLength: 0,
+		source: function( request, response ) {
+			// delegate back to autocomplete, but extract the last term
+			response( $.ui.autocomplete.filter(
+		allCategories, bn_extractLast( request.term ) ) );
+		},
+		focus: function() {
+			// prevent value inserted on focus
+			return false;
+		},
+		select: function( event, ui ) {
+			var terms = bn_split( this.value );
+			// remove the current input
+			terms.pop();
+			// add the selected item
+			terms.push( ui.item.value );
+			// add placeholder to get the comma-and-space at the end
+			terms.push( "" );
+			this.value = terms.join( ", " );
+			return false;
+		}
+	});
+});
+</script>
+
 <div class="blacknews_all">
 	<button class="button icon-plus fc_gradient_blue fc_gradient_hover left blacknews_add"> {translate('Add entry')}</button>
 	<button class="button bn_icon-settings fc_gradient1 fc_gradient_hover left blacknews_options_button">{translate('General options')}</button>
@@ -24,7 +72,9 @@
 		<input id="entries_{$section_id}" type="text" name="entries_per_page" value="{$options.entries_per_page}" /><br/>
 		<label for="variant_{$section_id}" class="blacknews_label">{translate('Variant')}:</label>
 		<select id="variant_{$section_id}" name="variant">
-			{foreach $module_variants index variants}<option value="{$index}"{if $options.variant == $variants} selected="selected"{/if}>{$variants}</option>{/foreach}
+			{foreach $module_variants index variants}
+			<option value="{$index}"{if $options.variant == $index} selected="selected"{/if}>{$variants}</option>
+			{/foreach}
 		</select><br/>
 		<label for="permalink_{$section_id}" class="blacknews_label">{translate('Permalink')}</label>
 		<input id="permalink_{$section_id}" type="text" name="permalink" value="{$options.permalink}" /><br/>
@@ -74,12 +124,14 @@
 				<div class="fc_gradient1 clear">
 					<div class="zwei_spalten">
 						<h2>{translate('Automatic publish')}</h2>
-						<span class="blacknews_label">{translate('Publish on')}:</span><input type="text" name="start" value="" /><br/>
-						<span class="blacknews_label">{translate('Publish until')}:</span><input type="text" name="end" value="" />
+						<span class="blacknews_label">{translate('Publish on')}:</span>
+						<input type="date" name="start" id="publish_date_from" value="" /><br/>
+						<span class="blacknews_label">{translate('Publish until')}:</span>
+						<input type="date" name="end" id="publish_date_to" value="" />
 					</div>
 					<div class="zwei_spalten">
 						<h2>{translate('Additional information')}</h2>
-						<span class="blacknews_label">{translate('Category')}:</span><input type="text" name="category" value="" /><br/>
+						<span class="blacknews_label">{translate('Category')}:</span><input type="text" id="bn_category_{$section_id}" name="category" value="" /><br/>
 						<span class="blacknews_label">{translate('Image')}:</span><input type="file" name="image" accept="image/*" />
 					</div>
 					<p class="clear"></p>

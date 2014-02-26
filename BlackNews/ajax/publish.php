@@ -41,8 +41,8 @@ header('Content-type: application/json');
 // ===============
 // ! Get page id
 // ===============
-$page_id	= $val->sanitizePost('page_id', 'numeric');
-$section_id	= $val->sanitizePost('section_id', 'numeric');
+$page_id		= $val->sanitizePost('page_id', 'numeric');
+$section_id		= $val->sanitizePost('section_id', 'numeric');
 $news_id		= $val->sanitizePost('news_id', 'numeric');
 
 // =============
@@ -68,39 +68,24 @@ if ( $PageHelper->getPagePermission( $page_id, 'admin' ) !== true )
 	exit();
 }
 
+include_once( '../class.news.php' );
 
-$active		= $val->sanitizePost('publish','numeric') != '' && $val->sanitizePost('publish','numeric') != 0 ? 1 : 0;
-$action		= $active > 0 ? 'published' : 'unpublished';
+$BlackNews	= new BlackNews( $news_id );
+$active		= $val->sanitizePost('publish','numeric');
 
-$PageHelper->db()->query("UPDATE " . CAT_TABLE_PREFIX . "mod_blacknews_entry SET
-		active	= '$active'
-		WHERE news_id = '$news_id' AND
-		section_id = '$section_id' AND
-		page_id = '$page_id'"
-	);
 
-// ================================================================ 
-// ! Check if there is a database error, otherwise say successful   
-// ================================================================ 
-if ( $backend->is_error() )
-{
-	$ajax	= array(
-		'message'	=> $backend->lang()->translate( $backend->get_error() ),
-		'success'	=> false
-	);
-	print json_encode( $ajax );
-	exit();
-}
-else
-{
-	$ajax	= array(
-		'message'	=> $backend->lang()->translate( sprintf( 'Entry %s successfully!', $action ) ),
-		'active'	=> $active,
-		'news_id'	=> $news_id,
-		'success'	=> true
-	);
-	print json_encode( $ajax );
-	exit();
-}
+
+$action		= $BlackNews->setPublished( $active );
+
+
+$ajax	= array(
+	'message'	=> $backend->lang()->translate( sprintf( 'Entry %s successfully!', $action ) ),
+	'active'	=> $active != 0 ? 1 : 0,
+	'news_id'	=> $news_id,
+	'success'	=> true
+);
+print json_encode( $ajax );
+exit();
+
 
 ?>
