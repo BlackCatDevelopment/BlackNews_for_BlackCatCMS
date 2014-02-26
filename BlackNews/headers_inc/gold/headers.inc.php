@@ -45,10 +45,8 @@ $mod_headers = array(
 		),
 		'jquery' => array(
 			array(
-				'core'			=> true
-			),
-			array(
-				'all' => array( 'cattranslate' )
+				'core'			=> true,
+				'all'			=> array ( 'jquery.timepicker' )
 			)
 		),
 	),
