@@ -61,6 +61,7 @@ $LANG = array(
 	'Subtitle' => 'Unterzeile',
 	'There was no picture added.' => 'Es wurde kein Bild hinzugefügt',
 	'Title of RSS' => 'RSS Titel',
-	'Unpublished' => 'Unveröffentlicht'
+	'Unpublished' => 'Unveröffentlicht',
+	'Last Update'	=> 'Aktualisiert am'
 );
 ?>

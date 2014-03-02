@@ -88,3 +88,13 @@
 .blacknews_single_entry_img {
 	float: left;
 }
+
+
+.bn_category,
+.bn_updated,
+.bn_createdby {
+	font-size: 0.8em;
+	color: #9da8b2;
+	display: inline-block;
+	padding-right: 2em;
+}

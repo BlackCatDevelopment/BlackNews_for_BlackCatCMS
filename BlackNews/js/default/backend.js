@@ -127,8 +127,8 @@ $(document).ready(function(){
 
 					return_success( jqXHR.process , data.message);
 
-					var	blacknews_long ='blacknews_long_' +	data.section_id,
-						blacknews_short ='blacknews_short_' +	data.section_id;
+					var	blacknews_long ='blacknews_long_' + data.section_id,
+						blacknews_short ='blacknews_short_' + data.section_id;
 
 					current.find('input[name=news_id]').val( data.values.news_id );
 					current.find('input[name=title]').val( data.values.title );
@@ -145,7 +145,7 @@ $(document).ready(function(){
 
 
 					CKEDITOR.instances[blacknews_long].setData( data.values.content );
-					CKEDITOR.instances[blacknews_short].setData( data.values.content_short );
+					CKEDITOR.instances[blacknews_short].setData( data.values.short );
 
 					if( data.values.active ){
 						current.find('button.bn_icon-feed').removeClass('drafted').addClass('published');
@@ -219,7 +219,7 @@ $(document).ready(function(){
 
 
 					editor1.setData( data.values.content );
-					editor2.setData( data.values.content_short );
+					editor2.setData( data.values.short );
 
 					if( data.values.active ){
 						current.find('button.bn_icon-feed').removeClass('drafted').addClass('published');

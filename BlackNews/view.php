@@ -77,11 +77,7 @@ $parser_data['pagelink']	= CAT_URL . $BlackNews->permalink;
 
 $BlackNews->checkRedirect();
 
-/*
-header("HTTP/1.1 301 Moved Permanently");
-// Weiterleitungsziel. Wohin soll eine permanente Weiterleitung erfolgen?
-header("Location:" . CAT_URL . $BlackNews->permalink);
-*/
+
 $variant	= $parser_data['options']['variant'] != ''
 				&& isset($getInfo['module_variants'][$parser_data['options']['variant']]) ?
 						$getInfo['module_variants'][$parser_data['options']['variant']] : 

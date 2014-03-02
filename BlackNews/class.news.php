@@ -104,7 +104,10 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					'section_id',
 					self::$section_id,
 					$option ? 
-						( $option === true ? ' AND `active` = \'1\'' : ' AND `news_id` = \'' . intval($option) . '\'' )
+						( $option === true ? ' AND `active` = \'1\'
+								AND ( `start` < \'' . time() . '\' )
+								AND ( ( `end` != 0 AND `end` > \'' . time() . '\') OR `end` = 0 )'
+							: ' AND `news_id` = \'' . intval($option) . '\'' )
 						: '',
 					$rss ? ( $rss == 'backend' ? 'DESC' : 'ASC' ) : 'DESC',
 					$rss ? ( $rss == 'backend' ? '' : 'LIMIT ' . $this->setRSSCounter() ) : 

@@ -11,6 +11,10 @@
 
 {if $entry}
 <div id="blacknews_{$section_id}">
+	<span class="bn_category">{translate('Category')}: {$entry.categories}</span>
+	<span class="bn_updated">{translate('Last Update')}: {$entry.updated}</span>
+	<span class="bn_createdby">{translate('Created by')}: {$entry.created_by}</span>
+
 	<h1>{$entry.title}</h2>
 	{if $entry.image_path != ''}<img src="{makeThumb( $entry.image_path, 'blacknews_',200,600)}" alt="" />{/if}
 	{if $entry.subtitle}<h2>{$entry.subtitle}</h2>{/if}
