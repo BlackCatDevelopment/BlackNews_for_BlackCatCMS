@@ -741,6 +741,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			}
 		}   // end checkRedirect()
 
+
 		/**
 		 *
 		 *
