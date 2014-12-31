@@ -32,7 +32,7 @@ if (defined('CAT_PATH')) {
 }
 // end include class.secure.php
 
-
+/*
 $getVariant	= CAT_Helper_Page::getInstance()->db()->get_one(
 			sprintf(
 				'SELECT `value` FROM `%smod_%s`
@@ -44,11 +44,23 @@ $getVariant	= CAT_Helper_Page::getInstance()->db()->get_one(
 					'variant'
 			)
 );
+*/
 
-$getInfo	= CAT_Helper_Addons::checkInfo( CAT_PATH . '/modules/blacknews/' );
+include_once( 'classes/class.news.php' );
 
+$blackNews		= new BlackNews( $section, true );
+
+$variant		= $blackNews->getVariant();
 
 $module_path	= '/modules/blacknews/';
+
+if ( file_exists( CAT_PATH . $module_path .'headers_inc/' . $variant . '/headers.inc.php' ) )
+	include( CAT_PATH . $module_path . 'headers_inc/' . $variant . '/headers.inc.php' );
+elseif ( file_exists( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' ) )
+	include( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' );
+/*
+$getInfo	= CAT_Helper_Addons::checkInfo( CAT_PATH . $module_path );
+/*
 
 $variant	= $getVariant != '' && isset($getInfo['module_variants'][$getVariant]) ?
 	$getInfo['module_variants'][$getVariant] : 
@@ -60,7 +72,7 @@ elseif ( file_exists( CAT_PATH . $module_path .'headers_inc/default/headers.inc.
 	include_once( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' );
 
 
-
+*/
 if( !isset($mod_headers['frontend']['meta']) ) {
 	$mod_headers['frontend']['meta']	= array(
 		array( '<link rel="alternate" type="application/rss+xml" title="RSS" href="" />' )

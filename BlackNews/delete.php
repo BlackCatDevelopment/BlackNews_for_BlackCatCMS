@@ -33,28 +33,11 @@ if (defined('CAT_PATH')) {
 // end include class.secure.php
 
 
-include_once( 'class.news.php' );
+include_once( 'classes/class.news.php' );
 
-$BlackNews	= new BlackNews( );
-$BlackNews->removeAccessFolder( '/' );
+$BlackNews	= new BlackNews();
 
-// Delete record from the database
-CAT_Backend::getInstance('Pages', 'pages_modify')->db()->query(sprintf(
-	"DELETE FROM `%smod_blacknews_entry` WHERE section_id = '%d'",
-	CAT_TABLE_PREFIX, $section_id
-));
-CAT_Backend::getInstance('Pages', 'pages_modify')->db()->query(sprintf(
-	"DELETE FROM `%smod_blacknews_content` WHERE section_id = '%d'",
-	CAT_TABLE_PREFIX, $section_id
-));
-CAT_Backend::getInstance('Pages', 'pages_modify')->db()->query(sprintf(
-	"DELETE FROM `%smod_blacknews_content_options` WHERE section_id = '%d'",
-	CAT_TABLE_PREFIX, $section_id
-));
-CAT_Backend::getInstance('Pages', 'pages_modify')->db()->query(sprintf(
-	"DELETE FROM `%smod_blacknews_options` WHERE section_id = '%d'",
-	CAT_TABLE_PREFIX, $section_id
-));
+$BlackNews->deleteNews();
 
 
 ?>

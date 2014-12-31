@@ -52,7 +52,7 @@ $parser_data	= array(
 // =============================== 
 // ! Get columns in this section   
 // =============================== 
-include_once( 'class.news.php' );
+include_once( 'classes/class.news.php' );
 
 $BlackNews	= new BlackNews();
 

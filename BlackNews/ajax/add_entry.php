@@ -32,7 +32,6 @@ if (defined('CAT_PATH')) {
 }
 // end include class.secure.php
 $val		= CAT_Helper_Validate::getInstance();
-$user		= CAT_Users::getInstance();
 $PageHelper	= CAT_Helper_Page::getInstance();
 $backend	= CAT_Backend::getInstance('Pages', 'pages_modify', false);
 
@@ -46,7 +45,7 @@ $page_id		= $val->sanitizePost('page_id','numeric');
 if ( !$section_id || !$page_id )
 {
 	$ajax	= array(
-		'message'	=> $backend->lang()->translate('You sent an invalid value'),
+		'message'	=> $PageHelper->lang()->translate('You sent an invalid value'),
 		'success'	=> false
 	);
 	print json_encode( $ajax );
@@ -56,100 +55,25 @@ if ( !$section_id || !$page_id )
 if ( $PageHelper->getPagePermission( $page_id, 'admin' ) !== true )
 {
 	$ajax	= array(
-		'message'	=> $backend->lang()->translate( 'You do not have permissions to modify this page!' ),
+		'message'	=> $PageHelper->lang()->translate( 'You do not have permissions to modify this page!' ),
 		'success'	=> false
 	);
 	print json_encode( $ajax );
 	exit();
 }
 
-$time		= time();
-$user_id	= $user->get_user_id();
+include_once( 'classes/class.news.php' );
 
-$position	= $PageHelper->db()->get_one( sprintf(
-	"SELECT `%s` FROM %smod_%s
-	ORDER BY `%s` DESC LIMIT 1",
-	'position',
-	CAT_TABLE_PREFIX,
-	'blacknews_entry',
-	'position'
-	)
-);
+$BlackNews	= new BlackNews( );
 
-if ( $position == '' ) $position = 0;
-$position++;
-
-if ( $PageHelper->db()->query( sprintf(
-			"INSERT INTO `%smod_%s`
-			(%s) VALUES (%s)",
-			CAT_TABLE_PREFIX,
-			'blacknews_entry',
-			'`page_id`, `section_id`, `active`, `updated`, `created`, `created_by`, `position`',
-			"'$page_id', '$section_id', '0', '$time', '$time', '$user_id', '$position'"
-		)
-	)
-)
-{
-	$backend->lang()->addFile( LANGUAGE . '.php', sanitize_path(CAT_PATH . '/modules/blacknews/languages') );
-
-	$news_id				= $PageHelper->db()->get_one("SELECT LAST_INSERT_ID()");
-
-	include_once( '../class.news.php' );
-
-	$BlackNews				= new BlackNews( $news_id );
-
-	$permalink				= $BlackNews->getOptions( 'permalink' );
-
-	$title					= $backend->lang()->translate('New entry');
-	$url_title				= $backend->lang()->translate('New entry');
-	$url					= $BlackNews->createTitleURL( $url_title );
-	$counter				= 0;
-	while( file_exists( CAT_PATH . '/' . $permalink . '/' . $url ) )
-	{
-		$url				= $BlackNews->createTitleURL( $url_title . '-' . ++$counter );
-	}
-	$BlackNews->createAccessFile( $url );
-	$subtitle				= '';//$backend->lang()->translate('New subtitle');
-	$auto_generate_size		= 300;
-	$auto_generate			= 1;
-
-	$PageHelper->db()->query( sprintf(
-			"INSERT INTO `%smod_%s`
-			(%s) VALUES (%s)",
-			CAT_TABLE_PREFIX,
-			'blacknews_content',
-			'`page_id`, `section_id`, `news_id`, `title`, `subtitle`, `auto_generate_size`, `auto_generate`, `content`, `short`',
-			"'$page_id', '$section_id', '$news_id', '$title', '$subtitle', '$auto_generate_size', '$auto_generate', '', ''"
-		)
-	);
-	$PageHelper->db()->query( sprintf(
-			"INSERT INTO `%smod_%s`
-			(%s) VALUES (%s)",
-			CAT_TABLE_PREFIX,
-			'blacknews_content',
-			'`page_id`, `section_id`, `news_id`, `title`, `subtitle`, `auto_generate_size`, `auto_generate`, `content`, `short`',
-			"'$page_id', '$section_id', '$news_id', '$title', '$subtitle', '$auto_generate_size', '$auto_generate', '', ''"
-		)
-	);
-}
+$return		= $BlackNews->addEntry();
 
 $ajax	= array(
-	'message'	=> $backend->lang()->translate('Entry added successfully'),
+	'message'		=> is_array($return) ? $PageHelper->lang()->translate('Entry added successfully') : $PageHelper->lang()->translate('An error occured'),
+	'page_id'		=> $page_id,
 	'section_id'	=> $section_id,
-	'values'	=> array(
-		'news_id'				=> $news_id,
-		'title'					=> $title,
-		'subtitle'				=> $subtitle,
-		'pageurl'				=> $url,
-		'auto_generate_size'	=> $auto_generate_size,
-		'auto_generate'			=> $auto_generate == 0 ? false : true,
-		'time'					=> CAT_Helper_DateTime::getInstance()->getDateTime( $time ),
-		'user'					=> $user->get_username(),
-		'image'					=> '',
-		'content_short'			=> '',
-		'content'				=> ''
-	),
-	'success'	=> true
+	'values'		=> $return,
+	'success'		=> is_array($return) ? true : false
 );
 
 print json_encode( $ajax );

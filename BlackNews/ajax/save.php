@@ -76,7 +76,7 @@ if ( $PageHelper->getPagePermission( $page_id, 'admin' ) !== true )
 	exit();
 }
 
-include_once( '../class.news.php' );
+include_once( '../classes/class.news.php' );
 
 $BlackNews	= new BlackNews( $news_id );
 
@@ -98,8 +98,7 @@ $end					= $end != '' && $end > 0 ? strtotime( $end ) : '';
 
 $short_cont				= addslashes( $val->sanitizePost( 'blacknews_short_' . $section_id ) );
 $long_cont				= addslashes( $val->sanitizePost( 'blacknews_long_' . $section_id ) );
-$text					= umlauts_to_entities(strip_tags( $short_cont ), strtoupper(DEFAULT_CHARSET), 0) . ' ' .
-							umlauts_to_entities(strip_tags( $long_cont ), strtoupper(DEFAULT_CHARSET), 0);
+$text					= strip_tags( $short_cont ) . ' ' . strip_tags( $long_cont );
 
 // Bilder hochladen und speichern
 if ( isset( $_FILES['image']['name'] ) && $_FILES['image']['name'] != '' )

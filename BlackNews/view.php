@@ -56,7 +56,7 @@ settype( $news_id, 'int' );
 $page			= $val->sanitizeGet('page','numeric');
 
 
-include_once( 'class.news.php' );
+include_once( 'classes/class.news.php' );
 
 $BlackNews	= new BlackNews( $news_id );
 

@@ -43,10 +43,19 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		protected $rss_counter			= NULL;
 
 
+		protected static $initOptions		= array(
+			'entries_per_page'		=> '10',
+			'variant'				=> 'default',
+			'permalink'				=> '/news/',
+			'rss_counter'			=> '15',
+			'rss_title'				=> '',
+			'rss_description'		=> ''
+		);
+
 		public $options			= NULL;
 		public $entries			= array();
 		public $news_ids		= array();
-		public $permalink		= NULL;
+		public $permalink		= '/news/';
 		public $RSS				= array();
 
 		public static function getInstance()
@@ -58,29 +67,240 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			return self::$instance;
 		}
 
-		public function __construct( $news_id	= NULL )
+		public function __construct( $news_id	= NULL, $is_header = false )
 		{
 			global $page_id, $section_id;
-			if ( $news_id === true )
+			
+			// This is a workaround for headers.inc.php as there is no $section_id defined yet
+			if ( !isset($section_id) || $is_header )
 			{
+				$section_id	= is_numeric($news_id) ? $news_id : $news_id['section_id'];
 			}
-			elseif ( is_numeric($news_id) )
-			{
-				self::$news_id	= $news_id;
-			}
+
 			self::$section_id	= intval($section_id);
 			self::$page_id		= intval($page_id);
 
+			if ( $news_id === true )
+			{
+				$this->initAdd();
+			}
+			elseif ( is_numeric($news_id) && !$is_header )
+			{
+				self::$news_id	= $news_id;
+			}
+
 			$this->permalink	= $this->getOptions( 'permalink' );
 
+			CAT_Helper_I18n::getInstance()->lang()->addFile( LANGUAGE . '.php', CAT_PATH . '/modules/blacknews/languages');
 		}
 
 		public function __destruct() {}
 
 
 
+
 		/**
-		 * get all offers from database
+		 * add new BlackNews
+		 *
+		 * @access public
+		 * @return integer
+		 *
+		 **/
+		private function initAdd()
+		{
+			if ( !self::$section_id || !self::$page_id ) return false;
+
+			$counter	= 0;
+			while( file_exists( CAT_PATH . $this->permalink ) )
+			{
+				$this->permalink = '/news-' . ++$counter . '/';
+			}
+
+			if( !file_exists( CAT_PATH . $this->permalink ) )
+			{
+				CAT_Helper_Directory::getInstance()->createDirectory( CAT_PATH . $this->permalink, NULL, false );
+			}
+
+			// Add initial options for gallery
+			foreach( self::$initOptions as $name => $val )
+			{
+				if( !$this->saveOptions( $name, $val ) )
+					$return	= false;
+			}
+
+			$this->createAccessFile( true, false );
+
+			return true;
+		} // initAdd()
+
+		/**
+		 * delete a catGallery
+		 *
+		 * @access public
+		 * @return integer
+		 *
+		 **/
+		public function deleteNews()
+		{
+			if ( !self::$section_id || !self::$page_id ) return false;
+
+			// Delete record from the database
+			foreach (
+				array( 'entry', 'content', 'content_options', 'options' ) as $table
+			)
+			{
+				if( !CAT_Helper_Page::getInstance()->db()->query( sprintf(
+						'DELETE FROM `:prefix:mod_blacknews_%s` WHERE section_id = :section_id',
+						$table
+					),
+					array(
+						'section_id'	=> self::$section_id
+					)
+				) ) return false;
+				$return	= true;
+			}
+
+			// Delete folder
+			if ( $return )
+				if( $this->removeAccessFolder( '/' ) );
+					else return true;
+				else return false;
+			return false;
+		}
+
+
+		/**
+		 * add new entry
+		 *
+		 * @access public
+		 * @return integer
+		 *
+		 **/
+		public function addEntry( $title = '' )
+		{
+			if ( !self::$section_id || !self::$page_id ) return false;
+
+			$PageHelper	= CAT_Helper_Page::getInstance();
+			$user_id	= CAT_Users::getInstance()->get_user_id();
+			$lang		= CAT_Helper_I18n::getInstance();
+			$time		= time();
+
+			// Get position of next entry
+			$getPos		= CAT_Helper_Page::getInstance()->db()->query(
+				'SELECT `position` FROM `:prefix:mod_blacknews_entry`
+					ORDER BY `position` DESC LIMIT 1'
+			);
+			if ( $getPos && $getPos->rowCount() > 0)
+			{
+				if( !false == ($pos = $getPos->fetch() ) )
+				{
+					 $position	= $pos['position'];
+				} else $position	= 0;
+			} else $position	= 0;
+			$position++;
+
+			// Add new entry to database
+			if ( $PageHelper->db()->query(
+				'INSERT INTO `:prefix:mod_blacknews_entry`
+					(`page_id`, `section_id`, `active`, `updated`, `created`, `created_by`, `position`)
+					VALUES (:page_id, :section_id, :active, :updated, :created, :created_by, :position)',
+				array(
+					'page_id'		=> self::$page_id,
+					'section_id'	=> self::$section_id,
+					'active'		=> 0,
+					'updated'		=> $time,
+					'created'		=> $time,
+					'created_by'	=> $user_id,
+					'position'		=> $position
+				)
+			) ) {
+				// default values
+				self::$news_id	= $PageHelper->db()->lastInsertId();
+
+				$this->getOptions( 'permalink' );
+
+				$title				= $title == '' ? $lang->lang()->translate('New entry') : $title;
+				$url_title			= $lang->lang()->translate('New entry');
+				$subtitle			= '';
+				$auto_generate_size	= 300;
+				$auto_generate		= 1;
+				$url				= $this->createTitleURL( $url_title );
+
+				$counter		= 0;
+				while( file_exists( CAT_PATH . '/' . $this->permalink . '/' . $url ) )
+				{
+					$url	= $this->createTitleURL( $url_title . '-' . ++$counter );
+				}
+				$this->createAccessFile( $url );
+
+				$PageHelper->db()->query(
+					'INSERT INTO `:prefix:mod_blacknews_content`
+						(`page_id`, `section_id`, `news_id`, `title`, `subtitle`, `auto_generate_size`, `auto_generate` , `content`, `short`)
+						VALUES (:page_id, :section_id, :news_id, :title, :subtitle, :auto_generate_size, :auto_generate, :content, :short )',
+					array(
+						'page_id'				=> self::$page_id,
+						'section_id'			=> self::$section_id,
+						'news_id'				=> self::$news_id,
+						'title'					=> $title,
+						'subtitle'				=> $subtitle,
+						'auto_generate_size'	=> $auto_generate_size,
+						'auto_generate'			=> $auto_generate,
+						'content'				=> '',
+						'short'					=> ''
+					)
+				);
+				return array(
+					'news_id'				=> self::$news_id,
+					'title'					=> $title,
+					'subtitle'				=> $subtitle,
+					'url'					=> $url,
+					'auto_generate_size'	=> $auto_generate_size,
+					'auto_generate'			=> $auto_generate == 0 ? false : true,
+					'position'				=> $position,
+					'active'				=> 0,
+					'updated'				=> CAT_Helper_DateTime::getInstance()->getDateTime( $time ),
+					'created'				=> CAT_Helper_DateTime::getInstance()->getDateTime( $time ),
+					'created_by'			=> CAT_Users::getInstance()->get_username(),
+					'content'				=> '',
+					'short'					=> ''
+				);
+			} else return false;
+		} // addEntry()
+
+		/**
+		 * add new entry
+		 *
+		 * @access public
+		 * @return integer
+		 *
+		 **/
+		public function removeEntry()
+		{
+			if ( !self::$section_id || !self::$page_id || !self::$news_id ) return false;
+
+			$return	= false;
+			$this->getEntryOptions('url');
+			foreach (
+				array( 'entry', 'content', 'content_options' ) as $table
+			)
+			{
+				if( !CAT_Helper_Page::getInstance()->db()->query( sprintf(
+						'DELETE FROM `:prefix:mod_blacknews_%s` WHERE `news_id` = :news_id',
+						$table
+					),
+					array(
+						'news_id'	=> self::$news_id
+					)
+				) ) return false;
+				else $return = true;
+			}
+
+			if ($return) $this->removeAccessFolder( $this->options[self::$news_id]['url'] );
+			return $return;
+		} // removeEntry()
+
+		/**
+		 * get all entries from database
 		 *
 		 * @access public
 		 * @param  string  $option		-
@@ -94,24 +314,22 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		public function getEntries( $option = true, $addContent = true, $rss = NULL )
 		{
 			$entries	= CAT_Helper_Page::getInstance()->db()->query( sprintf(
-				"SELECT * FROM `%smod_%s`
-					WHERE `%s` = '%s'%s
+				'SELECT * FROM `:prefix:mod_blacknews_entry`
+					WHERE `section_id` = :section_id
 					ORDER BY `position` %s
-					%s",
-
-					CAT_TABLE_PREFIX,
-					'blacknews_entry',
-					'section_id',
-					self::$section_id,
+					%s',
 					$option ? 
-						( $option === true ? ' AND `active` = \'1\'
-								AND ( `start` < \'' . time() . '\' )
-								AND ( ( `end` != 0 AND `end` > \'' . time() . '\') OR `end` = 0 )'
-							: ' AND `news_id` = \'' . intval($option) . '\'' )
+						( $option === true ? " AND `active` = '1'
+								AND ( `start` < '" . time() . "' )
+								AND ( ( `end` != '0' AND `end` > '" . time() . "') OR `end` = '0' )"
+							: " AND `news_id` = '" . intval($option) . "'" )
 						: '',
 					$rss ? ( $rss == 'backend' ? 'DESC' : 'ASC' ) : 'DESC',
 					$rss ? ( $rss == 'backend' ? '' : 'LIMIT ' . $this->setRSSCounter() ) : 
 						 'LIMIT ' . $this->setEPP()
+				),
+				array(
+					'section_id'	=> self::$section_id
 				)
 			);
 
@@ -166,19 +384,15 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 				$select	= '';
 				foreach ( $this->news_ids as $id )
 				{
-					$select	.= ' OR news_id = ' . $id;
+					$select				.= " OR `news_id` = '" . intval( $id ) . "'";
 				}
-				$select		= 'AND (' . substr($select, 3) . ')';
+				$select		= ' AND (' . substr($select, 3) . ')';
 
-				$options	= CAT_Helper_Page::getInstance()->db()->query( sprintf(
-					"SELECT * FROM `%smod_%s`
-						WHERE `%s` = '%s'%s",
-				
-						CAT_TABLE_PREFIX,
-						'blacknews_content_options',
-						'section_id',
-						self::$section_id,
-						$select
+				$options	= CAT_Helper_Page::getInstance()->db()->query(
+					'SELECT * FROM `:prefix:mod_blacknews_content_options`
+						WHERE `section_id` = :section_id ' . $select,
+					array(
+						'section_id'	=> self::$section_id
 					)
 				);
 	
@@ -198,14 +412,12 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			}
 		
 			$entries	= CAT_Helper_Page::getInstance()->db()->query( sprintf(
-				"SELECT * FROM `%smod_%s`
-					WHERE `%s` = '%s'%s",
-
-					CAT_TABLE_PREFIX,
-					'blacknews_content',
-					'section_id',
-					self::$section_id,
+				'SELECT * FROM `:prefix:mod_blacknews_content`
+					WHERE `section_id` = :section_id %s',
 					isset($select) ? $select : ''
+				),
+				array(
+					'section_id'	=> self::$section_id
 				)
 			);
 	
@@ -254,16 +466,14 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			if ( $name && isset($this->options[$news_id][$name]) ) return $this->options[$news_id][$name];
 
 			$getOptions		= CAT_Helper_Page::getInstance()->db()->query( sprintf(
-				"SELECT * FROM `%smod_%s`
-					WHERE `%s` = '%s'
-					AND `%s` = '%s'%s",
-					CAT_TABLE_PREFIX,
-					'blacknews_content_options',
-					'section_id',
-					self::$section_id,
-					'news_id',
-					$news_id,
+				'SELECT * FROM `:prefix:mod_blacknews_content_options`
+					WHERE `section_id` = :section_id
+					AND `news_id` = :news_id %s',
 					$name ? ' AND `name` = \'' . $name . '\'' : ''
+				),
+				array(
+					'section_id'	=> self::$section_id,
+					'news_id'		=> $news_id
 				)
 			);
 
@@ -297,20 +507,19 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		public function saveEntryOptions( $name = NULL, $value = '' )
 		{
 			if ( !$name ) return false;
-			if ( CAT_Helper_Page::getInstance()->db()->query( sprintf(
-				"REPLACE INTO `%smod_%s` SET
-					`page_id`		= '%s',
-					`section_id`	= '%s',
-					`news_id`		= '%s',
-					`name`			= '%s',
-					`value`			= '%s'",
-					CAT_TABLE_PREFIX,
-					'blacknews_content_options',
-					self::$page_id,
-					self::$section_id,
-					self::$news_id,
-					addslashes( $name ),
-					addslashes( $value )
+			if ( CAT_Helper_Page::getInstance()->db()->query(
+				'REPLACE INTO `:prefix:mod_blacknews_content_options` SET
+					`page_id`		= :page_id,
+					`section_id`	= :section_id,
+					`news_id`		= :news_id,
+					`name`			= :name,
+					`value`			= :value',
+				array(
+					'page_id'		=> self::$page_id,
+					'section_id'	=> self::$section_id,
+					'news_id'		=> self::$news_id,
+					'name'			=> $name,
+					'value'			=> $value
 				)
 			) ) return true;
 			else return false;
@@ -330,16 +539,19 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		{
 			if ( $name && isset($this->options[$name]) ) return $this->options[$name];
 
-			$getOptions		= CAT_Helper_Page::getInstance()->db()->query( sprintf(
-				"SELECT * FROM `%smod_%s`
-					WHERE `%s` = '%s'%s",
-					CAT_TABLE_PREFIX,
-					'blacknews_options',
-					'section_id',
-					self::$section_id,
-					$name ? ' AND `name` = \'' . addslashes( $name ) . '\'' : ''
-				)
+			$sqlVal	= array(
+				'section_id'	=> self::$section_id
 			);
+			if($name) $sqlVal['name']	= $name;
+
+			$getOptions		= CAT_Helper_Page::getInstance()->db()->query( sprintf(
+				'SELECT * FROM `:prefix:mod_blacknews_options`
+					WHERE `section_id` = :section_id %s',
+					$name ? ' AND `name` = :name' : ''
+				),
+				$sqlVal
+			);
+				
 
 			if ( isset($getOptions) && $getOptions->numRows() > 0)
 			{
@@ -384,24 +596,69 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					if ( substr($value, -1,1)	!= '/' ) $value	.= '/';
 				}
 			}
-			if ( CAT_Helper_Page::getInstance()->db()->query( sprintf(
-				"REPLACE INTO `%smod_%s` SET
-					`page_id`		= '%s',
-					`section_id`	= '%s',
-					`name`			= '%s',
-					`value`			= '%s'",
-					CAT_TABLE_PREFIX,
-					'blacknews_options',
-					self::$page_id,
-					self::$section_id,
-					addslashes($name),
-					addslashes($value)
+			if ( CAT_Helper_Page::getInstance()->db()->query(
+				'REPLACE INTO `:prefix:mod_blacknews_options` SET
+					`page_id`		= :page_id,
+					`section_id`	= :section_id,
+					`name`			= :name,
+					`value`			= :value',
+				array(
+					'page_id'		=> self::$page_id,
+					'section_id'	=> self::$section_id,
+					'name'			=> $name,
+					'value'			=> $value
 				)
 			) ) return true;
 			else return false;
 		} // end saveOptions()
 
 
+
+
+
+		/**
+		 * get variant of gallery
+		 *
+		 * @access public
+		 * @return string
+		 *
+		 **/
+		public function getVariant()
+		{
+			if ( isset( $this->options['_variant'] ) )
+				return $this->options['_variant'];
+
+			$this->getModuleVariants();
+			$this->getOptions('variant');
+
+			$variant	= $this->options['variant'] != ''
+				&& isset($this->module_variants[$this->options['variant']]) ?
+						$this->module_variants[$this->options['variant']] : 
+						'default';
+
+			$this->options['_variant']	= $variant;
+
+			return $this->options['_variant'];
+		} // getVariant()
+
+
+
+		/**
+		 * get all possible variants for gallery
+		 *
+		 * @access public
+		 * @return array
+		 *
+		 **/
+		public function getModuleVariants()
+		{
+			if ( count($this->module_variants) > 0 ) return $this->module_variants;
+			$getInfo	= CAT_Helper_Addons::checkInfo( CAT_PATH . '/modules/blacknews/' );
+
+			$this->module_variants	= $getInfo['module_variants'];
+
+			return $this->module_variants;
+		} // getModuleVariants()
 
 
 		/**
@@ -415,16 +672,13 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		{
 			$news_id	= $news_id ? $news_id : self::$news_id;
 
-			$getOptions		= CAT_Helper_Page::getInstance()->db()->query( sprintf(
-				"SELECT `categories` FROM `%smod_%s`
-					WHERE `%s` = '%s'
-					AND `%s` = '%s'",
-					CAT_TABLE_PREFIX,
-					'blacknews_entry',
-					'section_id',
-					self::$section_id,
-					'news_id',
-					$news_id
+			$getOptions		= CAT_Helper_Page::getInstance()->db()->query(
+				'SELECT `categories` FROM `:prefix:mod_blacknews_entry`
+					WHERE `section_id` = :section_id
+					AND `news_id` = :news_id',
+				array(
+					'section_id'	=> self::$section_id,
+					'news_id'		=> $news_id
 				)
 			);
 
@@ -453,13 +707,11 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		{
 			if ( !self::$section_id ) return false;
 
-			$getOptions		= CAT_Helper_Page::getInstance()->db()->query( sprintf(
-				"SELECT DISTINCT `categories` FROM `%smod_%s`
-					WHERE `%s` = '%s'",
-					CAT_TABLE_PREFIX,
-					'blacknews_entry',
-					'section_id',
-					self::$section_id
+			$getOptions		= CAT_Helper_Page::getInstance()->db()->query(
+				'SELECT DISTINCT `categories` FROM `:prefix:mod_blacknews_entry`
+					WHERE `section_id` = :section_id',
+				array(
+					'section_id'	=> self::$section_id
 				)
 			);
 
@@ -493,18 +745,17 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 
 			$status	= intval( $status );
 
-			if ( CAT_Helper_Page::getInstance()->db()->query( sprintf(
-				"UPDATE `%smod_%s`
-					SET `active`		= '%s'
-					WHERE `news_id`		= '%s'
-					AND `section_id`	= '%s'
-					AND `page_id`		= '%s'",
-					CAT_TABLE_PREFIX,
-					'blacknews_entry',
-					$status,
-					self::$news_id,
-					self::$section_id,
-					self::$page_id
+			if ( CAT_Helper_Page::getInstance()->db()->query(
+				'UPDATE `:prefix:mod_blacknews_entry`
+					SET `active`		= :news_id
+					WHERE `news_id`		= :news_id
+					AND `section_id`	= :section_id
+					AND `page_id`		= :page_id',
+				array(
+					'active'		=> $status,
+					'news_id'		=> self::$news_id,
+					'section_id'	=> self::$section_id,
+					'page_id'		=> self::$page_id
 			) ) )
 			{
 				if ( $status != 1 ) $this->removeAccessFolder( $this->getEntryOptions('url' , self::$news_id ) );
@@ -709,7 +960,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		 **/
 		public function removeAccessFolder( $dir = NULL )
 		{
-			if ( !$dir || strpos( $dir,'../' ) ) return false;
+			if ( !$dir || strpos( $dir,'../' || $dir == '' || $this->getOptions( 'permalink' ) == '' ) ) return false;
 			if ( substr( $dir, 0, 1 ) != '/' ) $dir	= '/' . $dir;
 			
 			if ( CAT_Helper_Directory::removeDirectory( CAT_PATH  . $this->getOptions( 'permalink' ) . $dir, NULL, false ) )

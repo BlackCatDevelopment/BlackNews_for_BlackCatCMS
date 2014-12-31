@@ -54,7 +54,7 @@ if ( !$news_id || !$section_id )
 	exit();
 }
 
-include_once( '../class.news.php' );
+include_once( '../classes/class.news.php' );
 
 $BlackNews	= new BlackNews( $news_id );
 

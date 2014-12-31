@@ -32,8 +32,4 @@ if (defined('CAT_PATH')) {
 }
 // end include class.secure.php
 
-include_once( 'classes/class.news.php' );
-
-$BlackNews	= new BlackNews( true );
-
 ?>

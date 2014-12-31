@@ -64,17 +64,13 @@ if ( $PageHelper->getPagePermission( $page_id, 'admin' ) !== true )
 }
 
 
-include_once( '../class.news.php' );
+include_once( '../classes/class.news.php' );
 
 $BlackNews				= new BlackNews( $news_id );
 
-$BlackNews->removeAccessFolder( $BlackNews->getEntryOptions('url') );
+$success	= $BlackNews->removeEntry();
 
-$PageHelper->db()->query("DELETE FROM " . CAT_TABLE_PREFIX . "mod_blacknews_entry WHERE news_id = '$news_id'" );
-$PageHelper->db()->query("DELETE FROM " . CAT_TABLE_PREFIX . "mod_blacknews_content WHERE news_id = '$news_id'" );
-$PageHelper->db()->query("DELETE FROM " . CAT_TABLE_PREFIX . "mod_blacknews_content_options WHERE news_id = '$news_id'" );
-
-if ( !$backend->is_error() )
+if ( $success )
 {
 	$ajax	= array(
 		'message'	=> $backend->lang()->translate('Entry deleted successfully'),
