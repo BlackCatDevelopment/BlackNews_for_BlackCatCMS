@@ -62,7 +62,7 @@ if ( $PageHelper->getPagePermission( $page_id, 'admin' ) !== true )
 	exit();
 }
 
-include_once( 'classes/class.news.php' );
+include_once( '../classes/class.news.php' );
 
 $BlackNews	= new BlackNews( );
 
