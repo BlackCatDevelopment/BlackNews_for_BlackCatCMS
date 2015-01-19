@@ -48,7 +48,7 @@ if(defined('CAT_URL'))
 		. ' `created` INT NOT NULL,'
 		. ' `updated` INT NOT NULL,'
 		. ' `created_by` INT NOT NULL,'
-		. ' `categories` VARCHAR(2048) NOT NULL,'
+		. ' `categories` VARCHAR(2048) NOT NULL DEFAULT \'\','
 		. ' `highlight` TINYINT(1) NOT NULL,'
 		. ' `position` INT NOT NULL,'
 		. ' PRIMARY KEY ( `news_id` )'
@@ -62,9 +62,9 @@ if(defined('CAT_URL'))
 		. ' `news_id` INT NOT NULL DEFAULT \'0\','
 		. ' `page_id` INT NOT NULL DEFAULT \'0\','
 		. ' `section_id` INT NOT NULL DEFAULT \'0\','
-		. ' `title` VARCHAR(1024) NOT NULL,'
-		. ' `subtitle` VARCHAR(2048) NOT NULL,'
-		. ' `image` VARCHAR(2048) NOT NULL,'
+		. ' `title` VARCHAR(1024) NOT NULL DEFAULT \'\','
+		. ' `subtitle` VARCHAR(2048) NOT NULL DEFAULT \'\','
+		. ' `image` VARCHAR(2048) NOT NULL DEFAULT \'\','
 		. ' `auto_generate` TINYINT(1) NOT NULL DEFAULT \'1\','
 		. ' `auto_generate_size` INT NOT NULL DEFAULT \'300\','
 		. ' `short` TEXT NOT NULL,'
@@ -80,8 +80,8 @@ if(defined('CAT_URL'))
 		. ' `news_id` INT NOT NULL DEFAULT \'0\','
 		. ' `page_id` INT NOT NULL DEFAULT \'0\','
 		. ' `section_id` INT NOT NULL DEFAULT \'0\','
-		. ' `name` VARCHAR(255) NOT NULL,'
-		. ' `value` VARCHAR(255) NOT NULL,'
+		. ' `name` VARCHAR(255) NOT NULL DEFAULT \'\','
+		. ' `value` VARCHAR(255) NOT NULL DEFAULT \'\','
 		. ' PRIMARY KEY ( `news_id`, `page_id`, `section_id`, `name` )'
 		. ' )';
 	$page_helper->db()->query($mod_create_table);
@@ -91,8 +91,8 @@ if(defined('CAT_URL'))
 	$mod_create_table = 'CREATE TABLE  `'.CAT_TABLE_PREFIX.'mod_blacknews_options` ('
 		. ' `page_id` INT NOT NULL DEFAULT \'0\','
 		. ' `section_id` INT NOT NULL DEFAULT \'0\','
-		. ' `name` VARCHAR(255) NOT NULL,'
-		. ' `value` VARCHAR(255) NOT NULL,'
+		. ' `name` VARCHAR(255) NOT NULL DEFAULT \'\','
+		. ' `value` VARCHAR(255) NOT NULL DEFAULT \'\','
 		. ' PRIMARY KEY ( `page_id`, `section_id`, `name` )'
 		. ' )';
 	$page_helper->db()->query($mod_create_table);
