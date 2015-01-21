@@ -979,19 +979,14 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		 **/
 		public function checkRedirect()
 		{
-			$curURL	= array_values(
-				array_filter(
-					explode('/', str_replace( CAT_URL, '', $this->getPageURL() ) )
-				)
-			);
-
-			if ( $curURL[0] != str_replace( '/', '', self::getOptions( 'permalink' ) ) )
+			if ( !NEWS_SECTION || NEWS_SECTION == 'NEWS_SECTION' )
 			{
 				header("HTTP/1.1 301 Moved Permanently");
 				// Weiterleitungsziel. Wohin soll eine permanente Weiterleitung erfolgen?
 				header("Location:" . CAT_URL . self::getOptions( 'permalink' ) );
 			}
 		}   // end checkRedirect()
+
 
 
 		/**
