@@ -20,7 +20,7 @@
 		{if $entry.subtitle != ''}<h4>{$entry.subtitle}</h4>{/if}
 			{$entry.short}
 		</article>
-		<a class="blacknews_link button" href="{CAT_URL}/{$entry.url}">{translate('Read more...')}</a>
+		<a class="blacknews_link button" href="{cat_url}/{$entry.url}">{translate('Read more...')}</a>
 	</section>
 	{/foreach}
 </div>

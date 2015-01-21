@@ -44,6 +44,10 @@ if ( file_exists( CAT_PATH . $module_path .'headers_inc/' . $variant . '/headers
 	include( CAT_PATH . $module_path . 'headers_inc/' . $variant . '/headers.inc.php' );
 elseif ( file_exists( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' ) )
 	include( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' );
+/*
+	*
+	* This is not working in BC 1.1 - need to find a good fix for that issue
+	*
 
 if( !isset($mod_headers['frontend']['meta']) ) {
 	$mod_headers['frontend']['meta']	= array(
@@ -55,5 +59,5 @@ if( !isset($mod_headers['frontend']['meta']) ) {
 		array( '<link rel="alternate" type="application/rss+xml" title="RSS" href="" />' )
 	);
 }
-
+*/
 ?>
