@@ -32,20 +32,6 @@ if (defined('CAT_PATH')) {
 }
 // end include class.secure.php
 
-/*
-$getVariant	= CAT_Helper_Page::getInstance()->db()->get_one(
-			sprintf(
-				'SELECT `value` FROM `%smod_%s`
-					WHERE `section_id` = \'%s\'
-					AND `name` = \'%s\'',
-					CAT_TABLE_PREFIX,
-					'blacknews_options',
-					$section['section_id'],
-					'variant'
-			)
-);
-*/
-
 include_once( 'classes/class.news.php' );
 
 $blackNews		= new BlackNews( $section, true );
@@ -58,21 +44,7 @@ if ( file_exists( CAT_PATH . $module_path .'headers_inc/' . $variant . '/headers
 	include( CAT_PATH . $module_path . 'headers_inc/' . $variant . '/headers.inc.php' );
 elseif ( file_exists( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' ) )
 	include( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' );
-/*
-$getInfo	= CAT_Helper_Addons::checkInfo( CAT_PATH . $module_path );
-/*
 
-$variant	= $getVariant != '' && isset($getInfo['module_variants'][$getVariant]) ?
-	$getInfo['module_variants'][$getVariant] : 
-	'default';
-
-if ( file_exists( CAT_PATH . $module_path .'headers_inc/' . $variant . '/headers.inc.php' ) )
-	include_once( CAT_PATH . $module_path .'headers_inc/' . $variant . '/headers.inc.php' );
-elseif ( file_exists( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' ) )
-	include_once( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' );
-
-
-*/
 if( !isset($mod_headers['frontend']['meta']) ) {
 	$mod_headers['frontend']['meta']	= array(
 		array( '<link rel="alternate" type="application/rss+xml" title="RSS" href="" />' )

@@ -55,6 +55,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		public $options			= NULL;
 		public $entries			= array();
 		public $news_ids		= array();
+		public $module_variants		= array();
 		public $permalink		= '/news/';
 		public $RSS				= array();
 
