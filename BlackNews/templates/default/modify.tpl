@@ -11,58 +11,25 @@
  * @license			http://www.gnu.org/licenses/gpl.html
  *
  *}
+
+
 <script type="text/javascript">
-$(document).ready(function()
-\{
-	var allCategories = [
-		{foreach $allCategories category}
-		"{$category}",
-		{/foreach}
-	];
-	function bn_split( val ) \{
-		return val.split( /,\s*/ );
+	if (typeof bNIDs === 'undefined')
+	\{
+		bNIDs	= [];
 	}
-	function bn_extractLast( term ) \{
-		return bn_split( term ).pop();
-	}
-	$( "#bn_category_{$section_id}" )
-	// don't navigate away from the field on tab when selecting an item
-	.bind( "keydown", function( event ) \{
-		if ( event.keyCode === $.ui.keyCode.TAB &&
-		$( this ).data( "ui-autocomplete" ).menu.active ) {
-			event.preventDefault();
-		}
-	})
-	.autocomplete({
-		minLength: 0,
-		source: function( request, response ) {
-			// delegate back to autocomplete, but extract the last term
-			response( $.ui.autocomplete.filter(
-		allCategories, bn_extractLast( request.term ) ) );
-		},
-		focus: function() {
-			// prevent value inserted on focus
-			return false;
-		},
-		select: function( event, ui ) {
-			var terms = bn_split( this.value );
-			// remove the current input
-			terms.pop();
-			// add the selected item
-			terms.push( ui.item.value );
-			// add placeholder to get the comma-and-space at the end
-			terms.push( "" );
-			this.value = terms.join( ", " );
-			return false;
-		}
+	bNIDs.push(
+	\{
+		'page_id'		: {$page_id},
+		'section_id'	: {$section_id},
+		'allCategories'	: [{foreach $allCategories category}"{$category}",{/foreach}]
 	});
-});
 </script>
 
 <div class="blacknews_all">
-	<button class="button icon-plus fc_gradient_blue fc_gradient_hover left blacknews_add"> {translate('Add entry')}</button>
+	<button class="button icon-plus fc_gradient_blue fc_gradient_hover left blacknews_add" id="blacknews_add_{$section_id}"> {translate('Add entry')}</button>
 	<button class="button bn_icon-settings fc_gradient1 fc_gradient_hover left blacknews_options_button">{translate('General options')}</button>
-	<form class="blacknews_options blacknews_form_options fc_gradient1 clear" action="{$CAT_URL}/modules/blacknews/ajax/save.php" method="post">
+	<form class="blacknews_options blacknews_form_options fc_gradient1 clear" action="{$CAT_URL}/modules/blacknews/ajax/save.php" method="post" id="bN_form_{$section_id}">
 		<input type="hidden" name="page_id" value="{$page_id}" />
 		<input type="hidden" name="section_id" value="{$section_id}" />
 		<input type="hidden" name="options" value="entries_per_page,variant,permalink,rss_counter,rss_title,rss_description" />
@@ -92,7 +59,7 @@ $(document).ready(function()
 	</div>
 	<div class="blacknews_container">
 		<div class="blacknews_sidebar fc_gradient1">
-			<ul class="blacknews_entries">
+			<ul class="blacknews_entries" id="bN_entries_{$section_id}">
 				{foreach $entries as entry}
 				<li class="bn_icon-feed{if $entry.active} published{else} drafted{/if}" id="blacknews_{$section_id}_{$entry.news_id}">
 					<input type="hidden" name="news_id_{$entry.news_id}" value="{$entry.news_id}" />
@@ -101,7 +68,7 @@ $(document).ready(function()
 				{/foreach}
 			</ul>
 		</div>
-		<form action="{$CAT_URL}/modules/blacknews/ajax/save.php" method="post" enctype="multipart/form-data" class="blacknews_content blacknews_form">
+		<form action="{$CAT_URL}/modules/blacknews/ajax/save.php" method="post" enctype="multipart/form-data" class="blacknews_content blacknews_form" id="bNcontent_{$section_id}">
 			<input type="hidden" name="page_id" value="{$page_id}" />
 			<input type="hidden" name="section_id" value="{$section_id}" />
 			<input type="hidden" name="news_id" value="" />
@@ -113,7 +80,7 @@ $(document).ready(function()
 					<span class="is_published">{translate('Published')}</span>
 					<span class="not_published">{translate('Unpublished')}</span>
 				</button>
-				<button name="delete" class="fc_gradient_red fc_gradient_hover blacknews_delete right"> {translate('Delete')}</button>
+				<button name="delete" class="fc_gradient_red fc_gradient_hover blacknews_delete right" id="bN_del_{$section_id}"> {translate('Delete')}</button>
 
 				<span class="blacknews_label">{translate('Main title')}:</span><input type="text" name="title" value="" autofocus="autofocus" /><br/>
 				<span class="blacknews_label">{translate('Subtitle')}:</span><input type="text" name="subtitle" value="" /><br/>
@@ -125,9 +92,9 @@ $(document).ready(function()
 					<div class="zwei_spalten">
 						<h2>{translate('Automatic publish')}</h2>
 						<span class="blacknews_label">{translate('Publish on')}:</span>
-						<input type="date" name="start" id="publish_date_from" value="" /><br/>
+						<input type="date" name="start" id="publish_date_from_{$section_id}" value="" /><br/>
 						<span class="blacknews_label">{translate('Publish until')}:</span>
-						<input type="date" name="end" id="publish_date_to" value="" />
+						<input type="date" name="end" id="publish_date_to_{$section_id}" value="" />
 					</div>
 					<div class="zwei_spalten">
 						<h2>{translate('Additional information')}</h2>
@@ -140,12 +107,12 @@ $(document).ready(function()
 						<div class="fc_settings_max">
 							<input type="checkbox" class="fc_checkbox_jq blacknews_short_check" name="auto_generate" id="blacknews_shortbutton_{$section_id}" value="1">
 							<label for="blacknews_shortbutton_{$section_id}">{translate('Automatically generate short content...')}</label>
-							<div class="blacknews_short_on">
+							<div class="blacknews_short_on" id="blacknews_short_on_{$section_id}">
 								{translate('Number of characters for preview')}: <input type="text" name="auto_generate_size" value="" />
 							</div>
 						</div>
 					</div>
-					<div class="blacknews_short_off clear">
+					<div class="blacknews_short_off clear" id="blacknews_short_off_{$section_id}">
 						<h2 class="line_before">{translate('Short content')}:</h2>
 						{show_wysiwyg_editor($WYSIWYG.short,$WYSIWYG.short,'',$WYSIWYG.short_width,$WYSIWYG.short_height)}
 					</div>

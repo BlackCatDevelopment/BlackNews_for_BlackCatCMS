@@ -62,6 +62,7 @@ $LANG = array(
 	'There was no picture added.' => 'Es wurde kein Bild hinzugefügt',
 	'Title of RSS' => 'RSS Titel',
 	'Unpublished' => 'Unveröffentlicht',
-	'Last Update'	=> 'Aktualisiert am'
+	'Last Update'	=> 'Aktualisiert am',
+	'Read more'	=> 'Mehr lesen'
 );
 ?>

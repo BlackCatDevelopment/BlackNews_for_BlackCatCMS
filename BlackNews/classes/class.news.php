@@ -55,7 +55,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		public $options			= NULL;
 		public $entries			= array();
 		public $news_ids		= array();
-		public $module_variants		= array();
+		public $module_variants	= array();
 		public $permalink		= '/news/';
 		public $RSS				= array();
 
@@ -78,8 +78,8 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 				$section_id	= is_numeric($news_id) ? $news_id : $news_id['section_id'];
 			}
 
-			self::$section_id	= intval($section_id);
-			self::$page_id		= intval($page_id);
+			$this->setPageID( intval($page_id) );
+			$this->setSectionID( intval($section_id) );
 
 			if ( $news_id === true )
 			{
@@ -97,7 +97,23 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 
 		public function __destruct() {}
 
-
+		/**
+		 * set the $page_id
+		 */
+		public function setPageID( $page_id )
+		{
+			self::$page_id		= intval($page_id);
+			return $this;
+		}
+		
+		/**
+		 * set the $section_id
+		 */
+		public function setSectionID( $section_id )
+		{
+			self::$section_id	= intval($section_id);
+			return $this;
+		}
 
 
 		/**
@@ -117,7 +133,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 				$this->permalink = '/news-' . ++$counter . '/';
 			}
 
-			if( !file_exists( CAT_PATH . $this->permalink ) )
+			if( CAT_PATH . $this->permalink )
 			{
 				CAT_Helper_Directory::getInstance()->createDirectory( CAT_PATH . $this->permalink, NULL, false );
 			}
@@ -151,7 +167,8 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			)
 			{
 				if( !CAT_Helper_Page::getInstance()->db()->query( sprintf(
-						'DELETE FROM `:prefix:mod_blacknews_%s` WHERE section_id = :section_id',
+						'DELETE FROM `:prefix:mod_blacknews_%s`' .
+							' WHERE section_id = :section_id',
 						$table
 					),
 					array(
@@ -187,17 +204,17 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			$time		= time();
 
 			// Get position of next entry
-			$getPos		= CAT_Helper_Page::getInstance()->db()->query(
-				'SELECT `position` FROM `:prefix:mod_blacknews_entry`
-					ORDER BY `position` DESC LIMIT 1'
-			);
-			if ( $getPos && $getPos->rowCount() > 0)
-			{
-				if( !false == ($pos = $getPos->fetch() ) )
-				{
-					 $position	= $pos['position'];
-				} else $position	= 0;
-			} else $position	= 0;
+			$position		= CAT_Helper_Page::getInstance()->db()->query(
+				'SELECT `position` FROM `:prefix:mod_blacknews_entry`' .
+					' WHERE `page_id` = :page_id' .
+							' AND `section_id` = :section_id' .
+					' ORDER BY `position` DESC LIMIT 1',
+				array(
+					'page_id'		=> self::$page_id,
+					'section_id'	=> self::$section_id
+				)
+			)->fetchColumn();
+
 			$position++;
 
 			// Add new entry to database
@@ -315,14 +332,15 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		public function getEntries( $option = true, $addContent = true, $rss = NULL )
 		{
 			$entries	= CAT_Helper_Page::getInstance()->db()->query( sprintf(
-				'SELECT * FROM `:prefix:mod_blacknews_entry`
-					WHERE `section_id` = :section_id
-					ORDER BY `position` %s
-					%s',
+				'SELECT * FROM `:prefix:mod_blacknews_entry`' .
+					' WHERE `section_id` = :section_id' .
+					' %s' .
+					' ORDER BY `position` %s' .
+					' %s',
 					$option ? 
-						( $option === true ? " AND `active` = '1'
-								AND ( `start` < '" . time() . "' )
-								AND ( ( `end` != '0' AND `end` > '" . time() . "') OR `end` = '0' )"
+						( $option === true ? " AND `active` >= 1" .
+								" AND `start` < '" . time() . "'" .
+								" AND ( `end` > '" . time() . "' OR `end` = 0 )"
 							: " AND `news_id` = '" . intval($option) . "'" )
 						: '',
 					$rss ? ( $rss == 'backend' ? 'DESC' : 'ASC' ) : 'DESC',
@@ -747,11 +765,11 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			$status	= intval( $status );
 
 			if ( CAT_Helper_Page::getInstance()->db()->query(
-				'UPDATE `:prefix:mod_blacknews_entry`
-					SET `active`		= :news_id
-					WHERE `news_id`		= :news_id
-					AND `section_id`	= :section_id
-					AND `page_id`		= :page_id',
+				'UPDATE `:prefix:mod_blacknews_entry`' .
+					' SET `active`			= :active' .
+					' WHERE `news_id`		= :news_id' .
+						' AND `section_id`	= :section_id' .
+						' AND `page_id`		= :page_id',
 				array(
 					'active'		=> $status,
 					'news_id'		=> self::$news_id,
