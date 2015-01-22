@@ -331,7 +331,7 @@ $(document).ready(function()
 
 
 
-			$('button.bn_icon-feed').click( function(e)
+			$('#bNpublish_' + bNID.section_id).click( function(e)
 			{
 				e.preventDefault();
 			
@@ -341,7 +341,7 @@ $(document).ready(function()
 					url			= CAT_URL + '/modules/blacknews/ajax/publish.php',
 					dates		= {
 						'section_id':			bNID.section_id,
-						'page_id':				bNID.section_id,
+						'page_id':				bNID.page_id,
 						'news_id':				news_id,
 						'publish':				current.hasClass('published') ? 0 : 1,
 						'_cat_ajax':			1

@@ -76,7 +76,7 @@
 			<input type="hidden" name="fc_form_title" value="{translate('Saving entry')}" />
 			<div class="blacknews_content_header">
 				<button name="save" class="fc_gradient_blue fc_gradient_hover right">{translate('Save')}</button>
-				<button name="publish" class="fc_gradient1 fc_gradient_hover right bn_icon-feed{if $entry.active} published{else} drafted{/if}">
+				<button name="publish" class="fc_gradient1 fc_gradient_hover right bn_icon-feed{if $entry.active} published{else} drafted{/if}" id="bNpublish_{$section_id}">
 					<span class="is_published">{translate('Published')}</span>
 					<span class="not_published">{translate('Unpublished')}</span>
 				</button>
