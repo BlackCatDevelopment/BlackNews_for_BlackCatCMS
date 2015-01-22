@@ -184,7 +184,7 @@ $(document).ready(function()
 			$('#blacknews_add_' + bNID.section_id ).click( function(e)
 			{
 				e.preventDefault();
-				var current	= $('#bN_form_' + bNID.section_id),
+				var current	= $('#bNcontent_' + bNID.section_id),
 					url		= CAT_URL + '/modules/blacknews/ajax/add_entry.php',
 					dates		= {
 						'page_id':		bNID.page_id,
@@ -210,9 +210,7 @@ $(document).ready(function()
 						if ( data.success === true )
 						{
 							current_ul.children('li').not(current).removeClass('active');
-							current_ul.prepend('<li class="bn_icon-feed active drafted"><input type="hidden" name="news_id_' + data.values.news_id + '" value="' + data.values.news_id + '" /> <span>' + data.values.title + '</span></li>');
-				
-							return_success( jqXHR.process , data.message);
+							current_ul.prepend('<li class="bn_icon-feed active drafted" id="blacknews_' + bNID.section_id +'_' + data.values.news_id + '"><input type="hidden" name="news_id_' + data.values.news_id + '" value="' + data.values.news_id + '" /> <span>' + data.values.title + '</span></li>');
 				
 							var	blacknews_long ='blacknews_long_' + data.section_id,
 								blacknews_short ='blacknews_short_' + data.section_id;
@@ -230,7 +228,6 @@ $(document).ready(function()
 							current.find('.blacknews_short_check').prop( 'checked', data.values.auto_generate ).change();
 							current.find('input[name=auto_generate_size]').val( data.values.auto_generate_size );
 				
-				
 							CKEDITOR.instances[blacknews_long].setData( data.values.content );
 							CKEDITOR.instances[blacknews_short].setData( data.values.short );
 				
@@ -240,6 +237,10 @@ $(document).ready(function()
 							else {
 								current.find('button.bn_icon-feed').removeClass('published').addClass('drafted');
 							}
+
+							$( '#bN_entries_' + bNID.section_id ).sortable( "refresh" );
+
+							return_success( jqXHR.process , data.message);
 						}
 						else {
 							return_error( jqXHR.process , data.message);
