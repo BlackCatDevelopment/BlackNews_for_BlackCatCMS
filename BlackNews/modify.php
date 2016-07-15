@@ -64,8 +64,8 @@ $entries_per_page		= $BlackNews->setEPP();
 $parser_data['entries']	= $BlackNews->getEntries( NULL, true, 'backend' );
 
 $parser_data['WYSIWYG']		= array(
-	'long'			=> 'blacknews_long_' . $section_id,
-	'short'			=> 'blacknews_short_' . $section_id,
+	'long'			=> 'bN_long_' . $section_id,
+	'short'			=> 'bN_short_' . $section_id,
 	'short_width'	=> '100%',
 	'short_height'	=> '150px',
 	'long_width'	=> '100%',

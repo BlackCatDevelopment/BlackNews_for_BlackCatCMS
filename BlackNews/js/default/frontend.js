@@ -15,15 +15,15 @@
 
 $(document).ready(function()
 {
-	$('.blacknews_eq .blacknews_row').each( function()
+	$('.bN_eq .bN_row').each( function()
 	{
 		var height			= 0,
 			current_row		= $(this);
-		current_row.children('.blacknews').each( function()
+		current_row.children('.bN').each( function()
 		{
-			var current_height		= $(this).find('.blacknews_content').outerHeight();
+			var current_height		= $(this).find('.bN_content').outerHeight();
 			height					= height < current_height ? current_height : height;
 		});
-		current_row.find('.blacknews_content').css({height: height});
+		current_row.find('.bN_content').css({height: height});
 	});
 });

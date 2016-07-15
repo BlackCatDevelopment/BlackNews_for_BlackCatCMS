@@ -23,7 +23,6 @@
  *
  */
 
-
 // include class.secure.php to protect this file and the whole CMS!
 if (defined('CAT_PATH')) {	
 	include(CAT_PATH.'/framework/class.secure.php'); 
@@ -35,12 +34,17 @@ if (defined('CAT_PATH')) {
 		$root .= $oneback;
 		$level += 1;
 	}
-	if (file_exists($root.'/framework/class.secure.php')) { 
+	if (file_exists($root.'/framework/class.secure.php')) {
 		include($root.'/framework/class.secure.php'); 
 	} else {
 		trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
 	}
 }
 // end include class.secure.php
+
+# image als options => aus mod_blacknews_content raus
+# secure_class => alle Ajax-Einträge raus und dafür save.php rein
+# anpassen: mod_blacknews_content_options und mod_blacknews_options name = 127, value = 2047
+# delete mod_blacknews_content => id und primaray key to news_id, section_id, page_id
 
 ?>

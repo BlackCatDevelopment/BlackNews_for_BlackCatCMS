@@ -63,8 +63,7 @@ if(defined('CAT_URL'))
 		. ' `page_id` INT NOT NULL DEFAULT \'0\','
 		. ' `section_id` INT NOT NULL DEFAULT \'0\','
 		. ' `title` VARCHAR(1024) NOT NULL DEFAULT \'\','
-		. ' `subtitle` VARCHAR(2048) NOT NULL DEFAULT \'\','
-		. ' `image` VARCHAR(2048) NOT NULL DEFAULT \'\','
+		. ' `subtitle` VARCHAR(2047) NOT NULL DEFAULT \'\','
 		. ' `auto_generate` TINYINT(1) NOT NULL DEFAULT \'1\','
 		. ' `auto_generate_size` INT NOT NULL DEFAULT \'300\','
 		. ' `short` TEXT NOT NULL,'
@@ -80,8 +79,8 @@ if(defined('CAT_URL'))
 		. ' `news_id` INT NOT NULL DEFAULT \'0\','
 		. ' `page_id` INT NOT NULL DEFAULT \'0\','
 		. ' `section_id` INT NOT NULL DEFAULT \'0\','
-		. ' `name` VARCHAR(255) NOT NULL DEFAULT \'\','
-		. ' `value` VARCHAR(255) NOT NULL DEFAULT \'\','
+		. ' `name` VARCHAR(127) NOT NULL DEFAULT \'\','
+		. ' `value` VARCHAR(2047) NOT NULL DEFAULT \'\','
 		. ' PRIMARY KEY ( `news_id`, `page_id`, `section_id`, `name` )'
 		. ' )';
 	$page_helper->db()->query($mod_create_table);
@@ -91,8 +90,8 @@ if(defined('CAT_URL'))
 	$mod_create_table = 'CREATE TABLE  `'.CAT_TABLE_PREFIX.'mod_blacknews_options` ('
 		. ' `page_id` INT NOT NULL DEFAULT \'0\','
 		. ' `section_id` INT NOT NULL DEFAULT \'0\','
-		. ' `name` VARCHAR(255) NOT NULL DEFAULT \'\','
-		. ' `value` VARCHAR(255) NOT NULL DEFAULT \'\','
+		. ' `name` VARCHAR(127) NOT NULL DEFAULT \'\','
+		. ' `value` VARCHAR(2047) NOT NULL DEFAULT \'\','
 		. ' PRIMARY KEY ( `page_id`, `section_id`, `name` )'
 		. ' )';
 	$page_helper->db()->query($mod_create_table);
@@ -140,12 +139,13 @@ if(defined('CAT_URL'))
 	$addons_helper = new CAT_Helper_Addons();
 	foreach(
 		array(
-			'ajax/add_entry.php',
+		/*	'ajax/add_entry.php',
 			'ajax/delete_entry.php',
 			'ajax/get_info.php',
 			'ajax/publish.php',
 			'ajax/reorder.php',
-			'ajax/save.php'
+			'ajax/save.php'*/
+			'save.php'
 		)
 		as $file
 	) {

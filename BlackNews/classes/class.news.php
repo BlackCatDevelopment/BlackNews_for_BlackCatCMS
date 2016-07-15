@@ -72,10 +72,20 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		{
 			global $page_id, $section_id;
 			
+			if ( $is_header || ( !$is_header && !is_array($news_id)) )
+			{
+				global $page_id, $section_id;
+			}
+			require_once(CAT_PATH . '/framework/functions.php');
+
 			// This is a workaround for headers.inc.php as there is no $section_id defined yet
 			if ( !isset($section_id) || $is_header )
 			{
 				$section_id	= is_numeric($news_id) ? $news_id : $news_id['section_id'];
+			}
+			if ( !isset($page_id) && isset($news_id['page_id'] ) )
+			{
+				$page_id	= is_numeric($news_id) ? $news_id : $news_id['page_id'];
 			}
 
 			$this->setPageID( intval($page_id) );
@@ -87,8 +97,17 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			}
 			elseif ( is_numeric($news_id) && !$is_header )
 			{
-				self::$news_id	= $news_id;
+				self::$news_id	= intval($news_id);
 			}
+			elseif ( is_array($news_id) && !$is_header )
+			{
+				self::$news_id	= intval($news_id['news_id']);
+			}
+			elseif ( is_numeric($section_id) && $section_id > 0 )
+			{
+				$this->setNewsID();
+			}
+			else return false;
 
 			$this->permalink	= $this->getOptions( 'permalink' );
 
@@ -114,6 +133,31 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			self::$section_id	= intval($section_id);
 			return $this;
 		}
+
+		/**
+		 * set the $news_id by self:$section_id
+		 *
+		 * @access public
+		 * @return integer
+		 *
+		 **/
+		public function setNewsID()
+		{
+			// Get columns in this section
+			self::$news_id	= CAT_Helper_Page::getInstance()->db()->query(
+					'SELECT `news_id`
+						FROM `:prefix:mod_blacknews_entry`' .
+						' WHERE `page_id` = :page_id AND' .
+							' `section_id` = :section_id' .
+							' LIMIT 1,0',
+				array(
+					'page_id'		=> self::$page_id,
+					'section_id'	=> self::$section_id
+				)
+			)->fetchColumn();
+
+			return self::$news_id;
+		} // end setNewsID()
 
 
 		/**
@@ -318,6 +362,44 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		} // removeEntry()
 
 		/**
+		 * reorder entries
+		 *
+		 * @access public
+		 * @param  array			$entIDs - Strings from jQuery sortable()
+		 * @return bool true/false
+		 *
+		 **/
+		public function reorderEntries( $entIDs = array() )
+		{
+			if ( ( !self::$section_id || !self::$page_id )
+				|| !is_array($entIDs)
+				|| count($entIDs) == 0
+			) return false;
+
+			$return		= true;
+			$counter	= count($entIDs);
+
+			foreach( $entIDs as $entStr )
+			{
+				$entID	= explode('_', $entStr);
+				if( !CAT_Helper_Page::getInstance()->db()->query(
+					'UPDATE `:prefix:mod_blacknews_entry`
+						SET `position` = :position
+						WHERE `news_id`		= :news_id
+							AND `page_id`		= :page_id
+							AND `section_id`	= :section_id',
+					array(
+						'position'		=> $counter--,
+						'news_id'		=> $entID[count($entID)-1],
+						'page_id'		=> self::$page_id,
+						'section_id'	=> self::$section_id
+					)
+				) ) $return = false;
+			}
+			return $return;
+		} // end reorderEntries()
+
+		/**
 		 * get all entries from database
 		 *
 		 * @access public
@@ -385,6 +467,75 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			return $this->entries;
 		} // end getEntries()
 
+
+		/**
+		 * save entry
+		 *
+		 * @access public
+		 * @param  string/array  $id - id/ids of offer
+		 * @param  string  $output - if table to print - default false
+		 * @return array()
+		 *
+		 **/
+		public function saveEntry( $options = array() )
+		{
+			if ( !self::$page_id || !self::$section_id || !self::$news_id ) return false;
+			if ( !is_array($options) || count($options) == 0 ) return false;
+
+#$short_check			= $val->sanitizePost('short_check','numeric') != '' ? 1 : 0;
+
+			if ( CAT_Helper_Page::getInstance()->db()->query(
+				'UPDATE `:prefix:mod_blacknews_entry` SET ' .
+					'`updated`		= :time, ' .
+					'`categories`	= :categories, ' .
+					'`start`		= :start, ' .
+					'`end`			= :end ' .
+					'WHERE ' .
+					'`news_id`		= :news_id AND ' .
+					'`page_id`		= :page_id AND ' .
+					'`section_id`	= :section_id',
+				array(
+					'time'			=> time(),#$options['time'],
+					'categories'	=> implode(',', array_filter( explode(',', $options['category'] ) ) ) ,
+					'start'			=> $options['start'] != '' && $options['start'] > 0 ? strtotime( $options['start'] ) : '',
+					'end'			=> $options['end'] != '' && $options['end'] > 0 ? strtotime( $options['end'] ) : '',
+					'news_id'		=> self::$news_id,
+					'page_id'		=> self::$page_id,
+					'section_id'	=> self::$section_id
+				)
+			) && CAT_Helper_Page::getInstance()->db()->query(
+				'UPDATE `:prefix:mod_blacknews_content` SET ' .
+					'`title`				= :title, ' .
+					'`subtitle`				= :subtitle, ' .
+					'`image`				= :image, ' .
+					'`auto_generate`		= :auto_generate, ' .
+					'`auto_generate_size`	= :auto_generate_size, ' .
+					'`short`				= :short_cont, ' .
+					'`content`				= :long_cont, ' .
+					'`text`					= :text ' .
+					'WHERE ' .
+					'`news_id`				= :news_id AND ' .
+					'`page_id`				= :page_id AND ' .
+					'`section_id`			= :section_id',
+				array(
+					'title'					=> addslashes( $options['title'] ),
+					'subtitle'				=> addslashes( $options['subtitle'] ),
+					'image'					=> '',
+					'auto_generate'			=> $options['auto_generate'] != '' ? 1 : 0,
+					'auto_generate_size'	=> intval( $options['auto_generate_size'] ),
+					'short_cont'			=> addslashes( $options['short_cont'] ),
+					'long_cont'				=> addslashes( $options['long_cont'] ),
+					'text'					=> umlauts_to_entities(
+						strip_tags( $options['long_cont'] ) . ' ' . strip_tags( $options['short_cont'] ),
+						strtoupper(DEFAULT_CHARSET), 0
+					),
+					'news_id'				=> self::$news_id,
+					'page_id'				=> self::$page_id,
+					'section_id'			=> self::$section_id
+				)
+			) ) return true;
+			else return false;
+		} // end saveEntry()
 
 		/**
 		 * get all offers from database
