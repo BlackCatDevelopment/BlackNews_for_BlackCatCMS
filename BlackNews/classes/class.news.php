@@ -441,7 +441,6 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					$user	= CAT_Users::getInstance()->get_user_details( $row['created_by'] );
 
 					$this->news_ids[]	= $row['news_id'];
-
 					$this->entries[$row['news_id']]	= array(
 						'news_id'		=> $row['news_id'],
 						'active'		=> $row['active'] == 0 ? false : true,
@@ -1241,7 +1240,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 				'RSSdescription'	=> $this->validateRSScontent( $this->getOptions( 'rss_description' ) ),
 				'RSSpubDate'		=> date("D, d M Y H:i:s O", time()),
 				'RSSlastDate'		=> date("D, d M Y H:i:s O", time()),
-				'RSSdocs'			=> $this->sanitizeURL( CAT_URL . $this->getOptions( 'permalink' ) ) . 'rss.xml',
+				'RSSdocs'			=> $this->sanitizeURL( CAT_URL . $this->getOptions( 'permalink' ) ) . '/rss.xml',
 				'RSSEdit'			=> '',
 				'copyright'			=> WEBSITE_TITLE,
 				'managingEditor'	=> SERVER_EMAIL . ' (' . CATMAILER_DEFAULT_SENDERNAME . ')',
@@ -1301,16 +1300,16 @@ require(\'%sindex.php\');
 			{
 				$RSScontent	.= sprintf(
 				'
-	<item> 
-		<title>%s</title>
-		<description>%s</description>
-		<content:encoded>%s</content:encoded>
-		<guid>%s</guid>
-		<link>%s</link>
-		<pubDate>%s</pubDate>
-		<dc:creator>%s</dc:creator>
-		<category>[BETA]</category>
-	</item>
+		<item> 
+			<title>%s</title>
+			<description>%s</description>
+			<content:encoded>%s</content:encoded>
+			<guid>%s</guid>
+			<link>%s</link>
+			<pubDate>%s</pubDate>
+			<dc:creator>%s</dc:creator>
+			<category>[BETA]</category>
+		</item>
 ',
 					$this->validateRSScontent( $item['title'] ),
 					$item['short'],
@@ -1329,8 +1328,7 @@ require(\'%sindex.php\');
 	xmlns:atom="http://www.w3.org/2005/Atom"
 	xmlns:content="http://purl.org/rss/1.0/modules/content/"
 	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
-	xmlns:dc="http://purl.org/dc/elements/1.1/"
->
+	xmlns:dc="http://purl.org/dc/elements/1.1/">
 	<channel>
 		<title>%s</title>
 		<link>%s</link>

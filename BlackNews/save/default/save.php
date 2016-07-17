@@ -158,6 +158,13 @@ if ( $action = $val->sanitizePost( 'action' ) )
 						$lang->translate( 'Entry saved successfully' )
 						: $lang->translate( 'Save failed' ),
 				'pageurl'	=> $url,
+				'title'		=> $val->sanitizePost('title'),
+				'subtitle'	=> $val->sanitizePost('subtitle'),
+				'category'	=> $val->sanitizePost('category'),
+				'news_id'	=> $news_id,
+				'image_url'	=> isset($picture) ? CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $picture : '',
+				'time'		=> $val->sanitizePost('time') != '' ?
+					CAT_Helper_DateTime::getInstance()->getDateTime( $$val->sanitizePost('time') ) : '',
 				'success'	=> $success
 			);
 
@@ -195,6 +202,11 @@ if ( $action = $val->sanitizePost( 'action' ) )
 
 			break;
 	}
+
+	$BlackNews->createRSS();
+	$update_when_modified = true;
+	CAT_Backend::updateWhenModified();
+
 } else {
 	$ajax_return	= array(
 		'message'	=> $lang->translate( 'You sent an invalid ID' ),

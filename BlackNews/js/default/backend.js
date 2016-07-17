@@ -129,61 +129,75 @@ $(document).ready(function()
 				}
 			});
 
+console.log(DATE_FORMAT,TIME_FORMAT);
 
-
-			var pdt	= $( '#bN_dateEnd_' + bNID.section_id ),
-				pdf	= $( '#bN_dateStart_' + bNID.section_id );
-
-			pdf.datetimepicker(
+			var $pdt	= $( '#bN_dateEnd_' + bNID.section_id ),
+				$pdf	= $( '#bN_dateStart_' + bNID.section_id ),
+				formVal = {
+					H:"HH",
+					M:"mm",
+					S:"ss"
+			};
+			$pdf.datetimepicker(
 			{
 				defaultDate:	'+1w',
 				dateFormat:		DATE_FORMAT,
-				timeFormat:		TIME_FORMAT,
+				timeFormat:		TIME_FORMAT.replace(/H|M|S/gi,function(matched){return formVal[matched];}),
 				firstDay:		1,
+				showSecond:		false,
+				showMillisec:	false,
+				showMicrosec:	false,
+				showTimezone:	false,
 				changeMonth:	true,
-				numberOfMonths:	3,
-				defaultDate:	null,
+				oneLine:		true,
+				controlType:	'select',
+				numberOfMonths:	2,
 				onClose: function( selectedDate )
 				{
-					pdt.datetimepicker( "option", "minDate", selectedDate );
+					$pdt.datetimepicker( "option", "minDate", selectedDate );
 				}
 			});
-			pdt.datetimepicker(
+			$pdt.datetimepicker(
 			{
 				defaultDate:	'+1w',
 				dateFormat:		DATE_FORMAT,
-				timeFormat:		TIME_FORMAT,
+				timeFormat:		TIME_FORMAT.replace(/H|M|S/gi,function(matched){return formVal[matched];}),
 				firstDay:		1,
+				showSecond:		false,
+				showMillisec:	false,
+				showMicrosec:	false,
+				showTimezone:	false,
 				changeMonth:	true,
-				numberOfMonths:	3,
-				defaultDate:	null,
+				oneLine:		true,
+				controlType:	'select',
+				numberOfMonths:	2,
 				onClose: function( selectedDate )
 				{
-					pdf.datetimepicker( "option", "maxDate", selectedDate );
+					$pdf.datetimepicker( "option", "maxDate", selectedDate );
 				}
 			});
 
 
-			var short_on	= $('#bN_shortbutton_' + bNID.section_id ),
-				s_on		= $('#bN_short_on_' + bNID.section_id ),
-				s_off		= $('#bN_short_off_' + bNID.section_id );
-			if ( short_on.prop('checked') ){
-				s_on.slideDown(0);
-				s_off.slideUp(0);
+			var $short_on	= $('#bN_shortbutton_' + bNID.section_id ),
+				$s_on		= $('#bN_short_on_' + bNID.section_id ),
+				$s_off		= $('#bN_short_off_' + bNID.section_id );
+			if ( $short_on.prop('checked') ){
+				$s_on.slideDown(0);
+				$s_off.slideUp(0);
 			} else {
-				s_on.slideUp(0);
-				s_off.slideDown(0);
+				$s_on.slideUp(0);
+				$s_off.slideDown(0);
 			}
 
-			short_on.change( function(e)
+			$short_on.change( function(e)
 			{
 				e.preventDefault();
-				if ( short_on.prop('checked') ){
-					s_on.slideDown(200);
-					s_off.slideUp(200);
+				if ( $short_on.prop('checked') ){
+					$s_on.slideDown(200);
+					$s_off.slideUp(200);
 				} else {
-					s_on.slideUp(200);
-					s_off.slideDown(200);
+					$s_on.slideUp(200);
+					$s_off.slideDown(200);
 				}
 			});
 
@@ -223,7 +237,7 @@ $(document).ready(function()
 				
 							var	bN_long ='bN_long_' + data.section_id,
 								bN_short ='bN_short_' + data.section_id;
-				
+
 							current.find('input[name=news_id]').val( data.values.news_id );
 							current.find('input[name=title]').val( data.values.title );
 							current.find('input[name=subtitle]').val( data.values.subtitle );
@@ -296,7 +310,7 @@ $(document).ready(function()
 						if ( data.success === true )
 						{
 							return_success( jqXHR.process , data.message);
-			
+
 							var	bN_long ='bN_long_' +	data.section_id,
 								bN_short ='bN_short_' +	data.section_id,
 								editor1	= CKEDITOR.instances[bN_long],
