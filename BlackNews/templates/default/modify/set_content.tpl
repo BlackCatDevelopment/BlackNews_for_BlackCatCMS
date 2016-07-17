@@ -30,7 +30,7 @@
 					<label for="bN_url_{$section_id}" class="bN_label">{translate('URL')}:</label>
 					<input id="bN_url_{$section_id}" type="text" name="url" value="">
 				</div>
-				<div class="bN_row2">
+				<div class="bN_row2 bN_saveDIV">
 					<button name="save" class="fc_gradient_blue fc_gradient_hover">{translate('Save')}</button>
 					<button name="publish" class="fc_gradient1 fc_gradient_hover bn_icon-feed{if $entry.active} published{else} drafted{/if}" id="bNpublish_{$section_id}">
 						<span class="is_published">{translate('Published')}</span>
