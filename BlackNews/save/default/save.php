@@ -152,7 +152,7 @@ if ( $action = $val->sanitizePost( 'action' ) )
 					}
 				}
 			}
-
+			$time	= $val->sanitizePost('time') != '' ? $val->sanitizePost('time') : time();
 			$ajax_return	= array(
 				'message'	=> $success === true ?
 						$lang->translate( 'Entry saved successfully' )
@@ -163,8 +163,7 @@ if ( $action = $val->sanitizePost( 'action' ) )
 				'category'	=> $val->sanitizePost('category'),
 				'news_id'	=> $news_id,
 				'image_url'	=> isset($picture) ? CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $picture : '',
-				'time'		=> $val->sanitizePost('time') != '' ?
-					CAT_Helper_DateTime::getInstance()->getDateTime( $$val->sanitizePost('time') ) : '',
+				'time'		=> CAT_Helper_DateTime::getInstance()->getDateTime( $time ),
 				'success'	=> $success
 			);
 

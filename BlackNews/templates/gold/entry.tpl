@@ -12,9 +12,9 @@
 {if $entry}
 <div id="blacknews_{$section_id}" class="blacknews_single_entry">
 	<h1>{$entry.title}</h1>
-	<span class="bn_category">{translate('Category')}: {$entry.categories}</span>
-	<span class="bn_updated">{translate('Last Update')}: {$entry.updated}</span>
-	<span class="bn_createdby">{translate('Created by')}: {$entry.created_by}</span>
+	{if $options.showCategory}<span class="bn_category">{translate('Category')}: {$entry.categories}</span>{/if}
+	{if $options.showDate}<span class="bn_updated">{translate('Last Update')}: {$entry.updated}</span>{/if}
+	{if $options.showCreator}<span class="bn_createdby">{translate('Created by')}: {$entry.created_by}</span>{/if}
 	{if $entry.image_path != ''}<img src="{makeThumb( $entry.image_path, 'blacknews_',200,600)}" alt="" class="blacknews_single_entry_img" />{/if}
 	{if $entry.subtitle}<h2>{$entry.subtitle}</h2>{/if}
 	<div>

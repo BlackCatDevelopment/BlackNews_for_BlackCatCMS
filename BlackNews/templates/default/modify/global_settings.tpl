@@ -29,7 +29,13 @@
 		<label for="entries_{$section_id}" class="bN_label">{translate('Entries per pages')}:</label>
 		<input id="entries_{$section_id}" type="text" name="entries_per_page" value="{$options.entries_per_page}" ><br>
 		<label for="permalink_{$section_id}" class="bN_label">{translate('Permalink')}</label>
-		<input id="permalink_{$section_id}" type="text" name="permalink" value="{$options.permalink}" ><br>
+		<input id="permalink_{$section_id}" type="text" name="permalink" value="{$options.permalink}" >
+		<div class="fc_settings_max">
+			<h3>{translate('Show in frontend')}</h3>
+			<input type="checkbox" class="fc_checkbox_jq" name="showDate" id="bN_showDate_{$section_id}" value="1"{if $options.showDate} checked="checked"{/if}><label for="bN_showDate_{$section_id}" class="">{translate('Date')}</label>
+			<input type="checkbox" class="fc_checkbox_jq" name="showCategory" id="bN_showCategory_{$section_id}" value="1"{if $options.showCategory} checked="checked"{/if}><label for="bN_showCategory_{$section_id}" class="">{translate('Category')}</label>
+			<input type="checkbox" class="fc_checkbox_jq" name="showCreator" id="bN_showCreator_{$section_id}" value="1"{if $options.showCreator} checked="checked"{/if}><label for="bN_showCreator_{$section_id}" class="">{translate('Creator')}</label>
+		</div>
 	</div>
 	<div class="bN_row2">
 		<h3>{translate('Options for RSS')}</h3>
@@ -44,7 +50,7 @@
 	<input type="hidden" name="section_id" value="{$section_id}" >
 	<input type="hidden" name="action" value="saveOptions">
 	<input type="hidden" name="_cat_ajax" value="1">
-	<input type="hidden" name="options" value="entries_per_page,permalink,rss_counter,rss_title,rss_description" >
+	<input type="hidden" name="options" value="entries_per_page,permalink,rss_counter,rss_title,rss_description,showDate,showCreator,showCategory" >
 	<input type="hidden" name="fc_form_title" value="{translate('Saving options')}" >
 	<button name="save" class="fc_gradient_blue fc_gradient_hover">{translate('Save options')}</button>
 	<input type="reset" name="reset" class="bN_close" value="{translate('Close')}">

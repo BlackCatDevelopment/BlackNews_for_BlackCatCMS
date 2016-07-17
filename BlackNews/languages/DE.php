@@ -77,6 +77,9 @@ $LANG = array(
 	'Last Update'								=> 'Aktualisiert am',
 	'Read more'									=> 'Mehr lesen',
 	'Set skin'									=> 'Variante setzen',
-	'Save skin &amp; reload'					=> 'Speichern &amp; Neu laden'
+	'Save skin &amp; reload'					=> 'Speichern &amp; Neu laden',
+	'Show in frontend'							=> 'Zeige im Frontend',
+	'Date'										=> 'Erstellungsdatum',
+	'Creator'									=> 'Ersteller'
 );
 ?>

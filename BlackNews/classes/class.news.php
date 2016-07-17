@@ -698,7 +698,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					'section_id'	=> self::$section_id,
 					'news_id'		=> self::$news_id,
 					'name'			=> $name,
-					'value'			=> $value
+					'value'			=> is_null($value) ? '' : $value
 				)
 			) ) return true;
 			else return false;
@@ -785,7 +785,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					'page_id'		=> self::$page_id,
 					'section_id'	=> self::$section_id,
 					'name'			=> $name,
-					'value'			=> $value
+					'value'			=> is_null($value) ? '' : $value
 				)
 			) ) return true;
 			else return false;
