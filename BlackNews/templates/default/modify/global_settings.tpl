@@ -30,12 +30,11 @@
 		<input id="entries_{$section_id}" type="text" name="entries_per_page" value="{$options.entries_per_page}" ><br>
 		<label for="permalink_{$section_id}" class="bN_label">{translate('Permalink')}</label>
 		<input id="permalink_{$section_id}" type="text" name="permalink" value="{$options.permalink}" >
-		<div class="fc_settings_max">
-			<h3>{translate('Show in frontend')}</h3>
-			<input type="checkbox" class="fc_checkbox_jq" name="showDate" id="bN_showDate_{$section_id}" value="1"{if $options.showDate} checked="checked"{/if}><label for="bN_showDate_{$section_id}" class="">{translate('Date')}</label>
-			<input type="checkbox" class="fc_checkbox_jq" name="showCategory" id="bN_showCategory_{$section_id}" value="1"{if $options.showCategory} checked="checked"{/if}><label for="bN_showCategory_{$section_id}" class="">{translate('Category')}</label>
-			<input type="checkbox" class="fc_checkbox_jq" name="showCreator" id="bN_showCreator_{$section_id}" value="1"{if $options.showCreator} checked="checked"{/if}><label for="bN_showCreator_{$section_id}" class="">{translate('Creator')}</label>
-		</div>
+		<hr>
+		<h3>{translate('Show in frontend')}</h3>
+		<input type="checkbox" class="fc_checkbox_jq" name="showDate" id="bN_showDate_{$section_id}" value="1"{if $options.showDate} checked="checked"{/if}><label for="bN_showDate_{$section_id}" class="">{translate('Date')}</label>
+		<input type="checkbox" class="fc_checkbox_jq" name="showCategory" id="bN_showCategory_{$section_id}" value="1"{if $options.showCategory} checked="checked"{/if}><label for="bN_showCategory_{$section_id}" class="">{translate('Category')}</label>
+		<input type="checkbox" class="fc_checkbox_jq" name="showCreator" id="bN_showCreator_{$section_id}" value="1"{if $options.showCreator} checked="checked"{/if}><label for="bN_showCreator_{$section_id}" class="">{translate('Creator')}</label>
 	</div>
 	<div class="bN_row2">
 		<h3>{translate('Options for RSS')}</h3>
@@ -46,6 +45,7 @@
 		<label for="rss_description_{$section_id}" class="bN_label">{translate('Description of RSS')}:</label>
 		<textarea id="rss_description_{$section_id}" rows="5" cols="49" name="rss_description">{$options.rss_description}</textarea>
 	</div>
+	<hr class="clear">
 	<input type="hidden" name="page_id" value="{$page_id}" >
 	<input type="hidden" name="section_id" value="{$section_id}" >
 	<input type="hidden" name="action" value="saveOptions">
