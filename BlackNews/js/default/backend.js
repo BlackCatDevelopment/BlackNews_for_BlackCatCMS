@@ -325,7 +325,7 @@ $(document).ready(function()
 				});
 			}).find('li:first').click();
 
-			if ( $( '#bN_entries_' + bNID.section_id).children('li').size() == 0 )
+			if ( $( '#bN_entries_' + bNID.section_id).children('li').length == 0 )
 			{
 				$('#blacknews_add_' + bNID.section_id ).click();
 			}
