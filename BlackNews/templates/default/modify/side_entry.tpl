@@ -1,4 +1,4 @@
-/**
+{**
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -11,26 +11,18 @@
  *   General Public License for more details.
  *
  *   You should have received a copy of the GNU General Public License
- *   along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *   along with this program; if not, see <http://www.gnu.org/licenses>.
  *
  *   @author			Matthias Glienke
- *   @copyright			2016, Black Cat Development
+ *   @copyright			2014, Black Cat Development
  *   @link				http://blackcat-cms.org
  *   @license			http://www.gnu.org/licenses/gpl.html
  *   @category			CAT_Modules
- *   @package			blacknews
+ *   @package			catGallery
  *
- */
+ *}
 
-
-.bN_content {
-	margin-bottom: 2em;
-	padding-bottom: 1.5em;
-	border-bottom: 1px dotted #5aa2da;
-}
-.bN_link {
-	margin-top: 1.5em;
-}
-.bN_preview_img {
-	max-width: 100%;
-}
+<li class="bn_icon-feed{if $entry.active} published{else} drafted{/if}" id="bN_{$section_id}_{$entry.news_id}">
+	<input type="hidden" name="news_id_{$entry.news_id}" value="{$entry.news_id}">
+	<span>{$entry.title}</span>
+</li>

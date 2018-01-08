@@ -1,15 +1,25 @@
 <?php
 /**
- * This file is part of an ADDON for use with Black Cat CMS Core.
- * This ADDON is released under the GNU GPL.
- * Additional license terms can be seen in the info.php of this module.
  *
- * @module			blacknews
- * @version			see info.php of this module
- * @author			Matthias Glienke, creativecat
- * @copyright		2013, Black Cat Development
- * @link			http://blackcat-cms.org
- * @license			http://www.gnu.org/licenses/gpl.html
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or (at
+ *   your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful, but
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ *   General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *
+ *   @author			Matthias Glienke
+ *   @copyright			2016, Black Cat Development
+ *   @link				http://blackcat-cms.org
+ *   @license			http://www.gnu.org/licenses/gpl.html
+ *   @category			CAT_Modules
+ *   @package			blacknews
  *
  */
 
@@ -63,8 +73,7 @@ if(defined('CAT_URL'))
 		. ' `page_id` INT NOT NULL DEFAULT \'0\','
 		. ' `section_id` INT NOT NULL DEFAULT \'0\','
 		. ' `title` VARCHAR(1024) NOT NULL DEFAULT \'\','
-		. ' `subtitle` VARCHAR(2048) NOT NULL DEFAULT \'\','
-		. ' `image` VARCHAR(2048) NOT NULL DEFAULT \'\','
+		. ' `subtitle` VARCHAR(2047) NOT NULL DEFAULT \'\','
 		. ' `auto_generate` TINYINT(1) NOT NULL DEFAULT \'1\','
 		. ' `auto_generate_size` INT NOT NULL DEFAULT \'300\','
 		. ' `short` TEXT NOT NULL,'
@@ -80,8 +89,8 @@ if(defined('CAT_URL'))
 		. ' `news_id` INT NOT NULL DEFAULT \'0\','
 		. ' `page_id` INT NOT NULL DEFAULT \'0\','
 		. ' `section_id` INT NOT NULL DEFAULT \'0\','
-		. ' `name` VARCHAR(255) NOT NULL DEFAULT \'\','
-		. ' `value` VARCHAR(255) NOT NULL DEFAULT \'\','
+		. ' `name` VARCHAR(127) NOT NULL DEFAULT \'\','
+		. ' `value` VARCHAR(2047) NOT NULL DEFAULT \'\','
 		. ' PRIMARY KEY ( `news_id`, `page_id`, `section_id`, `name` )'
 		. ' )';
 	$page_helper->db()->query($mod_create_table);
@@ -91,8 +100,8 @@ if(defined('CAT_URL'))
 	$mod_create_table = 'CREATE TABLE  `'.CAT_TABLE_PREFIX.'mod_blacknews_options` ('
 		. ' `page_id` INT NOT NULL DEFAULT \'0\','
 		. ' `section_id` INT NOT NULL DEFAULT \'0\','
-		. ' `name` VARCHAR(255) NOT NULL DEFAULT \'\','
-		. ' `value` VARCHAR(255) NOT NULL DEFAULT \'\','
+		. ' `name` VARCHAR(127) NOT NULL DEFAULT \'\','
+		. ' `value` VARCHAR(2047) NOT NULL DEFAULT \'\','
 		. ' PRIMARY KEY ( `page_id`, `section_id`, `name` )'
 		. ' )';
 	$page_helper->db()->query($mod_create_table);
@@ -140,12 +149,13 @@ if(defined('CAT_URL'))
 	$addons_helper = new CAT_Helper_Addons();
 	foreach(
 		array(
-			'ajax/add_entry.php',
+		/*	'ajax/add_entry.php',
 			'ajax/delete_entry.php',
 			'ajax/get_info.php',
 			'ajax/publish.php',
 			'ajax/reorder.php',
-			'ajax/save.php'
+			'ajax/save.php'*/
+			'save.php'
 		)
 		as $file
 	) {

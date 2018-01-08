@@ -1,15 +1,25 @@
 <?php
 /**
- * This file is part of an ADDON for use with Black Cat CMS Core.
- * This ADDON is released under the GNU GPL.
- * Additional license terms can be seen in the info.php of this module.
  *
- * @module			blacknews
- * @version			see info.php of this module
- * @author			Matthias Glienke, creativecat
- * @copyright		2013, Black Cat Development
- * @link			http://blackcat-cms.org
- * @license			http://www.gnu.org/licenses/gpl.html
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or (at
+ *   your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful, but
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ *   General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *
+ *   @author			Matthias Glienke
+ *   @copyright			2016, Black Cat Development
+ *   @link				http://blackcat-cms.org
+ *   @license			http://www.gnu.org/licenses/gpl.html
+ *   @category			CAT_Modules
+ *   @package			blacknews
  *
  */
 
@@ -72,10 +82,20 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		{
 			global $page_id, $section_id;
 			
+			if ( $is_header || ( !$is_header && !is_array($news_id)) )
+			{
+				global $page_id, $section_id;
+			}
+			require_once(CAT_PATH . '/framework/functions.php');
+
 			// This is a workaround for headers.inc.php as there is no $section_id defined yet
 			if ( !isset($section_id) || $is_header )
 			{
 				$section_id	= is_numeric($news_id) ? $news_id : $news_id['section_id'];
+			}
+			if ( !isset($page_id) && isset($news_id['page_id'] ) )
+			{
+				$page_id	= is_numeric($news_id) ? $news_id : $news_id['page_id'];
 			}
 
 			$this->setPageID( intval($page_id) );
@@ -87,8 +107,17 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			}
 			elseif ( is_numeric($news_id) && !$is_header )
 			{
-				self::$news_id	= $news_id;
+				self::$news_id	= intval($news_id);
 			}
+			elseif ( is_array($news_id) && !$is_header )
+			{
+				self::$news_id	= intval($news_id['news_id']);
+			}
+			elseif ( is_numeric($section_id) && $section_id > 0 )
+			{
+				$this->setNewsID();
+			}
+			else return false;
 
 			$this->permalink	= $this->getOptions( 'permalink' );
 
@@ -114,6 +143,31 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			self::$section_id	= intval($section_id);
 			return $this;
 		}
+
+		/**
+		 * set the $news_id by self:$section_id
+		 *
+		 * @access public
+		 * @return integer
+		 *
+		 **/
+		public function setNewsID()
+		{
+			// Get columns in this section
+			self::$news_id	= CAT_Helper_Page::getInstance()->db()->query(
+					'SELECT `news_id`
+						FROM `:prefix:mod_blacknews_entry`' .
+						' WHERE `page_id` = :page_id AND' .
+							' `section_id` = :section_id' .
+							' LIMIT 1,0',
+				array(
+					'page_id'		=> self::$page_id,
+					'section_id'	=> self::$section_id
+				)
+			)->fetchColumn();
+
+			return self::$news_id;
+		} // end setNewsID()
 
 
 		/**
@@ -318,6 +372,44 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		} // removeEntry()
 
 		/**
+		 * reorder entries
+		 *
+		 * @access public
+		 * @param  array			$entIDs - Strings from jQuery sortable()
+		 * @return bool true/false
+		 *
+		 **/
+		public function reorderEntries( $entIDs = array() )
+		{
+			if ( ( !self::$section_id || !self::$page_id )
+				|| !is_array($entIDs)
+				|| count($entIDs) == 0
+			) return false;
+
+			$return		= true;
+			$counter	= count($entIDs);
+
+			foreach( $entIDs as $entStr )
+			{
+				$entID	= explode('_', $entStr);
+				if( !CAT_Helper_Page::getInstance()->db()->query(
+					'UPDATE `:prefix:mod_blacknews_entry`
+						SET `position` = :position
+						WHERE `news_id`		= :news_id
+							AND `page_id`		= :page_id
+							AND `section_id`	= :section_id',
+					array(
+						'position'		=> $counter--,
+						'news_id'		=> $entID[count($entID)-1],
+						'page_id'		=> self::$page_id,
+						'section_id'	=> self::$section_id
+					)
+				) ) $return = false;
+			}
+			return $return;
+		} // end reorderEntries()
+
+		/**
 		 * get all entries from database
 		 *
 		 * @access public
@@ -359,7 +451,6 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					$user	= CAT_Users::getInstance()->get_user_details( $row['created_by'] );
 
 					$this->news_ids[]	= $row['news_id'];
-
 					$this->entries[$row['news_id']]	= array(
 						'news_id'		=> $row['news_id'],
 						'active'		=> $row['active'] == 0 ? false : true,
@@ -385,6 +476,75 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 			return $this->entries;
 		} // end getEntries()
 
+
+		/**
+		 * save entry
+		 *
+		 * @access public
+		 * @param  string/array  $id - id/ids of offer
+		 * @param  string  $output - if table to print - default false
+		 * @return array()
+		 *
+		 **/
+		public function saveEntry( $options = array() )
+		{
+			if ( !self::$page_id || !self::$section_id || !self::$news_id ) return false;
+			if ( !is_array($options) || count($options) == 0 ) return false;
+
+#$short_check			= $val->sanitizePost('short_check','numeric') != '' ? 1 : 0;
+
+			if ( CAT_Helper_Page::getInstance()->db()->query(
+				'UPDATE `:prefix:mod_blacknews_entry` SET ' .
+					'`updated`		= :time, ' .
+					'`categories`	= :categories, ' .
+					'`start`		= :start, ' .
+					'`end`			= :end ' .
+					'WHERE ' .
+					'`news_id`		= :news_id AND ' .
+					'`page_id`		= :page_id AND ' .
+					'`section_id`	= :section_id',
+				array(
+					'time'			=> time(),#$options['time'],
+					'categories'	=> implode(',', array_filter( explode(',', $options['category'] ) ) ) ,
+					'start'			=> $options['start'] != '' && $options['start'] > 0 ? strtotime( $options['start'] ) : '',
+					'end'			=> $options['end'] != '' && $options['end'] > 0 ? strtotime( $options['end'] ) : '',
+					'news_id'		=> self::$news_id,
+					'page_id'		=> self::$page_id,
+					'section_id'	=> self::$section_id
+				)
+			) && CAT_Helper_Page::getInstance()->db()->query(
+				'UPDATE `:prefix:mod_blacknews_content` SET ' .
+					'`title`				= :title, ' .
+					'`subtitle`				= :subtitle, ' .
+					'`image`				= :image, ' .
+					'`auto_generate`		= :auto_generate, ' .
+					'`auto_generate_size`	= :auto_generate_size, ' .
+					'`short`				= :short_cont, ' .
+					'`content`				= :long_cont, ' .
+					'`text`					= :text ' .
+					'WHERE ' .
+					'`news_id`				= :news_id AND ' .
+					'`page_id`				= :page_id AND ' .
+					'`section_id`			= :section_id',
+				array(
+					'title'					=> addslashes( $options['title'] ),
+					'subtitle'				=> addslashes( $options['subtitle'] ),
+					'image'					=> '',
+					'auto_generate'			=> $options['auto_generate'] != '' ? 1 : 0,
+					'auto_generate_size'	=> intval( $options['auto_generate_size'] ),
+					'short_cont'			=> addslashes( $options['short_cont'] ),
+					'long_cont'				=> addslashes( $options['long_cont'] ),
+					'text'					=> umlauts_to_entities(
+						strip_tags( $options['long_cont'] ) . ' ' . strip_tags( $options['short_cont'] ),
+						strtoupper(DEFAULT_CHARSET), 0
+					),
+					'news_id'				=> self::$news_id,
+					'page_id'				=> self::$page_id,
+					'section_id'			=> self::$section_id
+				)
+			) ) return true;
+			else return false;
+		} // end saveEntry()
 
 		/**
 		 * get all offers from database
@@ -538,7 +698,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					'section_id'	=> self::$section_id,
 					'news_id'		=> self::$news_id,
 					'name'			=> $name,
-					'value'			=> $value
+					'value'			=> is_null($value) ? '' : $value
 				)
 			) ) return true;
 			else return false;
@@ -625,7 +785,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 					'page_id'		=> self::$page_id,
 					'section_id'	=> self::$section_id,
 					'name'			=> $name,
-					'value'			=> $value
+					'value'			=> is_null($value) ? '' : $value
 				)
 			) ) return true;
 			else return false;
@@ -1090,7 +1250,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 				'RSSdescription'	=> $this->validateRSScontent( $this->getOptions( 'rss_description' ) ),
 				'RSSpubDate'		=> date("D, d M Y H:i:s O", time()),
 				'RSSlastDate'		=> date("D, d M Y H:i:s O", time()),
-				'RSSdocs'			=> $this->sanitizeURL( CAT_URL . $this->getOptions( 'permalink' ) ) . 'rss.xml',
+				'RSSdocs'			=> $this->sanitizeURL( CAT_URL . $this->getOptions( 'permalink' ) ) . '/rss.xml',
 				'RSSEdit'			=> '',
 				'copyright'			=> WEBSITE_TITLE,
 				'managingEditor'	=> SERVER_EMAIL . ' (' . CATMAILER_DEFAULT_SENDERNAME . ')',
@@ -1150,16 +1310,16 @@ require(\'%sindex.php\');
 			{
 				$RSScontent	.= sprintf(
 				'
-	<item> 
-		<title>%s</title>
-		<description>%s</description>
-		<content:encoded>%s</content:encoded>
-		<guid>%s</guid>
-		<link>%s</link>
-		<pubDate>%s</pubDate>
-		<dc:creator>%s</dc:creator>
-		<category>[BETA]</category>
-	</item>
+		<item> 
+			<title>%s</title>
+			<description>%s</description>
+			<content:encoded>%s</content:encoded>
+			<guid>%s</guid>
+			<link>%s</link>
+			<pubDate>%s</pubDate>
+			<dc:creator>%s</dc:creator>
+			<category>[BETA]</category>
+		</item>
 ',
 					$this->validateRSScontent( $item['title'] ),
 					$item['short'],
@@ -1178,8 +1338,7 @@ require(\'%sindex.php\');
 	xmlns:atom="http://www.w3.org/2005/Atom"
 	xmlns:content="http://purl.org/rss/1.0/modules/content/"
 	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
-	xmlns:dc="http://purl.org/dc/elements/1.1/"
->
+	xmlns:dc="http://purl.org/dc/elements/1.1/">
 	<channel>
 		<title>%s</title>
 		<link>%s</link>

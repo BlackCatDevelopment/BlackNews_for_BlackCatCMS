@@ -11,16 +11,16 @@
 
 
 {if $entries}
-<div id="blacknews_{$section_id}">
+<div id="bN_{$section_id}">
 	{foreach $entries as entry}
-	<section class="blacknews_content">
-		<article class="blacknews_short">
-		{if $entry.image_path != ''}<img class="blacknews_preview_img" src="{makeThumb( $entry.image_path, 'blacknews_',100,600)}" alt="" />{/if}
+	<section class="bN_content">
+		<article class="bN_short">
+		{if $entry.image_path != ''}<img class="bN_preview_img" src="{makeThumb( $entry.image_path, 'bN_',100,600)}" alt="" />{/if}
 		<h2>{$entry.title}</h2>
 		{if $entry.subtitle != ''}<h4>{$entry.subtitle}</h4>{/if}
 			{$entry.short}
 		</article>
-		<a class="blacknews_link button" href="{cat_url}/{$entry.url}">{translate('Read more')}...</a>
+		<a class="bN_link button" href="{cat_url}/{$entry.url}">{translate('Read more')}...</a>
 	</section>
 	{/foreach}
 </div>
