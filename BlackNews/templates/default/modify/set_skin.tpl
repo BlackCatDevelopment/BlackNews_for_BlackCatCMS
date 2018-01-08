@@ -14,27 +14,28 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author			Matthias Glienke
- *   @copyright			2014, Black Cat Development
+ *   @copyright			2017, Black Cat Development
  *   @link				http://blackcat-cms.org
  *   @license			http://www.gnu.org/licenses/gpl.html
  *   @category			CAT_Modules
- *   @package			catGallery
+ *   @package			blacknews
  *
  *}
 
-<div class="bN_skin fc_br_top">
-	<p class="icon-cog cc_toggle_set"> {translate('Set skin')}<small>({$var=$options.variant}{$module_variants.$var})</small></p>
+<div class="bc_skin fc_br_top">
+	<p class="icon-cog cc_toggle_set"> {translate('Set skin')}<small>({if $variant}{$variant}{else}default{/if})</small></p>
 	<form action="{$CAT_URL}/modules/blacknews/save.php" method="post" class="fc_gradient1 fc_border_all_light fc_br_bottom fc_shadow_small">
-		<input type="hidden" name="page_id" value="{$page_id}" />
-		<input type="hidden" name="section_id" value="{$section_id}" />
-		<input type="hidden" name="news_id" value="{$news_id}" />
-		<input type="hidden" name="options" value="variant" />
+		<input type="hidden" name="page_id" value="{$page_id}">
+		<input type="hidden" name="section_id" value="{$section_id}">
+		<input type="hidden" name="courseID" value="{$courseID}">
+		<input type="hidden" name="action" value="setSkin">
+		<input type="hidden" name="options" value="variant">
 		<select name="variant">
-		{foreach $module_variants index variants}
-			<option value="{$index}"{if $index == $options.variant} selected="selected"{/if}>{$variants}</option>
+		{foreach $variants var}
+			<option value="{$var}"{if $var == $variant} selected="selected"{/if}>{$var}</option>
 		{/foreach}
 		</select><br/>
-		<input type="submit" name="speichern" value="{translate('Save skin &amp; reload')}" /><br/>
-		<input type="reset" name="reset" value="{translate('Close')}" />
+		<input type="submit" name="speichern" value="{translate('Save skin &amp; reload')}"><br/>
+		<input type="reset" name="reset" value="{translate('Close')}">
 	</form>
 </div>

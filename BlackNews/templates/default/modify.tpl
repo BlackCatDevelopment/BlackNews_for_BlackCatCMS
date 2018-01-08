@@ -1,34 +1,36 @@
-{**
- * This file is part of an ADDON for use with Black Cat CMS Core.
- * This ADDON is released under the GNU GPL.
- * Additional license terms can be seen in the info.php of this module.
- *
- * @module			blacknews
- * @version			see info.php of this module
- * @author			Matthias Glienke, creativecat
- * @copyright		2013, Black Cat Development
- * @link			http://blackcat-cms.org
- * @license			http://www.gnu.org/licenses/gpl.html
- *
- *}
+{*
+   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
+  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
+   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
+  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
+
+   @author          Black Cat Development
+   @copyright       2016 Black Cat Development
+   @link            http://blackcat-cms.org
+   @license         http://www.gnu.org/licenses/gpl.html
+   @category        CAT_Core
+   @package         CAT_Core
+
+*}
 
 {include(modify/javascript.tpl)}
-
-<div class="bN_all" id="bN_{$section_id}">
+{include(modify/generalOptions.tpl)}
+<div id="blackNews_{$section_id}">
 	{include(modify/set_skin.tpl)}
-	<button class="icon-plus fc_br_top fc_gradient_blue fc_gradient_hover bN_add" id="bN_add_{$section_id}"> {translate('Add entry')}</button>
-	<span class="bn_icon-settings fc_br_top fc_gradient1 fc_gradient_hover bN_options_button">{translate('General options')}</span>
-	{include(modify/global_settings.tpl)}
-	{*<div class="icon-search fc_gradient1 bN_search">
-		<input type="text" name="search" placeholder="{translate('Search')}">
-	</div>*}
-	<div class="bN_container">
-		<div class="bN_sidebar fc_gradient1">
-			<ul class="bN_entries" id="bN_entries_{$section_id}">
-				{foreach $entries as entry}{include(modify/side_entry.tpl)}{/foreach}
-			</ul>
+	<div class="blackNews fc_br_all">
+		<aside class="bc_sidebar fc_br_left fc_gradient1">
+			<button class="bc_add fc_gradient_blue fc_gradient_hover icon-plus fc_br_topleft"> Eintrag hinzuf&uuml;gen</button>
+			<ul id="blackNewsList_{$section_id}">{foreach $entries entry}{include(modify/entryList.tpl)}{/foreach}</ul>
+		</aside><div class="bc_Main" class="fc_br_right fc_border_all">
+			<form action="{$CAT_URL}/modules/blackNews/save.php" id="bc_Form_{$section_id}" class="bc_Form" method="post" data-entryid="16">
+				{include(modify/buttons.tpl)}
+				<div class="bc_MainContent">
+					{include(modify/entryForm.tpl)}
+				</div>
+				{include(modify/buttons.tpl)}
+			</form>
+			<footer>Erzeugt von: <strong class="icon-user"> {$user}</strong> &bull; Erstellt: <strong class="icon-calendar"> {$created}</strong> &bull; Letzte &Auml;nderung: <strong class="icon-modify"> {$modified}</strong></footer>
 		</div>
-		{include(modify/set_content.tpl)}
 	</div>
-	<p class="small right">{translate('Version')}: {$version}</p>
+	<small class="bcVersion">Modulversion: {$version}</small>
 </div>

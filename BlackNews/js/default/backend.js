@@ -1,478 +1,675 @@
-/**
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 3 of the License, or (at
- *   your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful, but
- *   WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- *   General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program; if not, see <http://www.gnu.org/licenses/>.
- *
- *   @author			Matthias Glienke
- *   @copyright			2016, Black Cat Development
- *   @link				http://blackcat-cms.org
- *   @license			http://www.gnu.org/licenses/gpl.html
- *   @category			CAT_Modules
- *   @package			blacknews
- *
- */
+/*
+   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
+  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
+   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
+  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
 
-function bn_split( val ) {
-	return val.split( /,\s*/ );
+   @author          Black Cat Development
+   @copyright       2016 Black Cat Development
+   @link            http://blackcat-cms.org
+   @license         http://www.gnu.org/licenses/gpl.html
+   @category        CAT_Core
+   @package         CAT_Core
+
+*/
+
+
+if (typeof bN_PU !== 'function')
+{
+	function bN_PU( state )
+	{
+		unloadMessage			= 'Es werden aktuell Bilder hochgeladen!';
+		window.onbeforeunload	= state ? function() { return unloadMessage; } : null;
+	}
 }
-function bn_extractLast( term ) {
-	return bn_split( term ).pop();
+
+function resetForm($Form)
+{
+	$.each($Form.find('[name=saveFields]').val().split('|'), function(key,val)
+	{
+		if ( val != '' )
+		{
+			var field	= val.split(',');
+			switch(field[1])
+			{
+				case 'select':
+					$Form.find('[name='+field[0]+']').prop("selectedIndex", 0);
+					break;
+				case 'checkbox':
+				case 'radio':
+					$Form.find('[name='+field[0]+']').prop('checked',false);
+					break;
+				case 'wysiwyg':
+					var editorInstance	= CKEDITOR.instances[wID];
+					editorInstance.setData('');
+					editorInstance.updateElement();
+					break;
+				default:
+					$Form.find('[name='+field[0]+']').val('');
+					break;
+			}
+		}
+	});
 }
+
+function setValue($el,wID,standard,options)
+{
+	$.each({'saveFields': standard, 'saveOptions': options}, function(type,values)
+	{
+		$.each($el.find('[name='+type+']').val().split('|'), function(key,val)
+		{
+			if ( val != '' )
+			{
+				var field	= val.split(',');
+				switch(field[1])
+				{
+					case 'checkbox':
+						$el.find('[name='+field[0]+']').prop('checked', values[field[0]] ? true : false);
+						break;
+					case 'radio':
+						$el.find('input[name='+field[0]+']').filter('[value='+values[field[0]]+']').prop('checked', values[field[0]] ? true : false);
+						break;
+					case 'wysiwyg':
+						var editorInstance	= CKEDITOR.instances[wID];
+						editorInstance.setData( values.content ? values.content : '' );
+						editorInstance.updateElement();
+						break;
+					default:
+						$el.find('[name='+field[0]+']').val( values[field[0]] ? values[field[0]] : '' );
+						break;
+				}
+			}
+		});
+	});
+}
+
+function getValue($Form,wID)
+{
+	var saveField	= {};
+	$.each($Form.find('[name=saveFields]').val().split('|'), function(key,val)
+	{
+		if ( val != '' )
+		{
+			var field	= val.split(',');
+			switch(field[1])
+			{
+				case 'select':
+					saveField[field[0]]	= $Form.find('[name='+field[0]+'] option:selected').val();
+					break;
+				case 'checkbox':
+					saveField[field[0]]	= $Form.find('[name='+field[0]+']').is(':checked');
+					break;
+				case 'radio':
+					saveField[field[0]]	= $Form.find('input[name='+field[0]+']:checked').val();
+					break;
+				case 'wysiwyg':
+					var editorInstance	= CKEDITOR.instances[wID];
+					saveField[field[1]]	= editorInstance.getData();
+					break;
+				default:
+					saveField[field[0]]	= $Form.find('[name='+field[0]+']').val();
+					break;
+			}
+		}
+		else return '';
+	});
+	return saveField;
+}
+
+function getOptions($Form)
+{
+	var saveField	= [];
+	$.each($Form.find('[name=saveOptions]').val().split('|'), function(key,val)
+	{
+		if ( val != '' )
+		{
+			var field	= val.split(',');
+			switch(field[1])
+			{
+				case 'select':
+					saveField.push({
+						'name':		field[0],
+						'value':	$Form.find('[name='+field[0]+'] option:selected').val(),
+						'type':		'select'
+					});
+					break;
+				case 'checkbox':
+					saveField.push({
+						'name':		field[0],
+						'value':	$Form.find('[name='+field[0]+']').is(':checked'),
+						'type':		'select'
+					});
+					break;
+				case 'radio':
+					saveField.push({
+						'name':		field[0],
+						'value':	$Form.find('input[name='+field[0]+']:checked').val(),
+						'type':		'radio'
+					});
+					break;
+				default:
+					saveField.push({
+						'name':		field[0],
+						'value':	$Form.find('[name='+field[0]+']').val(),
+						'type':		'text'
+					});
+					break;
+			}
+		}
+		else return '';
+	});
+	return saveField;
+}
+
+
+function getEntryID($el)
+{
+	return $el.data('entryid');
+}
+
+function setActive($el)
+{
+	$el.parent().children().removeClass('active');
+	$el.addClass('active');
+}
+
+function getActive($el)
+{
+	return $el.children('.active');
+}
+
 
 $(document).ready(function()
 {
-	if (typeof bNIDs !== 'undefined' && typeof bNLoaded === 'undefined')
+	if (typeof bcIDs !== 'undefined' && typeof bcLoaded === 'undefined')
 	{
 		// This is a workaround if backend.js is loaded twice
-		bNLoaded	= true;
-
-
-		$.datepicker.setDefaults( $.datepicker.regional[ DEFAULT_LANGUAGE.toLowerCase() ] );
-
-		dialog_form(
-			$('.bN_form'),
-			false,
-			function( data, textStatus, jqXHR )
-			{
-				var current			= $(this);
-				current.find('input:file').val('');
-				current.find('.info_last_update').text( data.time );
-				current.find('input[name=url]').val( data.pageurl );
-				current.closest('.bN_all')
-					.find('input[name=news_id_' + data.news_id + ']').next('span').text( data.title );
-				if ( data.image_url )
-					$('.bN_show_image').html('<img src="' + data.image_url + '" alt="Preview" />');
-			},
-			'JSON',
-			function( $form, options )
-			{
-				var	section_id		= $form.find('input[name=section_id]').val(),
-					bN_long	='bN_long_' + section_id,
-					bN_short	='bN_short_' + section_id;
-		
-				CKEDITOR.instances[bN_long].updateElement(),
-				CKEDITOR.instances[bN_short].updateElement();
-			}
-		);
-
-		dialog_form(
-			$('.bN_form_options'),
-			false,
-			false,
-			'JSON'
-		);
-
-		$.each( bNIDs, function( index, bNID )
+		bcLoaded	= true;
+		$.each( bcIDs, function( index, bcID )
 		{
-			
-			var	$bN		= $('#bN_' + bNID.section_id),
-				$bNForm	= $('#bN_form_' + bNID.section_id),
-				$bNopt	= $bN.find('.bN_options'),
-				$bNoptB	= $bN.find('.bN_options_button'),
-				$bNcOpt	= $('#bN_cOpt_' + bNID.section_id);
+			var $bcUL		= $('#blackNews_' + bcID.section_id),
+				$WYSIWYG	= $('#wysiwyg_' + bcID.section_id).hide(),
+				$bcNav		= $('#bc_nav_' + bcID.section_id),
+				$setKind	= $bcUL.find('.set_kind'),
+				$add		= $bcUL.find('.bc_add'),
+				$save		= $bcUL.find('.bc_Save'),
+				$delete		= $bcUL.find('.bc_Delete'),
+				$publish	= $bcUL.find('.bc_Publish'),
+				$copy		= $bcUL.find('.bc_Copy'),
+				$sBar		= $('#blackNewsList_' + bcID.section_id),
+				$Form		= $('#bc_Form_'  + bcID.section_id ),
+				$OptForm	= $('#bc_Options_' + bcID.section_id ),
+				$OptButton	= $('#bn_gOpt_' + bcID.section_id ),
+				$saveOpt	= $OptForm.find('#saveOption_' + bcID.section_id ),
+				saveField	= getValue($Form,$WYSIWYG.attr('id')),
+				$formular	= $('#bc_Formular_'+ bcID.section_id ),
+				$table		= $formular.children('table').children('tbody'),
+				$prevIMG	= $('#bN_previewIMG_' + bcID.section_id ),
+				$IMGs		= $('#bN_imgs_' + bcID.section_id );
 
-			$('.show_more_options').click( function(e)
-			{
-				e.preventDefault();				
-				$bNcOpt.slideToggle(200);
-			}).click();
 
-			$bN.on(
-				'click',
-				'.bN_close, .bN_options_button', function(e)
+			$('#bN_dropzone_' + bcID.section_id).dropzone(
 			{
-				e.preventDefault();
-				if ( $bNoptB.hasClass('active') )
+				url:				CAT_URL + '/modules/blacknews/save.php',
+				paramName:			'bNimage',
+				uploadMultiple:		false,
+				acceptedFiles:		'image/*',
+				thumbnailWidth:		300,
+				thumbnailHeight:	200,
+				sending:			function(file, xhr, formData)
 				{
-					$bNForm.slideUp(300, function() {
-						$bNForm.removeClass('active')
-					});
-					$bNoptB.removeClass('active');
-				}
-				else {
-					$bNForm.addClass('active').slideDown(300);
-					$bNoptB.addClass('active');
-				}
-			});
-			$bNopt.slideUp(0);
-
-			$( '#bn_category_' + bNID.section_id )
-			// don't navigate away from the field on tab when selecting an item
-			.bind( 'keydown', function( event )
-			{
-				if ( event.keyCode === $.ui.keyCode.TAB &&
-				$( this ).data( "ui-autocomplete" ).menu.active ) {
-					event.preventDefault();
-				}
-			})
-			.autocomplete({
-				minLength: 0,
-				source: function( request, response ) {
-					// delegate back to autocomplete, but extract the last term
-					response( $.ui.autocomplete.filter(
-				bNID.allCategories, bn_extractLast( request.term ) ) );
+					formData.append('page_id', bcID.page_id);
+					formData.append('section_id', bcID.section_id);
+					formData.append('entryID', getEntryID($Form));
+					formData.append('action', 'uploadIMG');
+					formData.append('_cat_ajax', 1);
+					bN_PU( true );
 				},
-				focus: function() {
-					// prevent value inserted on focus
-					return false;
+				drop:				function(file, xhr, formData)
+				{
+					$IMGs.html('');
 				},
-				select: function( event, ui ) {
-					var terms = bn_split( this.value );
-					// remove the current input
-					terms.pop();
-					// add the selected item
-					terms.push( ui.item.value );
-					// add placeholder to get the comma-and-space at the end
-					terms.push( "" );
-					this.value = terms.join( ", " );
-					return false;
-				}
-			});
-
-console.log(DATE_FORMAT,TIME_FORMAT);
-
-			var $pdt	= $( '#bN_dateEnd_' + bNID.section_id ),
-				$pdf	= $( '#bN_dateStart_' + bNID.section_id ),
-				formVal = {
-					H:"HH",
-					M:"mm",
-					S:"ss"
-			};
-			$pdf.datetimepicker(
-			{
-				defaultDate:	'+1w',
-				dateFormat:		DATE_FORMAT,
-				timeFormat:		TIME_FORMAT.replace(/H|M|S/gi,function(matched){return formVal[matched];}),
-				firstDay:		1,
-				showSecond:		false,
-				showMillisec:	false,
-				showMicrosec:	false,
-				showTimezone:	false,
-				changeMonth:	true,
-				oneLine:		true,
-				controlType:	'select',
-				numberOfMonths:	2,
-				onClose: function( selectedDate )
+				previewsContainer:	'#bN_imgs_' + bcID.section_id,
+				previewTemplate:	$IMGs.html(),
+				success:			function(file, xhr, formData)
 				{
-					$pdt.datetimepicker( "option", "minDate", selectedDate );
-				}
-			});
-			$pdt.datetimepicker(
-			{
-				defaultDate:	'+1w',
-				dateFormat:		DATE_FORMAT,
-				timeFormat:		TIME_FORMAT.replace(/H|M|S/gi,function(matched){return formVal[matched];}),
-				firstDay:		1,
-				showSecond:		false,
-				showMillisec:	false,
-				showMicrosec:	false,
-				showTimezone:	false,
-				changeMonth:	true,
-				oneLine:		true,
-				controlType:	'select',
-				numberOfMonths:	2,
-				onClose: function( selectedDate )
-				{
-					$pdf.datetimepicker( "option", "maxDate", selectedDate );
+					console.log(file, xhr, formData);
+					console.log(file.xhr.response);
+					$IMGs.find('.dz-progress').remove();
+					// Unvollständigen Upload durch wechseln der Seite verhindern
+					if( $IMGs.find('.dz-progress').size() == 0 ) bN_PU( false );
+
+/*					var $newIMG	= $(file.previewElement),
+						
+						newID	= $newIMG.attr('id') + xhr.newIMG.image_id;
+
+					$newIMG.find('.dz-progress').remove();
+					$newIMG.find('.dz-filename span').text(xhr.newIMG.picture);
+					$newIMG.find('input[name=imgID]').val(xhr.newIMG.image_id);
+					$newIMG.find('.bN_image img').attr('src',xhr.newIMG.thumb);
+					$newIMG.find('input, button, textarea').prop('disabled',false);
+					$newIMG.find('.bN_disabled').removeClass('bN_disabled');*/
+
 				}
 			});
 
-
-			var $short_on	= $('#bN_shortbutton_' + bNID.section_id ),
-				$s_on		= $('#bN_short_on_' + bNID.section_id ),
-				$s_off		= $('#bN_short_off_' + bNID.section_id );
-			if ( $short_on.prop('checked') ){
-				$s_on.slideDown(0);
-				$s_off.slideUp(0);
-			} else {
-				$s_on.slideUp(0);
-				$s_off.slideDown(0);
-			}
-
-			$short_on.change( function(e)
+			$OptButton.click(function(e)
 			{
 				e.preventDefault();
-				if ( $short_on.prop('checked') ){
-					$s_on.slideDown(200);
-					$s_off.slideUp(200);
-				} else {
-					$s_on.slideUp(200);
-					$s_off.slideDown(200);
-				}
+				$OptForm.toggleClass('active');
 			});
 
-
-
-			$('#bN_add_' + bNID.section_id ).click( function(e)
-			{
-				e.preventDefault();
-				var current	= $('#bNcontent_' + bNID.section_id),
-					url		= CAT_URL + '/modules/blacknews/save.php',
-					dates		= {
-						'page_id':		bNID.page_id,
-						'section_id':	bNID.section_id,
-						'action':		'addEntry',
-						'_cat_ajax':	1
-					};
-				$.ajax(
-				{
-					type:		'POST',
-					context:	current,
-					url:		url,
-					dataType:	'JSON',
-					data:		dates,
-					cache:		false,
-					beforeSend:	function( data )
-					{
-						data.process	= set_activity( 'Adding new entry' );
-					},
-					success:	function( data, textStatus, jqXHR	)
-					{
-						var current			= $(this),
-							current_ul		= $( '#bN_entries_' + bNID.section_id);
-						if ( data.success === true )
-						{
-							current_ul.children('li').not(current).removeClass('active');
-							current_ul.prepend('<li class="bn_icon-feed active drafted" id="bN_' + bNID.section_id +'_' + data.values.news_id + '"><input type="hidden" name="news_id_' + data.values.news_id + '" value="' + data.values.news_id + '" /> <span>' + data.values.title + '</span></li>');
-				
-							var	bN_long ='bN_long_' + data.section_id,
-								bN_short ='bN_short_' + data.section_id;
-
-							current.find('input[name=news_id]').val( data.values.news_id );
-							current.find('input[name=title]').val( data.values.title );
-							current.find('input[name=subtitle]').val( data.values.subtitle );
-							current.find('input[name=url]').val( data.values.url );
-							current.find('input[name=category]').val( data.values.categories );
-							current.find('input[name=start]').val( data.values.start );
-							current.find('input[name=end]').val( data.values.end );
-							current.find('.info_created_by').text( data.values.user );
-							current.find('.info_published').text( data.values.time );
-							current.find('.info_last_update').text( data.values.time );
-							current.find('.bN_short_check').prop( 'checked', data.values.auto_generate ).change();
-							current.find('input[name=auto_generate_size]').val( data.values.auto_generate_size );
-				
-							CKEDITOR.instances[bN_long].setData( data.values.content );
-							CKEDITOR.instances[bN_short].setData( data.values.short );
-				
-							if( data.values.active ){
-								current.find('button.bn_icon-feed').removeClass('drafted').addClass('published');
-							}
-							else {
-								current.find('button.bn_icon-feed').removeClass('published').addClass('drafted');
-							}
-
-							$( '#bN_entries_' + bNID.section_id ).sortable( "refresh" );
-
-							return_success( jqXHR.process , data.message);
-						}
-						else {
-							return_error( jqXHR.process , data.message);
-						}
-					}
-				});
-			});
-
-			$( '#bN_entries_' + bNID.section_id ).on(
+			$formular.on(
 				'click',
-				'li', function(e)
+				'button',
+			function(e)
 			{
 				e.preventDefault();
-				var current			= $(this),
-					current_form	= $bNForm,
-					url		= CAT_URL + '/modules/blacknews/save.php',
-					dates		= {
-						'news_id':		current.children('input').val(),
-						'page_id':		bNID.page_id,
-						'section_id':	bNID.section_id,
-						'action':		'getInfo',
-						'_cat_ajax':	1
-					};
+				var $cur	= $(this),
+					values	= getValue($cur.closest('tr'));
+				if ( $cur.hasClass('bc_addField') )
+				{
+					var action	= 'addField',
+						process	= 'Adding field';
+				} else if ( $cur.hasClass('bc_deleteField') )
+				{
+					var action	= 'deleteField',
+						process	= 'Deleting field';
+				} else // bc_saveField
+				{
+					var action	= 'saveField',
+						process	= 'Saving field';
+				}
 				$.ajax(
 				{
 					type:		'POST',
-					context:	current,
-					url:		url,
+					context:	$bcUL,
+					url:		CAT_URL + '/modules/blacknews/save.php',
 					dataType:	'JSON',
-					data:		dates,
+					data:		{
+						action:		action,
+						_cat_ajax:	1,
+						page_id:	bcID.page_id,
+						section_id:	bcID.section_id,
+						entryID:	getEntryID($Form),
+						fieldID:	values.fieldID,
+						values:		values
+					},
 					cache:		false,
 					beforeSend:	function( data )
 					{
-						data.process	= set_activity( 'Loading entry' );
+						// Set activity and store in a variable to use it later
+						data.process	= set_activity( process );
 					},
-					success:	function( data, textStatus, jqXHR	)
+					success:	function( data, textStatus, jqXHR )
 					{
-						var current_li		= $(this),
-							current			= $( '#bNcontent_' + bNID.section_id),
-							current_ul		= $( '#bN_entries_' + bNID.section_id);
-			
-						current_ul.children('li').removeClass('active').filter( current_li ).addClass('active');
-			
 						if ( data.success === true )
 						{
-							return_success( jqXHR.process , data.message);
-
-							var	bN_long ='bN_long_' +	data.section_id,
-								bN_short ='bN_short_' +	data.section_id,
-								editor1	= CKEDITOR.instances[bN_long],
-								editor2	= CKEDITOR.instances[bN_short];
-							current.find('input[name=news_id]').val( data.values.news_id );
-							current.find('input[name=title]').val( data.values.title );
-							current.find('input[name=subtitle]').val( data.values.subtitle );
-							current.find('input[name=url]').val( data.values.pageurl );
-							current.find('input[name=category]').val( data.values.categories );
-							current.find('input[name=start]').val( data.values.start );
-							current.find('input[name=end]').val( data.values.end );
-							current.find('.info_created_by').text( data.values.created_by );
-							current.find('.info_published').text( data.values.created );
-							current.find('.info_last_update').text( data.values.updated );
-							current.find('.bN_short_check').prop( 'checked', data.values.auto_generate ).change();
-							current.find('input[name=auto_generate_size]').val( data.values.auto_generate_size );
-							if ( data.values.image_url )
-								$('.bN_show_image').html('<img src="' + data.values.image_url + '" alt="Preview" />');
-							else $('.bN_show_image').html('<span class="small">' + cattranslate('There was no picture added.','','','blacknews') + '</span>');
-			
-			
-							editor1.setData( data.values.content );
-							editor2.setData( data.values.short );
-			
-							if( data.values.active ){
-								current.find('button.bn_icon-feed').removeClass('drafted').addClass('published');
+							return_success( jqXHR.process, data.message );
+							if ( action == 'addField' )
+							{
+								resetForm($cur.closest('tr'));
+								$table.children('tr').not('.bn_FormularInput').remove();
+								$table.append( data.html );
+								$table.sortable( 'refresh' );
+							} else if ( action == 'deleteField' )
+							{
+								$cur.closest('tr').remove();
 							}
-							else {
-								current.find('button.bn_icon-feed').removeClass('published').addClass('drafted');
-							}
+						} else {
+							return_error( jqXHR.process , data.message );
 						}
-						else {
-							return_error( jqXHR.process , data.message);
-						}
-					}
-				});
-			}).find('li:first').click();
-
-			if ( $( '#bN_entries_' + bNID.section_id).children('li').size() == 0 )
-			{
-				$('#bN_add_' + bNID.section_id ).click();
-			}
-
-
-
-			$('#bNpublish_' + bNID.section_id).click( function(e)
-			{
-				e.preventDefault();
-			
-				var current		= $(this),
-					form		= $( '#bNcontent_' + bNID.section_id),
-					news_id		= form.find('input[name=news_id]').val(),
-					url			= CAT_URL + '/modules/blacknews/save.php',
-					dates		= {
-						'section_id':			bNID.section_id,
-						'page_id':				bNID.page_id,
-						'news_id':				news_id,
-						'action':				'publish',
-						'publish':				current.hasClass('published') ? 0 : 1,
-						'_cat_ajax':			1
-					};
-				$.ajax(
-				{
-					type:		'POST',
-					context:	form,
-					url:		url,
-					dataType:	'JSON',
-					data:		dates,
-					cache:		false,
-					beforeSend:	function( data )
-					{
-						data.process	= set_activity( 'Publishing entry' );
 					},
-					success:	function( data, textStatus, jqXHR	)
+					error:		function( jqXHR, textStatus, errorThrown )
 					{
-						var current			= $(this).submit(),
-							cur_parent		= current.closest('.bN_container');
-						if ( data.success === true )
-						{
-							if ( data.active ) {
-								current.find('button.bn_icon-feed').removeClass('drafted').addClass('published');
-								cur_parent.find('input[value=' + data.news_id + ']').closest('.bn_icon-feed')
-									.removeClass('drafted').addClass('published');
-							}
-							else {
-								current.find('button.bn_icon-feed').removeClass('published').addClass('drafted');
-								cur_parent.find('input[value=' + data.news_id + ']').closest('.bn_icon-feed')
-									.removeClass('published').addClass('drafted');
-							}
-							return_success( jqXHR.process , data.message);
-						}
-						else {
-							return_error( jqXHR.process , data.message);
-						}
+						console.log(jqXHR.responseText);
 					}
 				});
 			});
 
-			$('#bN_del_' + bNID.section_id ).click( function(e)
-			{
+			$save.click( function(e) {
 				e.preventDefault();
-			
-				var current		= $( '#bNcontent_' + bNID.section_id),
-					dates		= {
-						'section_id':			bNID.section_id,
-						'page_id':				bNID.page_id,
-						'action':				'deleteEntry',
-						'news_id':				current.find('input[name=news_id]').val(),
-						'_cat_ajax':			1
-					};
-				dialog_confirm( 
-					cattranslate( 'Do you really want to delete this entry?','','','blacknews' ),
-					cattranslate( 'Deleting entry','','','blacknews' ),
-					CAT_URL + '/modules/blacknews/save.php',
-					dates,
-					'POST',
-					'JSON',
-					false,
-					function( data, textStatus, jqXHR )
-					{
-						var current			= $(this);
-						var current_li		= current.find('input[value=' + data.news_id + ']').closest('.bn_icon-feed');
-						if( current_li.index() > 0 ){
-							current_li.prev('li').click();
-						}
-						else {
-							current_li.next('li').click();
-						};
-						current_li.remove();
+				$.ajax(
+				{
+					type:		'POST',
+					context:	$bcUL,
+					url:		CAT_URL + '/modules/blacknews/save.php',
+					dataType:	'JSON',
+					data:		{
+						action:		'save',
+						_cat_ajax:	1,
+						page_id:	bcID.page_id,
+						section_id:	bcID.section_id,
+						entryID:	getEntryID($Form),
+						values:		getValue($Form,$WYSIWYG.attr('id')),
+						options:	getOptions($Form)
 					},
-					current.closest('.bN_container')
-				);
+					cache:		false,
+					beforeSend:	function( data )
+					{
+						// Set activity and store in a variable to use it later
+						data.process	= set_activity( 'Saving entry' );
+					},
+					success:	function( data, textStatus, jqXHR )
+					{
+						if ( data.success === true )
+						{
+							return_success( jqXHR.process, data.message );
+							$sBar.prepend( data.html );
+						} else {
+							return_error( jqXHR.process , data.message );
+						}
+					},
+					error:		function( jqXHR, textStatus, errorThrown )
+					{
+						console.log(jqXHR.responseText);
+					}
+				});
 			});
 
-			$bN.find('.cc_toggle_set').next('form').hide();
-			$bN.find('.cc_toggle_set, .bN_skin input:reset').unbind().click(function()
+			$add.click(function(e) {
+				e.preventDefault();
+				$.ajax(
+				{
+					type:		'POST',
+					context:	$bcUL,
+					url:		CAT_URL + '/modules/blacknews/save.php',
+					dataType:	'JSON',
+					data:		{
+						action:		'add',
+						_cat_ajax:	1,
+						page_id:	bcID.page_id,
+						section_id:	bcID.section_id
+					},
+					cache:		false,
+					beforeSend:	function( data )
+					{
+						// Set activity and store in a variable to use it later
+						data.process	= set_activity( 'Adding entry' );
+					},
+					success:	function( data, textStatus, jqXHR )
+					{
+						if ( data.success === true )
+						{
+							return_success( jqXHR.process, data.message );
+							$sBar.prepend( data.html );
+							$sBar.sortable( 'refresh' );
+						} else {
+							return_error( jqXHR.process , data.message );
+						}
+					},
+					error:		function( jqXHR, textStatus, errorThrown )
+					{
+						console.log(jqXHR.responseText);
+					}
+				});
+			});
+
+			$delete.click(function(e) {
+				e.preventDefault();
+				$.ajax(
+				{
+					type:		'POST',
+					context:	$sBar.children('#bc_Entry_' + getEntryID($Form)),
+					url:		CAT_URL + '/modules/blacknews/save.php',
+					dataType:	'JSON',
+					data:		{
+						action:		'remove',
+						_cat_ajax:	1,
+						page_id:	bcID.page_id,
+						section_id:	bcID.section_id,
+						entryID:	getEntryID($Form)
+					},
+					cache:		false,
+					beforeSend:	function( data )
+					{
+						// Set activity and store in a variable to use it later
+						data.process	= set_activity( 'Deleting entry' );
+					},
+					success:	function( data, textStatus, jqXHR )
+					{
+						if ( data.success === true )
+						{
+							return_success( jqXHR.process, data.message );
+							var	$cur	= $(this),
+								$next	= $cur.next().length ? $cur.next() : $cur.prev();
+							$cur.remove();
+							$next.click();
+							$sBar.sortable( 'refresh' );
+						} else {
+							return_error( jqXHR.process , data.message );
+						}
+					},
+					error:		function( jqXHR, textStatus, errorThrown )
+					{
+						console.log(jqXHR.responseText);
+					}
+				});
+			});
+
+			$publish.click(function(e) {
+				e.preventDefault();
+				$.ajax(
+				{
+					type:		'POST',
+					context:	getActive($sBar),
+					url:		CAT_URL + '/modules/blacknews/save.php',
+					dataType:	'JSON',
+					data:		{
+						action:		'publish',
+						_cat_ajax:	1,
+						page_id:	bcID.page_id,
+						section_id:	bcID.section_id,
+						entryID:	getEntryID($Form)
+					},
+					cache:		false,
+					beforeSend:	function( data )
+					{
+						// Set activity and store in a variable to use it later
+						data.process	= set_activity( 'Set publish of entry' );
+					},
+					success:	function( data, textStatus, jqXHR )
+					{
+						if ( data.success === true )
+						{
+							return_success( jqXHR.process, data.message );
+							if ( data.publish == 1 ) $(this).add($publish).addClass('published');
+							else $(this).add($publish).removeClass('published');
+						} else {
+							return_error( jqXHR.process , data.message );
+						}
+					},
+					error:		function( jqXHR, textStatus, errorThrown )
+					{
+						console.log(jqXHR.responseText);
+					}
+				});
+			});
+
+			$copy.click( function(e) {
+				e.preventDefault();
+				$.ajax(
+				{
+					type:		'POST',
+					context:	$bcUL,
+					url:		CAT_URL + '/modules/blacknews/save.php',
+					dataType:	'JSON',
+					data:		{
+						action:		'copy',
+						_cat_ajax:	1,
+						page_id:	bcID.page_id,
+						section_id:	bcID.section_id,
+						entryID:	getEntryID($Form)
+					},
+					cache:		false,
+					beforeSend:	function( data )
+					{
+						// Set activity and store in a variable to use it later
+						data.process	= set_activity( 'Saving entry' );
+					},
+					success:	function( data, textStatus, jqXHR )
+					{
+						if ( data.success === true )
+						{
+							return_success( jqXHR.process, data.message );
+							$sBar.prepend( data.html );
+						} else {
+							return_error( jqXHR.process , data.message );
+						}
+					},
+					error:		function( jqXHR, textStatus, errorThrown )
+					{
+						console.log(jqXHR.responseText);
+					}
+				});
+			});
+
+
+			$sBar.on(
+				'click',
+				'li', function (e) {
+				$.ajax(
+				{
+					type:		'POST',
+					context:	$(this),
+					url:		CAT_URL + '/modules/blacknews/save.php',
+					dataType:	'JSON',
+					data:		{
+						action:		'get',
+						_cat_ajax:	1,
+						page_id:	bcID.page_id,
+						section_id:	bcID.section_id,
+						entryID:	getEntryID($(this))
+					},
+					cache:		false,
+					beforeSend:	function( data )
+					{
+						// Set activity and store in a variable to use it later
+						data.process	= set_activity( 'Load entry' );
+					},
+					success:	function( data, textStatus, jqXHR )
+					{
+						console.log( data, textStatus, jqXHR);
+						return_success( jqXHR.process, data.message );
+						if ( data.success === true )
+						{
+							$prevIMG.attr('src',data.image ? data.image + '?' + Math.floor(Math.random() * 10000 ) : '' );
+							$Form.data('entryid',getEntryID($(this)));
+
+							setActive($(this));
+							if ( data.publish == 1 ) $publish.addClass('published');
+							else $publish.removeClass('published');
+	
+							setValue($Form,$WYSIWYG.attr('id'),data,data.options);
+
+							$table.children('tr').not('.bn_FormularInput').remove();
+							$table.append( data.html );
+
+						}
+					},
+					error:		function( jqXHR, textStatus, errorThrown )
+					{
+						console.log(jqXHR.responseText);
+					}
+				});
+			}).children(':first').click();
+
+			$bcUL.find('.cc_toggle_set').next('form').hide();
+			$bcUL.find('.cc_toggle_set, .bc_skin input:reset').click(function()
 			{
-				$(this).closest('.bN_skin').children('form').slideToggle(200);
+				$(this).closest('.bc_skin').children('form').slideToggle(200);
 			});
 
-			$( '#bN_entries_' + bNID.section_id ).sortable(
+
+			$saveOpt.click( function(e) {
+				e.preventDefault();
+				$.ajax(
+				{
+					type:		'POST',
+					context:	$bcUL,
+					url:		CAT_URL + '/modules/blacknews/save.php',
+					dataType:	'JSON',
+					data:		{
+						action:		'saveOptions',
+						_cat_ajax:	1,
+						page_id:	bcID.page_id,
+						section_id:	bcID.section_id,
+						options:	getOptions($OptForm)
+					},
+					cache:		false,
+					beforeSend:	function( data )
+					{
+						// Set activity and store in a variable to use it later
+						data.process	= set_activity( 'Saving options' );
+					},
+					success:	function( data, textStatus, jqXHR )
+					{
+						$OptButton.click();
+						return_success( jqXHR.process, data.message );
+					},
+					error:		function( jqXHR, textStatus, errorThrown )
+					{
+						console.log(jqXHR.responseText);
+					}
+				});
+			});
+
+
+			$sBar.sortable(
 			{
 				axis:			'y',
 				update:			function(event, ui)
 				{
-					var current			= $(this),
-						form			= current.closest('.bN_container').find('form'),
+					var $cur			= $(this),
 						dates			= {
-						'positions':		current.sortable('toArray'),
-						'section_id':		bNID.section_id,
-						'page_id':			bNID.page_id,
-						'action':			'reorder',
+							'action':			'orderEntries',
+							'section_id':		bcID.section_id,
+							'page_id':			bcID.page_id,
+							'positions':		$cur.sortable('toArray', {attribute: 'data-entryid'}),
+							'_cat_ajax':		1
+					};
+					$.ajax(
+					{
+						type:		'POST',
+						url:		CAT_URL + '/modules/blacknews/save.php',
+						dataType:	'json',
+						data:		dates,
+						cache:		false,
+						beforeSend:	function( data )
+						{
+							data.process	= set_activity( 'Sort fields' );
+						},
+						success:	function( data, textStatus, jqXHR	)
+						{
+							if ( data.success === true )
+							{
+								return_success( jqXHR.process, data.message );
+							}
+							else {
+								return_error( jqXHR.process , data.message );
+							}
+						},
+						error:		function(jqXHR, textStatus, errorThrown)
+						{
+							return_error( jqXHR.process , errorThrown.message);
+						}
+					});
+				}
+			});
+
+			$table.sortable(
+			{
+				axis:			'y',
+				items:			'tr:not(.bn_FormularInput)',
+				handle:			'.bc_icon-FieldDD',
+				update:			function(event, ui)
+				{
+					var $cur			= $(this),
+						dates			= {
+						'action':			'orderFields',
+						'section_id':		bcID.section_id,
+						'page_id':			bcID.page_id,
+						'positions':		$cur.sortable('toArray', {attribute: 'data-fieldid'}),
 						'_cat_ajax':		1
 					};
 					$.ajax(
@@ -484,7 +681,7 @@ console.log(DATE_FORMAT,TIME_FORMAT);
 						cache:		false,
 						beforeSend:	function( data )
 						{
-							data.process	= set_activity( 'Sort entries' );
+							data.process	= set_activity( 'Sort fields' );
 						},
 						success:	function( data, textStatus, jqXHR	)
 						{
@@ -505,4 +702,5 @@ console.log(DATE_FORMAT,TIME_FORMAT);
 			});
 		});
 	}
+
 });

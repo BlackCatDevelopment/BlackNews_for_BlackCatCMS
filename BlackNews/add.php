@@ -19,7 +19,7 @@
  *   @link				http://blackcat-cms.org
  *   @license			http://www.gnu.org/licenses/gpl.html
  *   @category			CAT_Modules
- *   @package			blacknews
+ *   @package			Kursmodul
  *
  */
 
@@ -42,8 +42,9 @@ if (defined('CAT_PATH')) {
 }
 // end include class.secure.php
 
-include_once( 'classes/class.news.php' );
 
-$BlackNews	= new BlackNews( true );
+require_once( 'inc/class.blackNews.php' );
+
+blackNews::add();
 
 ?>

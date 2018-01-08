@@ -1,5 +1,4 @@
 <?php
-
 /**
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -16,16 +15,16 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author			Matthias Glienke
- *   @copyright			2016, Black Cat Development
+ *   @copyright			2014, Black Cat Development
  *   @link				http://blackcat-cms.org
  *   @license			http://www.gnu.org/licenses/gpl.html
  *   @category			CAT_Modules
- *   @package			blacknews
+ *   @package			catGallery
  *
  */
 
 // include class.secure.php to protect this file and the whole CMS!
-if (defined('CAT_PATH')) {	
+if (defined('CAT_PATH')) {
 	include(CAT_PATH.'/framework/class.secure.php'); 
 } else {
 	$oneback = "../";
@@ -43,15 +42,18 @@ if (defined('CAT_PATH')) {
 }
 // end include class.secure.php
 
-$module_directory	= 'blacknews';
-$module_name		= 'BlackNews';
-$module_function	= 'page';
-$module_version		= '0.5';
-$module_platform	= '1.x';
-$module_author		= 'Matthias Glienke, creativecat';
-$module_license		= '<a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a>';
-$module_description	= 'With the add on "BlackNews" you publish news on your side in a simple way. For details see <a href="https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS" target="_blank">GitHub</a>.<br/><br/>Done by Matthias Glienke, <a class="icon-creativecat" href="http://creativecat.de"> creativecat</a>';
-$module_guid		= '9ee2f6b5-ccfb-49c5-8a12-417b67cfe367';
-$module_variants	= array( 'default', 'gold' );
+require_once( 'inc/class.blackNews.php' );
+
+
+$module_directory		= blackNews::getInfo('directory');
+$module_name			= blackNews::getInfo('name');
+$module_function		= 'page';
+$module_version			= blackNews::getInfo('version');
+$module_platform		= blackNews::getInfo('platform');
+$module_author			= blackNews::getInfo('author');
+$module_license			= blackNews::getInfo('license');
+$module_description		= blackNews::getInfo('description');
+$module_guid			= blackNews::getInfo('guid');
+$module_variants		= blackNews::getAllVariants();
 
 ?>

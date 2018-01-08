@@ -15,16 +15,16 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author			Matthias Glienke
- *   @copyright			2016, Black Cat Development
+ *   @copyright			2014, Black Cat Development
  *   @link				http://blackcat-cms.org
  *   @license			http://www.gnu.org/licenses/gpl.html
  *   @category			CAT_Modules
- *   @package			blacknews
+ *   @package			catGallery
  *
  */
 
 // include class.secure.php to protect this file and the whole CMS!
-if (defined('CAT_PATH')) {	
+if (defined('CAT_PATH')) {
 	include(CAT_PATH.'/framework/class.secure.php'); 
 } else {
 	$oneback = "../";
@@ -42,34 +42,8 @@ if (defined('CAT_PATH')) {
 }
 // end include class.secure.php
 
-include_once( 'classes/class.news.php' );
+require_once( 'inc/class.blackNews.php' );
 
-$blackNews		= new BlackNews( $section, true );
-
-$variant		= $blackNews->getVariant();
-
-$module_path	= '/modules/blacknews/';
-
-if ( file_exists( CAT_PATH . $module_path .'headers_inc/' . $variant . '/headers.inc.php' ) )
-	include( CAT_PATH . $module_path . 'headers_inc/' . $variant . '/headers.inc.php' );
-elseif ( file_exists( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' ) )
-	include( CAT_PATH . $module_path .'headers_inc/default/headers.inc.php' );
-/*
-	*
-	* This is not working in BC 1.1 - need to find a good fix for that issue
-	*
-
-if( !isset($mod_headers['frontend']['meta']) ) {
-	$mod_headers['frontend']['meta']	= array(
-		array( '<link rel="alternate" type="application/rss+xml" title="RSS" href="" />' )
-	);
-} else {
-	array_push(
-		$mod_headers['frontend']['meta'],
-		array( '<link rel="alternate" type="application/rss+xml" title="RSS" href="" />' )
-	);
-}
-*/
-
+$mod_headers[$for] = blackNews::getInstance()->setIDs($section)->getHeader($for);
 
 ?>

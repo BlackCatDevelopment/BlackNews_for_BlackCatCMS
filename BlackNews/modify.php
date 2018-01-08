@@ -19,7 +19,7 @@
  *   @link				http://blackcat-cms.org
  *   @license			http://www.gnu.org/licenses/gpl.html
  *   @category			CAT_Modules
- *   @package			blacknews
+ *   @package			Kursmodul
  *
  */
 
@@ -42,52 +42,11 @@ if (defined('CAT_PATH')) {
 }
 // end include class.secure.php
 
-$PageHelper	= CAT_Helper_Page::getInstance();
-$userHelper	= CAT_Users::getInstance();
-$dateHelper	= CAT_Helper_DateTime::getInstance();
 
-$info			= CAT_Helper_Addons::checkInfo( CAT_PATH . '/modules/blacknews/' );
+require_once( 'inc/class.blackNews.php' );
 
-$parser_data	= array(
-	'CAT_URL'				=> CAT_URL,
-	'CAT_PATH'				=> CAT_PATH,
-	'CAT_ADMIN_URL'			=> CAT_ADMIN_URL,
-	'page_id'				=> $page_id,
-	'section_id'			=> $section_id,
-	'version'				=> CAT_Helper_Addons::getModuleVersion('blacknews'),
-	'module_variants'		=> $info['module_variants'],
-);
+include_once "import.php";
 
-
-// =============================== 
-// ! Get columns in this section   
-// =============================== 
-include_once( 'classes/class.news.php' );
-
-$BlackNews	= new BlackNews();
-
-$parser_data['options']			= $BlackNews->getOptions();
-$parser_data['allCategories']	= $BlackNews->getAllCategories();
-
-$entries_per_page		= $BlackNews->setEPP();
-
-$parser_data['entries']	= $BlackNews->getEntries( NULL, true, 'backend' );
-
-$parser_data['WYSIWYG']		= array(
-	'long'			=> 'bN_long_' . $section_id,
-	'short'			=> 'bN_short_' . $section_id,
-	'short_width'	=> '100%',
-	'short_height'	=> '150px',
-	'long_width'	=> '100%',
-	'long_height'	=> '300px'
-
-);
-
-$parser->setPath( dirname(__FILE__) . '/templates/default' );
-
-$parser->output(
-	'modify',
-	$parser_data
-);
+blackNews::modify();
 
 ?>

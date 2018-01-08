@@ -14,23 +14,23 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author			Matthias Glienke
- *   @copyright			2014, Black Cat Development
+ *   @copyright			2017, Black Cat Development
  *   @link				http://blackcat-cms.org
  *   @license			http://www.gnu.org/licenses/gpl.html
  *   @category			CAT_Modules
- *   @package			catGallery
+ *   @package			blacknews
  *
  *}
 
 <script type="text/javascript">
-	if (typeof bNIDs === 'undefined')
+	if (typeof bcIDs === 'undefined')
 	\{
-		bNIDs	= [];
+		bcIDs	= [];
 	}
-	bNIDs.push(
+	bcIDs.push(
 	\{
 		'page_id'		: {$page_id},
 		'section_id'	: {$section_id},
-		'allCategories'	: [{foreach $allCategories category}"{$category}",{/foreach}]
+		'bcID'			: {if $bcID}{$bcID}{else}1{/if}
 	});
 </script>
