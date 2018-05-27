@@ -1,12 +1,12 @@
 <?php
 
 /*
-   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
-  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
-   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
-  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
-
-	@author			Black Cat Development
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.   
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'  
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.  
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    | 
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'  
+ *	@author			Black Cat Development
 	@copyright		2016 Black Cat Development
 	@link			http://blackcat-cms.org
 	@license		http://www.gnu.org/licenses/gpl.html
@@ -100,14 +100,23 @@ if (!class_exists('CAT_Addons', false))
 		 */
 		public static function setIDs($section_id=NULL)
 		{
-			if( !(self::$page_id && self::$section_id) )
+			if (!$page_id)		$page_id	= CAT_Helper_Validate::get('_REQUEST','page_id','numeric');
+			if (!$section_id)	$section_id	= CAT_Helper_Validate::get('_REQUEST','section_id','numeric');
+
+			if ( $section_id )
+			{
+				if( !isset(self::$page_id) )
+				{
+					if( !isset($page_id) )
+						global $page_id;
+					self::$page_id	= $page_id;
+				}
+				self::$section_id	= intval($section_id);
+			}
+			else if( !(self::$page_id && self::$section_id) )
 			{
 				if( !isset($page_id) )		global $page_id;
 				if (!isset($section_id) )	global $section_id;
-
-
-				if( !$page_id )		$page_id	= CAT_Helper_Validate::sanitizePost('page_id');
-				if (!$section_id )	$section_id	= CAT_Helper_Validate::sanitizePost('section_id');
 
 				self::$page_id		= $page_id;
 				self::$section_id	= $section_id;

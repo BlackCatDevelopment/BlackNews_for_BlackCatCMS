@@ -1,19 +1,37 @@
 -- --------------------------------------------------------
--- Please note:
--- The table prefix (cat_) will be replaced by the
--- installer! Do NOT use this file to create the tables
--- manually! (Or patch it to fit your needs first.)
+ -- 
+ -- ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.   
+ -- |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'  
+ -- |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.  
+ -- |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    | 
+ -- `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'  
+ -- 
+ --   This program is free software; you can redistribute it and/or modify
+ --   it under the terms of the GNU General Public License as published by
+ --   the Free Software Foundation; either version 3 of the License, or (at
+ --   your option) any later version.
+ -- 
+ --   This program is distributed in the hope that it will be useful, but
+ --   WITHOUT ANY WARRANTY; without even the implied warranty of
+ --   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ --   General Public License for more details.
+ -- 
+ --   You should have received a copy of the GNU General Public License
+ --   along with this program; if not, see <http://www.gnu.org/licenses/>.
+ -- 
+ --   @author			Matthias Glienke
+ --   @copyright			2018, Black Cat Development
+ --   @link				http://blackcat-cms.org
+ --   @license			http://www.gnu.org/licenses/gpl.html
+ --   @category			CAT_Modules
+ --   @package			blackNews
+ -- 
+ -- 
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET NAMES utf8 */;
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
-
-DROP TABLE IF EXISTS
-	`:prefix:mod_blackNewsForm`,
-	`:prefix:mod_blackNewsOptions`,
-	`:prefix:mod_blackNewsEntryOptions`,
-	`:prefix:mod_blackNewsEntry`;
 
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntry` (
 	`entryID` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -26,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntry` (
 	`userID` int(11) unsigned NULL,
 	`seoURL` varchar(255) NOT NULL DEFAULT '',
 	`position` int(11) unsigned NULL DEFAULT 1,
-	`publish` boolean NOT NULL DEFAULT false,
+	`publish` DATETIME NULL DEFAULT NULL,
 	PRIMARY KEY (`entryID`),
 	CONSTRAINT `:prefix:bN_User` FOREIGN KEY (`userID`) REFERENCES `:prefix:users`(`user_id`) ON DELETE CASCADE,
 	CONSTRAINT `:prefix:bN_sections` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
@@ -59,12 +77,13 @@ DEFAULT CHARSET=utf8
 COLLATE='utf8_general_ci';
 
 
-CREATE TRIGGER `:prefix:bNEntrIn` BEFORE INSERT ON `:prefix:mod_blackNewsEntry` FOR EACH ROW 
-SET NEW.position = (
-	SELECT MAX(position)+1 AS position
-	FROM `:prefix:mod_blackNewsEntry`
-	WHERE section_id = NEW.section_id
-);
+-- Is implemented in the class
+-- CREATE TRIGGER `:prefix:bNEntrIn` BEFORE INSERT ON `:prefix:mod_blackNewsEntry` FOR EACH ROW 
+-- SET NEW.position = (
+-- 	SELECT MAX(position)+1 AS position
+-- 	FROM `:prefix:mod_blackNewsEntry`
+-- 	WHERE section_id = NEW.section_id
+-- );
 
 CREATE TRIGGER `:prefix:bNEntrOptUp` BEFORE UPDATE ON `:prefix:mod_blackNewsEntryOptions`
 	FOR EACH ROW
@@ -103,7 +122,7 @@ COLLATE='utf8_general_ci';
 
 
 
-
+/*
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsForm` (
 	`fieldID` int(11) unsigned NOT NULL AUTO_INCREMENT,
 	`entryID` int(11) unsigned NOT NULL,

@@ -1,23 +1,37 @@
 {*
-   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
-  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
-   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
-  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
-
-   @author          Matthias Glienke, creativecat
-   @copyright       2017 Matthias Glienke, creativecat
-   @link            http://blackcat-cms.org
-   @license         http://www.gnu.org/licenses/gpl.html
-   @category        CAT_Module
-   @package         blacknews
-
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.   
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'  
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.  
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    | 
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'  
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or (at
+ *   your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful, but
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ *   General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *
+ *   @author			Matthias Glienke
+ *   @copyright			2018, Black Cat Development
+ *   @link				http://blackcat-cms.org
+ *   @license			http://www.gnu.org/licenses/gpl.html
+ *   @category			CAT_Modules
+ *   @package			blackNews
+ *
 *}
-<section id="hf_Entry" class="c_960">
-	<a class="button icon-circle-left" href="{cat_url}/{$options.permalink}/"> Zur&uuml;ck zur &Uuml;bersicht</a> 
+
+<section id="bN_Entry">
 	<article>
-		{if $entry.image}<img src="/" style="background-image:url('{$entry.image}');" id="hf_mImage" />{/if}
+		{if $entry.image}<figure style="background-image:url('{$entry.image}')" id="bN_mImage" ><img src="{$entry.image}"></figure>{/if}
 		<div>
-			<h1>{$entry.titel}</h1>
+			<h1>{$entry.title}</h1>
 			{$entry.content}
 		</div>
 	</article>

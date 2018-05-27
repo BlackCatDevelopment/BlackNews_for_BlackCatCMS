@@ -27,15 +27,7 @@
  *
 *}
 
-<script type="text/javascript">
-	if (typeof bcIDs === 'undefined')
-	\{
-		bcIDs	= [];
-	}
-	bcIDs.push(
-	\{
-		'page_id'		: {$page_id},
-		'section_id'	: {$section_id},
-		'bcID'			: {if $bcID}{$bcID}{else}1{/if}
-	});
-</script>
+<section id="incNews_{$section_id}" class="incNews">
+	{if $options.title}<h2>{$options.title}{if $options.title} <span>{$options.sub_title}</span>{/if}</h2>{/if}
+	{$count=0}{foreach $entries entry}{if $entry.publish && $count < $options.newsCount}{$count=$count+1}{include(view/entryList.tpl)}{/if}{/foreach}
+</section>

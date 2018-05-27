@@ -1,19 +1,32 @@
 <?php
-
-/*
-   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
-  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
-   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
-  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
-
-	@author			Black Cat Development
-	@copyright		2016 Black Cat Development
-	@link			http://blackcat-cms.org
-	@license		http://www.gnu.org/licenses/gpl.html
-	@category		CAT_Core
-	@package		CAT_Core
-
-*/
+/**
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.   
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'  
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.  
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    | 
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'  
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or (at
+ *   your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful, but
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ *   General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *
+ *   @author			Matthias Glienke
+ *   @copyright			2018, Black Cat Development
+ *   @link				http://blackcat-cms.org
+ *   @license			http://www.gnu.org/licenses/gpl.html
+ *   @category			CAT_Modules
+ *   @package			blackNews
+ *
+ */
 
 if (!class_exists('blackNewsEntry', false))
 {
@@ -33,6 +46,8 @@ if (!class_exists('blackNewsEntry', false))
 		protected static $options	= array();
 		private	static $info	= array();
 		private	static $seoUrl;
+
+		private static $staticVars	= array( 'staticVars', 'modified', 'eventID', 'timestamp', 'instance' );
 
 		/**
 		 *
@@ -167,16 +182,52 @@ if (!class_exists('blackNewsEntry', false))
 		 */
 		public function getEntryInfo($name=NULL)
 		{
+
 			// Get info from table
 			self::$info = self::db()->query(
-				'SELECT * FROM `:prefix:mod_blackNewsEntry` ' .
+				'SELECT *, UNIX_TIMESTAMP(publish) AS publishUT, UNIX_TIMESTAMP(created) AS createdUT, UNIX_TIMESTAMP(modified) AS modifiedUT FROM `:prefix:mod_blackNewsEntry` ' .
 					'WHERE `entryID` = :entryID',
 				array(
 					'entryID'	=> self::getEntryID()
 				)
 			)->fetchRow();
+
+			// Get the real name of user from userID
+			self::$info['username']			= CAT_Users::getInstance()->get_user_details(self::$info['userID'],'username');
+			self::$info['display_name']		= CAT_Users::getInstance()->get_user_details(self::$info['userID'],'display_name');
+
+			// prepare time values to be readable
+			self::$info['publishDate']		= strtotime(self::$info['publishDate']);
+			self::$info['publishDate']		= self::$info['publishDate'] != ''
+												? self::getDateTimeInput('publishDate') : '';
+			self::$info['unpublishDate']	= self::$info['unpublishDate'] != ''
+												? self::getDateTimeInput('unpublishDate') : '';
+/*			self::$info['modifiedFull']			= self::$info['modified'] != ''
+												? date_format(date_create(self::$info['modified']),'d.m.y - H:i') : 0;
+			self::$info['createdFull']			= self::$info['created'] != ''
+												? date_format(date_create(self::$info['created']),'d.m.y - H:i') : 0;
+			self::$info['publishFull']			= self::$info['publish'] != ''
+												? date_format(date_create(self::$info['publish']),'d.m.y - H:i') : 0;
+			self::$info['modifiedDMY']		= self::$info['modified'] != ''
+												? date_format(date_create(self::$info['modified']),'d.m.y') : 0;
+			self::$info['createdDMY']			= self::$info['created'] != ''
+												? date_format(date_create(self::$info['created']),'d.m.y') : 0;
+			self::$info['publishDMY']			= self::$info['publish'] != ''
+												? date_format(date_create(self::$info['publish']),'d.m.y') : 0;
+			self::$info['modifiedDM']		= self::$info['modified'] != ''
+												? date_format(date_create(self::$info['modified']),'d.m') : 0;
+			self::$info['createdDM']			= self::$info['created'] != ''
+												? date_format(date_create(self::$info['created']),'d.m') : 0;
+			self::$info['modifiedT']		= self::$info['modified'] != ''
+												? date_format(date_create(self::$info['modified']),'H:i') : 0;
+			self::$info['createdT']			= self::$info['created'] != ''
+												? date_format(date_create(self::$info['created']),'H:i') : 0;
+			self::$info['publishT']			= self::$info['publish'] != ''
+												? date_format(date_create(self::$info['publish']),'H:i') : 0;*/
+
 			return $name ? self::$info[$name] : self::$info;
 		}
+
 
 
 		/**
@@ -248,7 +299,7 @@ if (!class_exists('blackNewsEntry', false))
 			if ( self::db()->query(
 				'UPDATE `:prefix:mod_blackNewsEntry` ' .
 					'SET `publish` = ( SELECT CASE ' .
-						'WHEN `publish` = 0 THEN 1 ' .
+						'WHEN `publish` = 0 THEN CURRENT_TIMESTAMP ' .
 						'ELSE 0 ' .
 					'END AS publish ) ' .
 					'WHERE `entryID` = :entryID',
@@ -282,7 +333,8 @@ if (!class_exists('blackNewsEntry', false))
 			// Set publish
 			if ( self::db()->query(
 				'INSERT INTO `:prefix:mod_blackNewsEntry` ' .
-					'( `section_id`, `userID`, `title`) VALUES ( :section_id, :userID, :title )',
+					'(`section_id`, `userID`, `title`, `position`) ' .
+					'SELECT :section_id, :userID, :title, (MAX(`position`) + 1) FROM `:prefix:mod_blackNewsEntry`',
 				array(
 					'section_id'	=> parent::$section_id,
 					'userID'		=> CAT_Users::getInstance()->get_user_id(),
@@ -294,6 +346,7 @@ if (!class_exists('blackNewsEntry', false))
 				return array(
 					'message'	=> 'Eintrag angelegt',
 					'html'		=> self::getHTML('entryList'),
+					'values'	=> self::getEntryInfo(),
 					'entryID'	=> self::getEntryID(),
 					'success'	=> true
 				);
@@ -317,6 +370,7 @@ if (!class_exists('blackNewsEntry', false))
 				return array(
 					'message'	=> 'Eintrag gespeichert',
 					'entryID'	=> self::getEntryID(),
+					'values'	=> self::getEntryInfo(),
 					'success'	=> true
 				);
 		}
@@ -373,16 +427,10 @@ if (!class_exists('blackNewsEntry', false))
 					self::setOption($key, $val);
 				}
 
-
-
-				foreach( CC_Form::getInstance()->setEntryID( $sourceID )->getFields() as $val)
-				{
-					CC_Form::getInstance()->setEntryID( self::getEntryID() )->addField( $val );
-				}
-
 				return array(
 					'message'	=> 'Eintrag kopiert',
 					'html'		=> self::getHTML( 'entryList' ),
+					'values'	=> self::getEntryInfo(),
 					'entryID'	=> self::getEntryID(),
 					'success'	=> true
 				);
@@ -440,7 +488,7 @@ if (!class_exists('blackNewsEntry', false))
 
 							if ( $current->processed )
 							{
-#								$addImg	= $this->addImg( $file_extension );
+#								$addImg	= self::addImg( $file_extension );
 
 								if ( !CAT_Helper_Image::getInstance()->make_thumb(
 										$tempDir . $current->file_dst_name,
@@ -451,10 +499,10 @@ if (!class_exists('blackNewsEntry', false))
 										'jpg'
 								) ) $return	= false;
 
-#								$this->createImg( $addImg['image_id'], self::$thumb_x, self::$thumb_y );
+#								self::createImg( $addImg['image_id'], self::$thumb_x, self::$thumb_y );
 
 #								$addImg['thumb']	= sprintf( '%s/thumbs_%s_%s/',
-#									$this->galleryURL,
+#									self::galleryURL,
 #									self::$thumb_x,
 #									self::$thumb_y ) . $addImg['picture'];
 
@@ -559,7 +607,79 @@ if (!class_exists('blackNewsEntry', false))
 				$parser_data
 			);
 		}
-		
+
+
+		/**
+		 * Prepare a valid string from a property for input:date
+		 *
+		 * @access private
+		 * @param  string	$prop	- property which should be converted
+		 * @param  string	$format	- output format
+		 * @return string
+		 *
+		 **/
+		protected function getDateTimeInput($prop=NULL,$format='%Y-%m-%d')
+		{
+			if (!self::getInstance()->getProperty($prop)) return false;
+			return strftime($format, strtotime(self::getInstance()->getProperty($prop)) );
+		}
+
+		/**
+		 * Prepare a valid string from a property for DateTime in SQL
+		 *
+		 * @access private
+		 * @param  string	$prop	- property which should be converted
+		 * @return string
+		 *
+		 **/
+		protected function getDateTimeSQL($prop=NULL)
+		{
+			if (!self::getInstance()->getProperty($prop)) return false;
+			return strftime('%Y-%m-%d %H:%M:00', strtotime(self::getInstance()->getProperty($prop)));
+		}
+
+		/**
+		 * Store a value to a property of an object
+		 *
+		 * @access public
+		 * @param  string	$key	- attribute of class, that should be set
+		 * @param  string	$value	- value for the attribute
+		 * @return object
+		 *
+		 **/
+		public function setProperty( $key = NULL, $value = NULL )
+		{
+			if ( !self::getInstance()->getEventID()
+				|| !property_exists( 'blackNewsEntry', $key )
+				|| in_array($key,self::$staticVars)
+			) return false;
+			else {
+				self::getInstance()->$key	= $value;
+				return $this;
+			}
+		}
+
+		/**
+		 * Get a value of a property of an object
+		 *
+		 * @access public
+		 * @param  string	$key	- attribute of class, that should be got
+		 * @return string
+		 *
+		 **/
+		public function getProperty( $key = NULL )
+		{
+			if ( !self::getInstance()->getEventID()
+				|| !property_exists( 'blackNewsEntry', $key )
+				|| in_array($key,self::$staticVars)
+			) return false;
+			else return self::getInstance()->$key;
+
+/*				'INSERT INTO `:prefix:mod_blacknews_content`
+						(`page_id`, `section_id`, `news_id`, `title`, `subtitle`, `auto_generate_size`, `auto_generate` , `content`, `short`)
+						VALUES (:page_id, :section_id, :news_id, :title, :subtitle, :auto_generate_size, :auto_generate, :content, :short )';*/
+		}
+
+
 	}
 }
-require_once 'class.CC_Form.php';

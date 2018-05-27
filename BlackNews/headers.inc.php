@@ -1,6 +1,13 @@
 <?php
 /**
  *
+ *                                                                                           
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.   
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'  
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.  
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    | 
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'  
+ *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 3 of the License, or (at
@@ -15,11 +22,11 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author			Matthias Glienke
- *   @copyright			2014, Black Cat Development
+ *   @copyright			2018, Black Cat Development
  *   @link				http://blackcat-cms.org
  *   @license			http://www.gnu.org/licenses/gpl.html
  *   @category			CAT_Modules
- *   @package			catGallery
+ *   @package			blackNews
  *
  */
 
@@ -44,6 +51,7 @@ if (defined('CAT_PATH')) {
 
 require_once( 'inc/class.blackNews.php' );
 
-$mod_headers[$for] = blackNews::getInstance()->setIDs($section)->getHeader($for);
-
+if ( $section && $for ){
+	$mod_headers[$for] = blackNews::getInstance()->setIDs($section)->getHeader($for);
+}
 ?>

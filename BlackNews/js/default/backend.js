@@ -1,17 +1,31 @@
-/*
-   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
-  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
-   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
-  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
-
-   @author          Black Cat Development
-   @copyright       2016 Black Cat Development
-   @link            http://blackcat-cms.org
-   @license         http://www.gnu.org/licenses/gpl.html
-   @category        CAT_Core
-   @package         CAT_Core
-
-*/
+/**
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.   
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'  
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.  
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    | 
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'  
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or (at
+ *   your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful, but
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ *   General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *
+ *   @author			Matthias Glienke
+ *   @copyright			2018, Black Cat Development
+ *   @link				http://blackcat-cms.org
+ *   @license			http://www.gnu.org/licenses/gpl.html
+ *   @category			CAT_Modules
+ *   @package			blackNews
+ *
+ */
 
 
 if (typeof bN_PU !== 'function')
@@ -23,8 +37,17 @@ if (typeof bN_PU !== 'function')
 	}
 }
 
+function setInformation($f,user,crea,mod)
+{
+	console.log($f,user,crea,mod);
+	$f.children('.icon-user').text(' ' + user);
+	$f.children('.icon-calendar').text(' ' + crea);
+	$f.children('.icon-modify').text(' ' + mod);
+}
+
 function resetForm($Form)
 {
+	if ( $Form.find('[name=saveFields]').length == 0 ) return false;
 	$.each($Form.find('[name=saveFields]').val().split('|'), function(key,val)
 	{
 		if ( val != '' )
@@ -56,6 +79,7 @@ function setValue($el,wID,standard,options)
 {
 	$.each({'saveFields': standard, 'saveOptions': options}, function(type,values)
 	{
+		if ( $el.find('[name='+type+']').length == 0 ) return false;
 		$.each($el.find('[name='+type+']').val().split('|'), function(key,val)
 		{
 			if ( val != '' )
@@ -86,6 +110,7 @@ function setValue($el,wID,standard,options)
 function getValue($Form,wID)
 {
 	var saveField	= {};
+	if ( $Form.find('[name=saveFields]').length == 0 ) return false;
 	$.each($Form.find('[name=saveFields]').val().split('|'), function(key,val)
 	{
 		if ( val != '' )
@@ -119,6 +144,7 @@ function getValue($Form,wID)
 function getOptions($Form)
 {
 	var saveField	= [];
+	if ( $Form.find('[name=saveOptions]').length == 0 ) return saveField;
 	$.each($Form.find('[name=saveOptions]').val().split('|'), function(key,val)
 	{
 		if ( val != '' )
@@ -188,6 +214,7 @@ $(document).ready(function()
 		$.each( bcIDs, function( index, bcID )
 		{
 			var $bcUL		= $('#blackNews_' + bcID.section_id),
+				$footer		= $bcUL.find('.bc_Main').children('footer'),
 				$WYSIWYG	= $('#wysiwyg_' + bcID.section_id).hide(),
 				$bcNav		= $('#bc_nav_' + bcID.section_id),
 				$setKind	= $bcUL.find('.set_kind'),
@@ -233,8 +260,6 @@ $(document).ready(function()
 				previewTemplate:	$IMGs.html(),
 				success:			function(file, xhr, formData)
 				{
-					console.log(file, xhr, formData);
-					console.log(file.xhr.response);
 					$IMGs.find('.dz-progress').remove();
 					// Unvollständigen Upload durch wechseln der Seite verhindern
 					if( $IMGs.find('.dz-progress').size() == 0 ) bN_PU( false );
@@ -354,8 +379,10 @@ $(document).ready(function()
 					{
 						if ( data.success === true )
 						{
+							console.log(data);
 							return_success( jqXHR.process, data.message );
-							$sBar.prepend( data.html );
+							$sBar.find('[data-entryid="' + data.entryID + '"]').text( ' ' + data.values.title );
+							setInformation($footer,data.values.display_name,data.values.createdFull,data.values.modifiedFull);
 						} else {
 							return_error( jqXHR.process , data.message );
 						}
@@ -393,6 +420,7 @@ $(document).ready(function()
 						{
 							return_success( jqXHR.process, data.message );
 							$sBar.prepend( data.html );
+							setInformation($footer,data.values.display_name,data.values.createdFull,data.values.modifiedFull);
 							$sBar.sortable( 'refresh' );
 						} else {
 							return_error( jqXHR.process , data.message );
@@ -513,6 +541,7 @@ $(document).ready(function()
 						{
 							return_success( jqXHR.process, data.message );
 							$sBar.prepend( data.html );
+							setInformation($footer,data.display_name,data.createdFull,data.modifiedFull);
 						} else {
 							return_error( jqXHR.process , data.message );
 						}
@@ -549,17 +578,19 @@ $(document).ready(function()
 					},
 					success:	function( data, textStatus, jqXHR )
 					{
-						console.log( data, textStatus, jqXHR);
 						return_success( jqXHR.process, data.message );
 						if ( data.success === true )
 						{
+							console.log(data);
 							$prevIMG.attr('src',data.image ? data.image + '?' + Math.floor(Math.random() * 10000 ) : '' );
 							$Form.data('entryid',getEntryID($(this)));
 
 							setActive($(this));
 							if ( data.publish == 1 ) $publish.addClass('published');
 							else $publish.removeClass('published');
-	
+
+							setInformation($footer,data.display_name,data.createdFull,data.modifiedFull);
+
 							setValue($Form,$WYSIWYG.attr('id'),data,data.options);
 
 							$table.children('tr').not('.bn_FormularInput').remove();

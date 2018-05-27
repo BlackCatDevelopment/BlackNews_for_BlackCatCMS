@@ -27,15 +27,11 @@
  *
 *}
 
-<script type="text/javascript">
-	if (typeof bcIDs === 'undefined')
-	\{
-		bcIDs	= [];
-	}
-	bcIDs.push(
-	\{
-		'page_id'		: {$page_id},
-		'section_id'	: {$section_id},
-		'bcID'			: {if $bcID}{$bcID}{else}1{/if}
-	});
-</script>
+<article class="incNews_Entries">
+	<span>{date('d.m.',$entry.publishUT)}</span>
+	<h3>{$entry.title}</h3>
+	{if $entry.short}{$entry.short}{else}<p>{truncateHTML($entry.text,100)}</p>{/if}
+	<aside>
+		<a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/">mehr lesen...</a>
+	</aside>
+</article>

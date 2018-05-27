@@ -1,12 +1,12 @@
 <?php
 
 /*
-   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
-  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
-   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
-  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
-
-   @author          Black Cat Development
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.   
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'  
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.  
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    | 
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'  
+ *   @author          Black Cat Development
    @copyright       2016 Black Cat Development
    @link            http://blackcat-cms.org
    @license         http://www.gnu.org/licenses/gpl.html
@@ -51,6 +51,8 @@ if (!class_exists('CAT_Addon_Module', false))
 		 */
 		public static function install()
 		{
+			self::uninstall();
+
 			$errors	= self::sqlProcess( CAT_PATH . '/modules/' . static::$directory . '/inc/db/structure.sql' );
 
 			$addons_helper = new CAT_Helper_Addons();
@@ -73,7 +75,7 @@ if (!class_exists('CAT_Addon_Module', false))
 		 */
 		public static function uninstall()
 		{
-			$errors	= self::sqlProcess($CAT_PATH . '/modules/' . static::$directory . '/inc/db/uninstall.sql');
+			$errors	= self::sqlProcess( CAT_PATH . '/modules/' . static::$directory . '/inc/db/uninstall.sql');
 			return $errors;
 		}
 

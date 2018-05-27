@@ -1,4 +1,9 @@
-{**
+{*
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.   
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'  
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.  
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    | 
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'  
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -14,22 +19,22 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author			Matthias Glienke
- *   @copyright			2017, Black Cat Development
+ *   @copyright			2018, Black Cat Development
  *   @link				http://blackcat-cms.org
  *   @license			http://www.gnu.org/licenses/gpl.html
  *   @category			CAT_Modules
- *   @package			blacknews
+ *   @package			blackNews
  *
- *}
+*}
 
 <div class="bc_skin fc_br_top">
 	<p class="icon-cog cc_toggle_set"> {translate('Set skin')}<small>({if $variant}{$variant}{else}default{/if})</small></p>
 	<form action="{$CAT_URL}/modules/blacknews/save.php" method="post" class="fc_gradient1 fc_border_all_light fc_br_bottom fc_shadow_small">
 		<input type="hidden" name="page_id" value="{$page_id}">
 		<input type="hidden" name="section_id" value="{$section_id}">
-		<input type="hidden" name="courseID" value="{$courseID}">
-		<input type="hidden" name="action" value="setSkin">
+		<input type="hidden" name="gallery_id" value="{$gallery_id}">
 		<input type="hidden" name="options" value="variant">
+		<input type="hidden" name="action" value="setSkin">
 		<select name="variant">
 		{foreach $variants var}
 			<option value="{$var}"{if $var == $variant} selected="selected"{/if}>{$var}</option>
