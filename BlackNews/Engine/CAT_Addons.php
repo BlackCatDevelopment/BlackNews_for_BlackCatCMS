@@ -299,6 +299,7 @@ if (!class_exists('CAT_Addons', false))
 			$import	= preg_replace( "%^--(.*)\n%mU" , ''			  , $import );
 			$import	= preg_replace( "%^$\n%mU"		, ''			  , $import );
 			$import	= preg_replace( "%cat_%"		, CAT_TABLE_PREFIX, $import );
+			$import	= preg_replace( "%:prefix:%"	, CAT_TABLE_PREFIX, $import );
 			foreach (self::__split_sql_file($import, ';') as $imp){
 				if ($imp != '' && $imp != ' ') {
 					$ret = self::db()->query($imp);
