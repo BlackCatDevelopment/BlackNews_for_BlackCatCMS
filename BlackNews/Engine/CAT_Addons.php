@@ -417,7 +417,7 @@ if (!class_exists('CAT_Addons', false))
 		 */
 		public static function setParserValue($name=NULL,$value=NULL)
 		{
-			if( count($parserValues) == 0 )
+			if( count(self::$parserValues) == 0 )
 				self::$parserValues	= array(
 					'CAT_ADMIN_URL'		=> CAT_ADMIN_URL,
 					'CAT_PATH'			=> CAT_PATH,

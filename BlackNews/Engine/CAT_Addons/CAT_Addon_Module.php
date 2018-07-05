@@ -104,8 +104,8 @@ if (!class_exists('CAT_Addon_Module', false))
 			$parser->setFallbackPath( CAT_PATH . '/modules/' . static::$directory . '/templates/default' );
 
 			$parser->output(
-				self::$template,
-				self::getParserValue()
+				static::$template,
+				static::getParserValue()
 			);
 		}
 
