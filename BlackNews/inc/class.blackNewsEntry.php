@@ -172,50 +172,102 @@ if (!class_exists('blackNewsEntry', false))
 
 			// Get info from table
 			self::$info = self::db()->query(
-				'SELECT *, UNIX_TIMESTAMP(publish) AS publishUT, UNIX_TIMESTAMP(created) AS createdUT, UNIX_TIMESTAMP(modified) AS modifiedUT FROM `:prefix:mod_blackNewsEntry` ' .
+				'SELECT * FROM `:prefix:mod_blackNewsEntry` ' .
+					'WHERE `entryID` = :entryID',
+				array(
+					'entryID'	=> self::getEntryID()
+				)
+			)->fetchRow();
+			self::$info['username']		= CAT_Users::getInstance()->get_user_details(self::$info['userID'],'username');
+			self::$info['display_name']	= CAT_Users::getInstance()->get_user_details(self::$info['userID'],'display_name');
+			
+			
+			self::$info['publishDate']		= self::$info['publishDate'] != '' ? self::getDateTimeInput('publishDate') : '';
+			self::$info['unpublishDate']	= self::$info['unpublishDate'] != '' ? self::getDateTimeInput('unpublishDate') : '';
+/*
+			self::$info['publishDate']		= self::$info['publishDate'] != '' ? self::getDateTimeInput('publishDate') : '';
+			self::$info['unpublishDate']	= self::$info['unpublishDate'] != '' ? self::getDateTimeInput('unpublishDate') : '';
+#			self::$info['username']		= ;
+#			self::$info['display_name']	= ;
+*/			return $name ? self::$info[$name] : self::$info;
+		}
+		/**
+		 * Fill the object with the values of an event from database
+		 *
+		 * @access public
+		 * @param  bool		$returnArray	- option whether an array should be returned
+		 * @return object/array
+		 *
+		 **/
+		public function getEvent( $returnArray = NULL )
+		{
+			// Get info from table
+			self::$info = self::db()->query(
+				'SELECT * FROM `:prefix:mod_blackNewsEntry` ' .
 					'WHERE `entryID` = :entryID',
 				array(
 					'entryID'	=> self::getEntryID()
 				)
 			)->fetchRow();
 
-			// Get the real name of user from userID
-			self::$info['username']			= CAT_Users::getInstance()->get_user_details(self::$info['userID'],'username');
-			self::$info['display_name']		= CAT_Users::getInstance()->get_user_details(self::$info['userID'],'display_name');
+			if( ( isset($getEvent) && $getEvent->numRows() > 0 )
+				&& !false == ($row = $getEvent->fetchRow() ) )
+			{
+				$this->setProperty( 'calID',		$row['calID']);
+				$this->setProperty( 'publishDate',	$row['publishDate']);
+				$this->setProperty( 'username',		CAT_Users::getInstance()->get_user_details($info['userID'],'username') );
+				$this->setProperty( 'display_name',	CAT_Users::getInstance()->get_user_details($info['userID'],'display_name'));
+				$this->setProperty( 'kind',			$row['kind']);
+				$this->setProperty( 'start',		$row['start']);
+				$this->setProperty( 'end',			$row['end']);
+				$this->setProperty( 'timestamp',	$row['timestamp']);
+				$this->setProperty( 'eventURL',		$row['eventURL']);
+				$this->setProperty( 'UID',			$row['UID']);
+				$this->setProperty( 'published',	$row['published']);
+				$this->setProperty( 'allday',		$row['allday']);
+				$this->setProperty( 'modified',		$row['modified']);
+				$this->setProperty( 'createdID',	$row['createdID']);
+				$this->setProperty( 'modifiedID',	$row['modifiedID']);
+			}
 
-			// prepare time values to be readable
-			self::$info['publishDate']		= strtotime(self::$info['publishDate']);
-			self::$info['publishDate']		= self::$info['publishDate'] != ''
-												? self::getDateTimeInput('publishDate') : '';
-			self::$info['unpublishDate']	= self::$info['unpublishDate'] != ''
-												? self::getDateTimeInput('unpublishDate') : '';
-/*			self::$info['modifiedFull']			= self::$info['modified'] != ''
-												? date_format(date_create(self::$info['modified']),'d.m.y - H:i') : 0;
-			self::$info['createdFull']			= self::$info['created'] != ''
-												? date_format(date_create(self::$info['created']),'d.m.y - H:i') : 0;
-			self::$info['publishFull']			= self::$info['publish'] != ''
-												? date_format(date_create(self::$info['publish']),'d.m.y - H:i') : 0;
-			self::$info['modifiedDMY']		= self::$info['modified'] != ''
-												? date_format(date_create(self::$info['modified']),'d.m.y') : 0;
-			self::$info['createdDMY']			= self::$info['created'] != ''
-												? date_format(date_create(self::$info['created']),'d.m.y') : 0;
-			self::$info['publishDMY']			= self::$info['publish'] != ''
-												? date_format(date_create(self::$info['publish']),'d.m.y') : 0;
-			self::$info['modifiedDM']		= self::$info['modified'] != ''
-												? date_format(date_create(self::$info['modified']),'d.m') : 0;
-			self::$info['createdDM']			= self::$info['created'] != ''
-												? date_format(date_create(self::$info['created']),'d.m') : 0;
-			self::$info['modifiedT']		= self::$info['modified'] != ''
-												? date_format(date_create(self::$info['modified']),'H:i') : 0;
-			self::$info['createdT']			= self::$info['created'] != ''
-												? date_format(date_create(self::$info['created']),'H:i') : 0;
-			self::$info['publishT']			= self::$info['publish'] != ''
-												? date_format(date_create(self::$info['publish']),'H:i') : 0;*/
-
-			return $name ? self::$info[$name] : self::$info;
+			if ( $returnArray ) return $this->createReturnArray();
+			else return $this;
 		}
 
-
+		/**
+		 * create the array for callback if needed
+		 *
+		 * @access private
+		 * @return array
+		 *
+		 **/
+		private function createReturnArray()
+		{
+			return array(
+				'calID'			=> $this->getProperty('calID'),
+				'location'		=> $this->getProperty('location'),
+				'title'			=> $this->getProperty('title'),
+				'description'	=> $this->getProperty('description'),
+				'kind'			=> $this->getProperty('kind'),
+				'start_date'	=> $this->getDateTimeInput('start'),
+				'start_day'		=> $this->getDateTimeInput('start','%d'),
+				'start_time'	=> $this->getDateTimeInput('start','%H:%M'),
+				'end_date'		=> $this->getDateTimeInput('end'),
+				'end_day'		=> $this->getDateTimeInput('end','%d'),
+				'end_time'		=> $this->getDateTimeInput('end','%H:%M'),
+				'timestamp'		=> $this->getProperty('timestamp'),
+				'eventURL'		=> $this->getProperty('eventURL'),
+				'UID'			=> $this->getProperty('UID'),
+				'published'		=> $this->getProperty('published'),
+				'allday'		=> $this->getProperty('allday'),
+				'timestampDate'	=> $this->getDateTimeInput('timestamp','%d.%m.%Y'),
+				'timestampTime'	=> $this->getDateTimeInput('timestamp','%H:%M'),
+				'modifiedDate'	=> $this->getDateTimeInput('modified'),
+				'modifiedTime'	=> $this->getDateTimeInput('modified','%H:%M'),
+				'createdID'		=> CAT_Users::get_user_details( $this->getProperty('createdID'), 'display_name' ),
+				'modifiedID'	=> CAT_Users::get_user_details( $this->getProperty('modifiedID'), 'display_name' )
+			);
+		}
 
 		/**
 		 * @param void $name
@@ -223,9 +275,6 @@ if (!class_exists('blackNewsEntry', false))
 		 */
 		public function setEntryInfo($values)
 		{
-			if ( $values['seoURL'] == '' )
-				$values['seoURL']	= parent::createTitleURL($values['title']);
-
 			// Add a new course
 			return self::db()->query(
 				'INSERT INTO `:prefix:mod_blackNewsEntry` ' .
@@ -289,7 +338,7 @@ if (!class_exists('blackNewsEntry', false))
 			if ( self::db()->query(
 				'UPDATE `:prefix:mod_blackNewsEntry` ' .
 					'SET `publish` = ( SELECT CASE ' .
-						'WHEN `publish` = 0 THEN CURRENT_TIMESTAMP ' .
+						'WHEN `publish` = 0 THEN 1 ' .
 						'ELSE 0 ' .
 					'END AS publish ) ' .
 					'WHERE `entryID` = :entryID',
@@ -323,8 +372,7 @@ if (!class_exists('blackNewsEntry', false))
 			// Set publish
 			if ( self::db()->query(
 				'INSERT INTO `:prefix:mod_blackNewsEntry` ' .
-					'(`section_id`, `userID`, `title`, `position`) ' .
-					'SELECT :section_id, :userID, :title, (MAX(`position`) + 1) FROM `:prefix:mod_blackNewsEntry`',
+					'( `section_id`, `userID`, `title`) VALUES ( :section_id, :userID, :title )',
 				array(
 					'section_id'	=> parent::$section_id,
 					'userID'		=> CAT_Users::getInstance()->get_user_id(),
@@ -336,7 +384,6 @@ if (!class_exists('blackNewsEntry', false))
 				return array(
 					'message'	=> 'Eintrag angelegt',
 					'html'		=> self::getHTML('entryList'),
-					'values'	=> self::getEntryInfo(),
 					'entryID'	=> self::getEntryID(),
 					'success'	=> true
 				);
@@ -360,7 +407,6 @@ if (!class_exists('blackNewsEntry', false))
 				return array(
 					'message'	=> 'Eintrag gespeichert',
 					'entryID'	=> self::getEntryID(),
-					'values'	=> self::getEntryInfo(),
 					'success'	=> true
 				);
 		}
@@ -417,10 +463,16 @@ if (!class_exists('blackNewsEntry', false))
 					self::setOption($key, $val);
 				}
 
+
+
+				foreach( CC_Form::getInstance()->setEntryID( $sourceID )->getFields() as $val)
+				{
+					CC_Form::getInstance()->setEntryID( self::getEntryID() )->addField( $val );
+				}
+
 				return array(
 					'message'	=> 'Eintrag kopiert',
 					'html'		=> self::getHTML( 'entryList' ),
-					'values'	=> self::getEntryInfo(),
 					'entryID'	=> self::getEntryID(),
 					'success'	=> true
 				);
@@ -478,7 +530,7 @@ if (!class_exists('blackNewsEntry', false))
 
 							if ( $current->processed )
 							{
-#								$addImg	= self::addImg( $file_extension );
+#								$addImg	= $this->addImg( $file_extension );
 
 								if ( !CAT_Helper_Image::getInstance()->make_thumb(
 										$tempDir . $current->file_dst_name,
@@ -489,10 +541,10 @@ if (!class_exists('blackNewsEntry', false))
 										'jpg'
 								) ) $return	= false;
 
-#								self::createImg( $addImg['image_id'], self::$thumb_x, self::$thumb_y );
+#								$this->createImg( $addImg['image_id'], self::$thumb_x, self::$thumb_y );
 
 #								$addImg['thumb']	= sprintf( '%s/thumbs_%s_%s/',
-#									self::galleryURL,
+#									$this->galleryURL,
 #									self::$thumb_x,
 #									self::$thumb_y ) . $addImg['picture'];
 
@@ -673,3 +725,4 @@ if (!class_exists('blackNewsEntry', false))
 
 	}
 }
+require_once 'class.CC_Form.php';

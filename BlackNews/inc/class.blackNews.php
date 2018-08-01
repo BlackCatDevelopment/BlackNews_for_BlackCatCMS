@@ -33,7 +33,7 @@ if (!class_exists('blackNews', false))
 
 		protected static	$template		= 'modify';
 		private static		$SEOUrl;
-		private static		$categories;
+		private static		$categories		= array();
 		protected static	$options		= array();
 		private static		$routeUrl		= NULL;
 		private static		$routeQuery		= NULL;
@@ -78,7 +78,7 @@ if (!class_exists('blackNews', false))
 		public static function getVariant()
 		{
 			// set and get variant of module
-			static::$variant	= self::getOption('variant') != '' ? self::getOption('variant') : 'default';
+			static::$variant	= self::getOption('variant');
 			return static::$variant;
 		}
 
@@ -149,6 +149,7 @@ if (!class_exists('blackNews', false))
 				&& isset(self::$options[$name]) ) return self::$options[$name];
 
 			self::setIDs();
+
 			// Get all options
 			$result = self::db()->query(
 				'SELECT `value`, `name` FROM `:prefix:mod_blackNewsOptions` ' .
@@ -211,10 +212,10 @@ if (!class_exists('blackNews', false))
 		{
 			// Get all entries
 			$result = self::db()->query(
-				'SELECT *, UNIX_TIMESTAMP(publish) AS publishUT, UNIX_TIMESTAMP(created) AS createdUT, UNIX_TIMESTAMP(modified) AS modifiedUT  ' .
+				'SELECT * ' .
 					'FROM `:prefix:mod_blackNewsEntry` ' .
 						'WHERE `section_id` = :section_id ' .
-						'ORDER BY `position` DESC',
+						'ORDER BY position DESC',
 				array(
 					'section_id'		=> self::$section_id
 				)
@@ -231,7 +232,46 @@ if (!class_exists('blackNews', false))
 						{
 							$entries[$i][$name]	= $value;
 						}
-						$entries[$i]['username']		= CAT_Users::getInstance()->get_user_details($entries[$i]['userID'],'username');
+						$entries[$i]['username']	= CAT_Users::getInstance()->get_user_details($entries[$i]['userID'],'username');
+						$entries[$i]['display_name']	= CAT_Users::getInstance()->get_user_details($entries[$i]['userID'],'display_name');
+						$entries[$i]['image']			= blackNewsEntry::getInstance($entry['entryID'])->getImage();
+					}
+				}
+			}
+			return $entries;
+		}
+
+		/**
+		 *
+		 */
+		public static function getByCategory($addOpt=NULL,$category)
+		{
+			// Get all entries
+			$result = self::db()->query(
+				'SELECT * FROM `bc_eps_mod_blackNewsEntry` E ' .
+					'INNER JOIN `bc_eps_mod_blackNewsCategoryEntries` EC ON E.entryID = EC.entryID ' .
+					'INNER JOIN `bc_eps_mod_blackNewsCategory` C ON EC.catID = C.catID ' .
+					'WHERE C.catID = :catID ' .
+						'AND E.`section_id` = :section_id ' .
+						'ORDER BY E.`position` DESC',
+				array(
+					'section_id'		=> self::$section_id,
+					'catID'				=> $category
+				)
+			);
+			if( $result && $result->rowCount() > 0 )
+			{
+				$i	= 0;
+				while ( false !== ( $entry = $result->fetch() ) )
+				{
+					$entries[++$i]	= $entry;
+					if($addOpt)
+					{
+						foreach( blackNewsEntry::getInstance($entry['entryID'])->getOption() as $name => $value )
+						{
+							$entries[$i][$name]	= $value;
+						}
+						$entries[$i]['username']	= CAT_Users::getInstance()->get_user_details($entries[$i]['userID'],'username');
 						$entries[$i]['display_name']	= CAT_Users::getInstance()->get_user_details($entries[$i]['userID'],'display_name');
 						$entries[$i]['image']			= blackNewsEntry::getInstance($entry['entryID'])->getImage();
 					}
@@ -248,18 +288,34 @@ if (!class_exists('blackNews', false))
 			// TODO: Check if route is in database, else return 404
 			// TODO: Add route to extra table with trigger to get history of files and automatically set 301
 
-			return blackNewsEntry::getEntryByURL(trim( str_replace(self::getOption('permalink') . '/','',self::$routeUrl), '/' ));
+			return blackNewsEntry::getEntryByURL(trim( str_replace(self::getOption('permalink'),'',self::$routeUrl), '/' ));
 
 		}
 
 		/**
 		 *
 		 */
-		public static function getCategories()
+		public static function getCategories(int $section_id = NULL)
 		{
-			return array(
-				'Platzhalter1', 'Platzhalter2'
+			if ( count(self::$categories) > 0 ) return self::$categories;
+
+			// Get all categories
+			$r = self::db()->query(
+				'SELECT * ' .
+					'FROM `:prefix:mod_blackNewsCategory` ' .
+						'WHERE `section_id` = :section_id',
+				array(
+					'section_id'		=> $section_id ? $section_id : self::$section_id
+				)
 			);
+			if( $r && $r->rowCount() > 0 )
+			{
+				while ( false !== ( $c = $r->fetch() ) )
+				{
+					self::$categories[]	= $c;
+				}
+			}
+			return self::$categories;
 		}
 
 		/**
@@ -433,6 +489,18 @@ if (!class_exists('blackNews', false))
 
 			self::setParserValue('options',self::getOption());
 
+			$form	= CC_Form::getInstance();
+
+			self::setParserValue(
+				'fields',
+				$form->setEntryID(blackNewsEntry::getEntryID())->getFields()
+			);
+
+			self::setParserValue('bot_temp',$form->getTime() );
+
+			if( $form->isSend() ) $form->setMail();
+
+
 			if( file_exists( CAT_PATH . '/modules/' . static::$directory . '/view/' . self::getVariant() . '/view.php' ) )
 				include CAT_PATH . '/modules/' . static::$directory . '/view/' . self::getVariant() . '/view.php';
 
@@ -454,12 +522,13 @@ if (!class_exists('blackNews', false))
 		/**
 		 *
 		 */
-		public static function includeNews($section_id=NULL,$options=NULL)
+		public static function includeNews(int $section_id=NULL)
 		{
 			global $parser;
 			$options	= self::getOption();
 
 			self::setIDs($section_id);
+			self::getVariant();
 /*			self::getRoute(PAGES_DIRECTORY);
 
 			self::checkRedirect();
@@ -478,13 +547,28 @@ if (!class_exists('blackNews', false))
 				static::$template	= 'viewEntry';
 			}
 */
-			self::setParserValue('entries',self::getOverview(true));
+
+			if($options['category']) self::setParserValue('entries',self::getByCategory(true,$options['category']));
+			else self::setParserValue('entries',self::getOverview(true));
+
 			static::$template	= 'view';
 
 			self::setParserValue('options',self::getOption());
 
+			// Muss ich noch checken... weiß ich selbst gerade nicht mehr, warum das gesetzt sein muss
 			self::$options['variant']	= $options['variant'];
 
+/*			$form	= CC_Form::getInstance();
+
+			self::setParserValue(
+				'fields',
+				$form->setEntryID(blackNewsEntry::getEntryID())->getFields()
+			);
+
+			self::setParserValue('bot_temp',$form->getTime() );
+
+			if( $form->isSend() ) $form->setMail();
+*/
 			$parser->setPath( CAT_PATH . '/modules/' . static::$directory . '/templates/' . self::getVariant() );
 			$parser->setFallbackPath( CAT_PATH . '/modules/' . static::$directory . '/templates/default' );
 
@@ -576,7 +660,8 @@ if (!class_exists('blackNews', false))
 			self::setIDs();
 			self::setParserValue('options',self::getOption());
 			self::setParserValue('entries',self::getOverview());
-
+			self::setParserValue('categories',self::getCategories());
+			self::setParserValue('categories',self::getCategories(self::$parserValues['options']['setNews']));
 
 			if ( file_exists(  CAT_PATH . '/modules/' . static::$directory . '/modify/' . self::getVariant() . '/modify.php' ) )
 				include(  CAT_PATH . '/modules/' . static::$directory . '/modify/' . self::getVariant() . '/modify.php' );
@@ -648,6 +733,7 @@ if (!class_exists('blackNews', false))
 
 			$backend->updateWhenModified();
 
+
 			$action		= CAT_Helper_Validate::sanitizePost('action');
 			$return		= array();
 			self::setIDs();
@@ -658,7 +744,14 @@ if (!class_exists('blackNews', false))
 					$return = self::setOption('variant',CAT_Helper_Validate::sanitizePost('variant'));
 					break;
 				case 'get':
-					$return = blackNewsEntry::getEntry();
+					$form	= new CC_Form;
+
+					$return = array_merge(
+						blackNewsEntry::getEntry(),
+						array( 'html'	=> $form::getInstance()
+							->setEntryID(blackNewsEntry::getEntryID())->getHTML()
+						)
+					);
 					break;
 				case 'add':
 					$return = blackNewsEntry::addEntry();
@@ -681,6 +774,47 @@ if (!class_exists('blackNews', false))
 						'success'	=> self::order( CAT_Helper_Validate::sanitizePost('positions') )
 					);
 					break;
+				case 'addField':
+					$form	= new CC_Form;
+
+					$return = array(
+						'message'	=> 'Feld hinzugefügt',
+						'value'		=> CAT_Helper_Validate::sanitizePost('values'),
+						'success'	=> $form::getInstance()
+							->setEntryID(CAT_Helper_Validate::sanitizePost('entryID'))
+							->addField( CAT_Helper_Validate::sanitizePost('values') ),
+						'html'		=> $form::getInstance()->getHTML()
+					);
+					break;
+				case 'saveField':
+
+					$return = array(
+						'message'	=> 'Feld gespeichert',
+						'fieldID'	=> CAT_Helper_Validate::sanitizePost('fieldID'),
+						'value'		=> CAT_Helper_Validate::sanitizePost('values'),
+						'success'	=> CC_Form::getInstance()
+							->setFieldID( CAT_Helper_Validate::sanitizePost('fieldID') )
+							->saveField( CAT_Helper_Validate::sanitizePost('values') )
+					);
+					break;
+				case 'deleteField':
+
+					$return = array(
+						'message'	=> 'Feld gelöscht',
+						'success'	=> CC_Form::removeField( CAT_Helper_Validate::sanitizePost('fieldID'), 'numeric' )
+					);
+					break;
+				case 'orderFields':
+
+					CC_Form::getInstance()
+						->order( CAT_Helper_Validate::sanitizePost('positions') );
+
+					$return = array(
+						'message'	=> 'Feld gespeichert',
+						'success'	=> true
+					);
+					break;
+
 				case 'uploadIMG':
 					if ( isset( $_FILES['bNimage']['name'] ) && $_FILES['bNimage']['name'] != '' )
 					{
@@ -710,7 +844,7 @@ if (!class_exists('blackNews', false))
 					break;
 
 				default: // save
-					$return			= blackNewsEntry::saveEntry();
+					$return = blackNewsEntry::saveEntry();
 					break;
 			}
 
@@ -719,23 +853,22 @@ if (!class_exists('blackNews', false))
 				print json_encode( $return );
 				exit();
 			} else {
+				global $page_id;
 				$backend->print_success(
 					isset($return['message']) ? $return['message'] : $backend->lang()->translate('Saved successfully'),
-					CAT_ADMIN_URL . '/pages/modify.php?page_id=' . self::$page_id
+					CAT_ADMIN_URL . '/pages/modify.php?page_id=' . $page_id
 				);
-				// Print admin footer
-				$backend->print_footer();
 			}
 		}
 
 		/**
 		 *
 		 */
-/*		public static function uninstall()
+		public static function uninstall()
 		{
 			$errors	= self::sqlProcess($CAT_PATH . '/modules/' . static::$directory . '/inc/uninstall.sql');
 			return $errors;
-		}*/
+		}
 
 		/**
 		 *
@@ -749,3 +882,4 @@ if (!class_exists('blackNews', false))
 }
 
 require_once 'class.blackNewsEntry.php' ;
+require_once 'class.CC_Form.php';
