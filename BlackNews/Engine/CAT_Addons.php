@@ -1,12 +1,12 @@
 <?php
 
 /*
- * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.   
- * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'  
- * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.  
- * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    | 
- * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'  
- *	@author			Black Cat Development
+   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
+  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
+   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
+  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
+
+	@author			Black Cat Development
 	@copyright		2016 Black Cat Development
 	@link			http://blackcat-cms.org
 	@license		http://www.gnu.org/licenses/gpl.html
@@ -299,7 +299,6 @@ if (!class_exists('CAT_Addons', false))
 			$import	= preg_replace( "%^--(.*)\n%mU" , ''			  , $import );
 			$import	= preg_replace( "%^$\n%mU"		, ''			  , $import );
 			$import	= preg_replace( "%cat_%"		, CAT_TABLE_PREFIX, $import );
-			$import	= preg_replace( "%:prefix:%"	, CAT_TABLE_PREFIX, $import );
 			foreach (self::__split_sql_file($import, ';') as $imp){
 				if ($imp != '' && $imp != ' ') {
 					$ret = self::db()->query($imp);
@@ -417,7 +416,7 @@ if (!class_exists('CAT_Addons', false))
 		 */
 		public static function setParserValue($name=NULL,$value=NULL)
 		{
-			if( count(self::$parserValues) == 0 )
+			if( count($parserValues) == 0 )
 				self::$parserValues	= array(
 					'CAT_ADMIN_URL'		=> CAT_ADMIN_URL,
 					'CAT_PATH'			=> CAT_PATH,
