@@ -725,4 +725,3 @@ if (!class_exists('blackNewsEntry', false))
 
 	}
 }
-require_once 'class.CC_Form.php';

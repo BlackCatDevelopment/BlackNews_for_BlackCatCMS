@@ -15,6 +15,7 @@
 
 */
 
+require_once 'class.blackNewsEntry.php' ;
 
 if (!class_exists('blackNews', false))
 {
@@ -880,6 +881,3 @@ if (!class_exists('blackNews', false))
 
 	}
 }
-
-require_once 'class.blackNewsEntry.php' ;
-require_once 'class.CC_Form.php';
