@@ -13,6 +13,6 @@
 
 *}
 
-<section id="hf_List_{$section_id}" class="hf_List c_960">
+<section id="bcj_List_{$section_id}" class="bcj_List">
 	{foreach $entries entry}{if $entry.publish}{include(view/entryList.tpl)}{/if}{/foreach}
 </section>

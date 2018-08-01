@@ -1,0 +1,163 @@
+/*
+   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
+  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
+   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
+  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
+
+   @author          Black Cat Development
+   @copyright       2016 Black Cat Development
+   @link            http://blackcat-cms.org
+   @license         http://www.gnu.org/licenses/gpl.html
+   @category        CAT_Core
+   @package         CAT_Core
+
+*/
+
+.bcj_List {
+	margin:				1em 0 0 0;
+	padding:			0;
+	display:			-webkit-box;
+	display:			-moz-box;
+	display:			-ms-flexbox;
+	display:			flex;
+	-moz-box-wrap:		wrap;
+	-webkit-box-wrap:	wrap;
+	-ms-flexbox-wrap:	wrap;
+	flex-wrap:			wrap;
+/*	border-top:			1px solid #c3c3c3;*/
+}
+
+	.bcj_Entries {
+		position:				relative;
+		overflow:				hidden;
+		padding:				1em 1em 2em 1em;
+		-webkit-box-flex:		1;
+		-webkit-flex:			1 0 100%;
+		-ms-flex:				1 0 100%;
+		flex:					1 0 100%;
+		-webkit-transition:		all .35s ease-in;
+		-moz-transition:		all .35s ease-in;
+		-o-transition:			all .35s ease-in;
+		-ms-transition:			all .35s ease-in;
+		transition:				all .35s ease-in;
+		-webkit-hyphens:		auto;
+		-moz-hyphens:			auto;
+		-ms-hyphens:			auto;
+		hyphens:				auto;
+	}
+
+	.bcj_Entries:hover {
+		-webkit-box-shadow:	black 0 0 2em -.5em;
+		-moz-box-shadow:	black 0 0 2em -.5em;
+		-o-box-shadow:		black 0 0 2em -.5em;
+		-ms-box-shadow:		black 0 0 2em -.5em;
+		box-shadow:			black 0 0 2em -.5em;
+	}
+		.bcj_Entries h2 {
+			padding-right:	2.8em;
+		}
+		.bcj_Entries p {
+			text-align:	justify;
+		}
+		.bcj_Entries aside {
+		}
+			.bcj_Entries aside a {
+				color:				#1297dd;
+				z-index:			3;
+				position:			absolute;
+				top:				0;
+				right:				0;
+				bottom:				0;
+				left:				0;
+				cursor:				pointer;
+				background:			rgba(053, 161, 210, .2);
+				-webkit-box-shadow:	inset #35a1d2 0 0 6em -3em;
+				-moz-box-shadow:	inset #35a1d2 0 0 6em -3em;
+				-o-box-shadow:		inset #35a1d2 0 0 6em -3em;
+				-ms-box-shadow:		inset #35a1d2 0 0 6em -3em;
+				box-shadow:			inset #35a1d2 0 0 6em -3em;
+				-webkit-transition:	all .35s ease-in;
+				-moz-transition:	all .35s ease-in;
+				-o-transition:		all .35s ease-in;
+				-ms-transition:		all .35s ease-in;
+				transition:			all .35s ease-in;
+				opacity:			0;
+				text-align:			center;
+			}
+			.bcj_Entries aside a span {
+				position:			absolute;
+				right:				-4em;
+				bottom:				3em;
+				background:			white;
+				display:			block;
+				font-weight:		700;
+				padding:			.4em 6em;
+				-webkit-transform:	rotate(-38deg);
+				-moz-transform:		rotate(-38deg);
+				-ms-transform:		rotate(-38deg);
+				-o-transform:		rotate(-38deg);
+				transform:			rotate(-38deg);
+			}
+			.bcj_Entries aside a:hover {
+				opacity:	1;
+			}
+			.bcj_Entries aside > span.bcjDate {
+				z-index:				2;
+				position:				absolute;
+				text-align:				center;
+				display:				block;
+				color:					#35a1d2;
+				font-weight:			400;
+				font-size:				1.4em;
+				height:					3.5em;
+				top:					1.6em;
+				right:					.6em;
+				text-shadow:			-.1em -.1em .2em white;
+				-webkit-transition:		all .5s ease-in;
+				-moz-transition:		all .5s ease-in;
+				-o-transition:			all .5s ease-in;
+				-ms-transition:			all .5s ease-in;
+				transition:				all .5s ease-in;
+			}
+			.bcj_Entries aside > span.bcjYear {
+				z-index:				1;
+				position:				absolute;
+				top:					.4em;
+				right:					.2em;
+				font-size:				3.5em;
+				font-weight:			700;
+				color:					#c3c3c3;
+				-webkit-transition:		all .5s ease-in;
+				-moz-transition:		all .5s ease-in;
+				-o-transition:			all .5s ease-in;
+				-ms-transition:			all .5s ease-in;
+				transition:				all .5s ease-in;
+			}
+
+#bcj_Entry {
+	padding:	1em;
+}
+	#bcj_Entry article > div {
+		padding-bottom:	2em;
+	}
+
+
+@media screen and (min-width: 768px) {
+	.bcj_Entries h2 {
+		padding-right:	2em;
+	}
+	#bcj_Entry {
+		padding:	1em 2em;
+	}
+	.bcj_Entries {
+		padding:				1em 2em 4em 2em;
+		border-bottom:			1px solid #c3c3c3;
+		-webkit-box-flex:		1;
+		-webkit-flex:			1 0 50%;
+		-ms-flex:				1 0 50%;
+		flex:					1 0 50%;
+	}
+	.bcj_Entries:nth-child(2n) {
+		border-left:			1px solid #c3c3c3;
+	}
+}

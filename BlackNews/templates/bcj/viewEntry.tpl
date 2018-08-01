@@ -12,12 +12,12 @@
    @package         blacknews
 
 *}
-<section id="hf_Entry" class="c_960">
-	<a class="button icon-circle-left" href="{cat_url}/{$options.permalink}/"> Zur&uuml;ck zur &Uuml;bersicht</a> 
+
+<section id="bcj_Entry">
 	<article>
-		{if $entry.image}<img src="/" style="background-image:url('{$entry.image}');" id="hf_mImage" />{/if}
+		{if $entry.image}<figure style="background-image:url('{$entry.image}')" id="bcj_mImage" ><img src="{$entry.image}"></figure>{/if}
 		<div>
-			<h1>{$entry.titel}</h1>
+			<h1>{$entry.title}</h1>
 			{$entry.content}
 		</div>
 	</article>

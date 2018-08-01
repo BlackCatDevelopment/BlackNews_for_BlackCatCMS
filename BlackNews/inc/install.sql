@@ -9,59 +9,63 @@
 /*!40101 SET NAMES utf8 */;
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
 
+
+
+CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNews` (
+	`bnID` int(11) unsigned NOT NULL AUTO_INCREMENT,
+	`page_id` int(11) NOT NULL,
+	`section_id` int(11) NOT NULL,
+	PRIMARY KEY (`bnID`),
+	CONSTRAINT `pages` FOREIGN KEY (`page_id`) REFERENCES `:prefix:pages`(`page_id`) ON DELETE CASCADE,
+	CONSTRAINT `sections` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntry` (
 	`entryID` int(11) unsigned NOT NULL AUTO_INCREMENT,
-	`section_id` int(11) NOT NULL DEFAULT 0,
-	`title` varchar(2047) NOT NULL DEFAULT '',
+	`bnID` int(11) unsigned NOT NULL,
+	`title` text NULL,
 	`content` text NULL,
 	`text` text NULL,
 	`modified` DATETIME NULL,
 	`created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	`publishDate` DATETIME NULL,
+	`unpublishDate` DATETIME NULL,
 	`userID` int(11) unsigned NULL,
 	`seoURL` varchar(255) NOT NULL DEFAULT '',
-	`position` int(11) unsigned NULL DEFAULT 1,
-	`publish` DATETIME NULL DEFAULT NULL,
+	`position` int(11) unsigned NULL DEFAULT '1',
+	`publish` DATETIME NULL,
 	PRIMARY KEY (`entryID`),
-	CONSTRAINT `:prefix:bN_User` FOREIGN KEY (`userID`) REFERENCES `:prefix:users`(`user_id`) ON DELETE CASCADE,
-	CONSTRAINT `:prefix:bN_sections` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
-) COMMENT='Main table for BlackNews'
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE='utf8_general_ci';
+	CONSTRAINT `blackNews` FOREIGN KEY (`bnID`) REFERENCES `:prefix:mod_blackNews`(`bnID`) ON DELETE CASCADE,
+	CONSTRAINT `user` FOREIGN KEY (`userID`) REFERENCES `:prefix:users`(`user_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsOptions` (
-	`section_id` int(11) NOT NULL DEFAULT 0,
+	`bnID` int(11) unsigned NOT NULL,
 	`name` varchar(255) NOT NULL DEFAULT '',
-	`value` TEXT DEFAULT '',
-	PRIMARY KEY (`section_id`, `name`),
-	CONSTRAINT `:prefix:bN_Options` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
-) COMMENT='Options for BlackNews'
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE='utf8_general_ci';
+	`value` text NULL,
+	PRIMARY KEY (`bnID`, `name`),
+	CONSTRAINT `blackNewsOptions` FOREIGN KEY (`bnID`) REFERENCES `:prefix:mod_blackNews`(`bnID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntryOptions` (
 	`entryID` int(11) unsigned NOT NULL,
 	`name` varchar(255) NOT NULL DEFAULT '',
-	`value` TEXT DEFAULT '',
+	`value` varchar(2047) NOT NULL DEFAULT '',
 	PRIMARY KEY (`entryID`, `name`),
-	CONSTRAINT `:prefix:bN_entrOpt` FOREIGN KEY (`entryID`) REFERENCES `:prefix:mod_blackNewsEntry`(`entryID`) ON DELETE CASCADE
-) COMMENT='Options for BlackNews Entries'
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE='utf8_general_ci';
-
+	CONSTRAINT `entryOptions` FOREIGN KEY (`entryID`) REFERENCES `:prefix:mod_blackNewsEntry`(`entryID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Is implemented in the class
--- CREATE TRIGGER `:prefix:bNEntrIn` BEFORE INSERT ON `:prefix:mod_blackNewsEntry` FOR EACH ROW 
+-- CREATE TRIGGER `blackNewsEntryInsert` BEFORE INSERT ON `:prefix:mod_blackNewsEntry` FOR EACH ROW 
 -- SET NEW.position = (
 -- 	SELECT MAX(position)+1 AS position
 -- 	FROM `:prefix:mod_blackNewsEntry`
--- 	WHERE section_id = NEW.section_id
+-- 	WHERE bnID = NEW.bnID
 -- );
 
-CREATE TRIGGER `:prefix:bNEntrOptUp` BEFORE UPDATE ON `:prefix:mod_blackNewsEntryOptions`
+CREATE TRIGGER `blackNewsEntryOptionsUpdate` BEFORE UPDATE ON `:prefix:mod_blackNewsEntryOptions`
 	FOR EACH ROW
 		UPDATE `:prefix:mod_blackNewsEntry`
 			SET `modified` = CURRENT_TIMESTAMP
@@ -69,55 +73,32 @@ CREATE TRIGGER `:prefix:bNEntrOptUp` BEFORE UPDATE ON `:prefix:mod_blackNewsEntr
 
 
 
-CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsCategory` (
-	`catID` int(11) unsigned NOT NULL AUTO_INCREMENT,
-	`section_id` int(11) NOT NULL DEFAULT 0,
-	`category` varchar(255) NOT NULL DEFAULT '',
-	`url` varchar(255) NOT NULL DEFAULT '',
-	PRIMARY KEY (`catID` ),
-	UNIQUE INDEX `:prefix:secIDurl` (`section_id`,`url`),
-	CONSTRAINT `:prefix:bN_CatSec` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
-) COMMENT='Categories for BlackNews'
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE='utf8_general_ci';
 
 
-CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsCategoryEntries` (
-	`catID` int(11) unsigned NOT NULL,
-	`entryID` int(11) unsigned NOT NULL,
-	PRIMARY KEY (`catID`, `entryID`),
-	CONSTRAINT `:prefix:bN_CatcatID` FOREIGN KEY (`catID`) REFERENCES `:prefix:mod_blackNewsCategory`(`catID`) ON DELETE CASCADE,
-	CONSTRAINT `:prefix:bN_CatEntry` FOREIGN KEY (`entryID`) REFERENCES `:prefix:mod_blackNewsEntry`(`entryID`) ON DELETE CASCADE
-) COMMENT='Interconnection for BlackNews Entries and Categories'
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE='utf8_general_ci';
+
 
 
 
 
 
 /*
+
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsForm` (
 	`fieldID` int(11) unsigned NOT NULL AUTO_INCREMENT,
 	`entryID` int(11) unsigned NOT NULL,
 	`name` varchar(64) NOT NULL DEFAULT '',
 	`type` tinyint(1) unsigned NOT NULL DEFAULT 1,
-	`require` boolean NULL DEFAULT false,
-	`values` varchar(2047) NOT NULL DEFAULT '',
+	`required` boolean NULL DEFAULT false,
+	`value` varchar(2047) NOT NULL DEFAULT '',
 	`placeholder` varchar(512) NOT NULL DEFAULT '',
 	`width` tinyint(1) unsigned NOT NULL  DEFAULT 1,
 	`position` int(11) unsigned NOT NULL DEFAULT 1,
 	PRIMARY KEY ( `fieldID` ),
-	CONSTRAINT `:prefix:bN_entrForm` FOREIGN KEY (`entryID`) REFERENCES `:prefix:mod_blackNewsEntry`(`entryID`) ON DELETE CASCADE
-) COMMENT='Fields for BlackNews Form'
-ENGINE=InnoDB
-DEFAULT CHARSET=utf8
-COLLATE='utf8_general_ci';
+	CONSTRAINT `entryForm` FOREIGN KEY (`entryID`) REFERENCES `:prefix:mod_blackNewsEntry`(`entryID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-CREATE TRIGGER `:prefix:bN_Form` BEFORE INSERT ON `:prefix:mod_blackNewsForm` FOR EACH ROW 
+CREATE TRIGGER `blackNewsForm` BEFORE INSERT ON `:prefix:mod_blackNewsForm` FOR EACH ROW 
 SET NEW.position = (
 SELECT CASE
 		WHEN (MAX(position) IS NULL) THEN 1
@@ -218,7 +199,3 @@ FROM `:prefix:mod_blackNewsForm` WHERE entryID = NEW.entryID)
 		}
 	}
 */
-
-
-/*!40014 SET FOREIGN_KEY_CHECKS=1 */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
