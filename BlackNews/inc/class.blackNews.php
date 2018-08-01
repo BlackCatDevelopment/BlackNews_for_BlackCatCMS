@@ -490,18 +490,6 @@ if (!class_exists('blackNews', false))
 
 			self::setParserValue('options',self::getOption());
 
-			$form	= CC_Form::getInstance();
-
-			self::setParserValue(
-				'fields',
-				$form->setEntryID(blackNewsEntry::getEntryID())->getFields()
-			);
-
-			self::setParserValue('bot_temp',$form->getTime() );
-
-			if( $form->isSend() ) $form->setMail();
-
-
 			if( file_exists( CAT_PATH . '/modules/' . static::$directory . '/view/' . self::getVariant() . '/view.php' ) )
 				include CAT_PATH . '/modules/' . static::$directory . '/view/' . self::getVariant() . '/view.php';
 
@@ -745,14 +733,7 @@ if (!class_exists('blackNews', false))
 					$return = self::setOption('variant',CAT_Helper_Validate::sanitizePost('variant'));
 					break;
 				case 'get':
-					$form	= new CC_Form;
-
-					$return = array_merge(
-						blackNewsEntry::getEntry(),
-						array( 'html'	=> $form::getInstance()
-							->setEntryID(blackNewsEntry::getEntryID())->getHTML()
-						)
-					);
+					$return = blackNewsEntry::getEntry();
 					break;
 				case 'add':
 					$return = blackNewsEntry::addEntry();
@@ -775,47 +756,6 @@ if (!class_exists('blackNews', false))
 						'success'	=> self::order( CAT_Helper_Validate::sanitizePost('positions') )
 					);
 					break;
-				case 'addField':
-					$form	= new CC_Form;
-
-					$return = array(
-						'message'	=> 'Feld hinzugefügt',
-						'value'		=> CAT_Helper_Validate::sanitizePost('values'),
-						'success'	=> $form::getInstance()
-							->setEntryID(CAT_Helper_Validate::sanitizePost('entryID'))
-							->addField( CAT_Helper_Validate::sanitizePost('values') ),
-						'html'		=> $form::getInstance()->getHTML()
-					);
-					break;
-				case 'saveField':
-
-					$return = array(
-						'message'	=> 'Feld gespeichert',
-						'fieldID'	=> CAT_Helper_Validate::sanitizePost('fieldID'),
-						'value'		=> CAT_Helper_Validate::sanitizePost('values'),
-						'success'	=> CC_Form::getInstance()
-							->setFieldID( CAT_Helper_Validate::sanitizePost('fieldID') )
-							->saveField( CAT_Helper_Validate::sanitizePost('values') )
-					);
-					break;
-				case 'deleteField':
-
-					$return = array(
-						'message'	=> 'Feld gelöscht',
-						'success'	=> CC_Form::removeField( CAT_Helper_Validate::sanitizePost('fieldID'), 'numeric' )
-					);
-					break;
-				case 'orderFields':
-
-					CC_Form::getInstance()
-						->order( CAT_Helper_Validate::sanitizePost('positions') );
-
-					$return = array(
-						'message'	=> 'Feld gespeichert',
-						'success'	=> true
-					);
-					break;
-
 				case 'uploadIMG':
 					if ( isset( $_FILES['bNimage']['name'] ) && $_FILES['bNimage']['name'] != '' )
 					{
