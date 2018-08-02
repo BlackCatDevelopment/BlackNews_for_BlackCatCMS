@@ -1,31 +1,17 @@
-/**
- * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.   
- * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'  
- * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.  
- * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    | 
- * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'  
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 3 of the License, or (at
- *   your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful, but
- *   WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- *   General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program; if not, see <http://www.gnu.org/licenses/>.
- *
- *   @author			Matthias Glienke
- *   @copyright			2018, Black Cat Development
- *   @link				http://blackcat-cms.org
- *   @license			http://www.gnu.org/licenses/gpl.html
- *   @category			CAT_Modules
- *   @package			blackNews
- *
- */
+/*
+   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
+  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
+   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
+  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
+
+   @author          Black Cat Development
+   @copyright       2016 Black Cat Development
+   @link            http://blackcat-cms.org
+   @license         http://www.gnu.org/licenses/gpl.html
+   @category        CAT_Core
+   @package         CAT_Core
+
+*/
 
 
 if (typeof bN_PU !== 'function')
@@ -39,7 +25,6 @@ if (typeof bN_PU !== 'function')
 
 function setInformation($f,user,crea,mod)
 {
-	console.log($f,user,crea,mod);
 	$f.children('.icon-user').text(' ' + user);
 	$f.children('.icon-calendar').text(' ' + crea);
 	$f.children('.icon-modify').text(' ' + mod);
@@ -91,12 +76,25 @@ function setValue($el,wID,standard,options)
 						$el.find('[name='+field[0]+']').prop('checked', values[field[0]] ? true : false);
 						break;
 					case 'radio':
-						$el.find('input[name='+field[0]+']').filter('[value='+values[field[0]]+']').prop('checked', values[field[0]] ? true : false);
+						$el.find('input[name='+field[0]+']')
+							.filter('[value='+values[field[0]]+']')
+							.prop('checked', values[field[0]] ? true : false);
 						break;
 					case 'wysiwyg':
 						var editorInstance	= CKEDITOR.instances[wID];
 						editorInstance.setData( values.content ? values.content : '' );
 						editorInstance.updateElement();
+						break;
+					case 'date':
+						var $temp	= $el.find('[name='+field[0]+']');
+						// Check whether the browser supports input with type date - otherwise fallback to datepicker
+						if ( $temp.get( 0 ).type != 'date' )
+						{
+							$temp.datepicker( 'setDate', values[field[0]] ? new Date(values[field[0]]) : null );
+						}
+						else {
+							$temp.val( values[field[0]] ? values[field[0]] : '' );
+						}
 						break;
 					default:
 						$el.find('[name='+field[0]+']').val( values[field[0]] ? values[field[0]] : '' );
@@ -207,6 +205,7 @@ function getActive($el)
 
 $(document).ready(function()
 {
+
 	if (typeof bcIDs !== 'undefined' && typeof bcLoaded === 'undefined')
 	{
 		// This is a workaround if backend.js is loaded twice
@@ -234,6 +233,12 @@ $(document).ready(function()
 				$prevIMG	= $('#bN_previewIMG_' + bcID.section_id ),
 				$IMGs		= $('#bN_imgs_' + bcID.section_id );
 
+				$Form.find("input[type=date]").each(function() {
+					if (this.type != 'date' )
+					{
+						$(this).datepicker( $.datepicker.regional[ "de" ],{ dateFormat: 'dd.mm.yy'} );
+					}
+				});
 
 			$('#bN_dropzone_' + bcID.section_id).dropzone(
 			{
@@ -379,10 +384,9 @@ $(document).ready(function()
 					{
 						if ( data.success === true )
 						{
-							console.log(data);
 							return_success( jqXHR.process, data.message );
 							$sBar.find('[data-entryid="' + data.entryID + '"]').text( ' ' + data.values.title );
-							setInformation($footer,data.values.display_name,data.values.createdFull,data.values.modifiedFull);
+							setInformation($footer,data.values.display_name,data.values.created,data.values.modified);
 						} else {
 							return_error( jqXHR.process , data.message );
 						}
@@ -420,7 +424,7 @@ $(document).ready(function()
 						{
 							return_success( jqXHR.process, data.message );
 							$sBar.prepend( data.html );
-							setInformation($footer,data.values.display_name,data.values.createdFull,data.values.modifiedFull);
+							setInformation($footer,data.values.display_name,data.values.created,data.values.modified);
 							$sBar.sortable( 'refresh' );
 						} else {
 							return_error( jqXHR.process , data.message );
@@ -501,7 +505,7 @@ $(document).ready(function()
 						if ( data.success === true )
 						{
 							return_success( jqXHR.process, data.message );
-							if ( data.publish == 1 ) $(this).add($publish).addClass('published');
+							if ( data.publish != null ) $(this).add($publish).addClass('published');
 							else $(this).add($publish).removeClass('published');
 						} else {
 							return_error( jqXHR.process , data.message );
@@ -541,7 +545,7 @@ $(document).ready(function()
 						{
 							return_success( jqXHR.process, data.message );
 							$sBar.prepend( data.html );
-							setInformation($footer,data.display_name,data.createdFull,data.modifiedFull);
+							setInformation($footer,data.display_name,data.created,data.modified);
 						} else {
 							return_error( jqXHR.process , data.message );
 						}
@@ -573,6 +577,7 @@ $(document).ready(function()
 					cache:		false,
 					beforeSend:	function( data )
 					{
+						console.log(data);
 						// Set activity and store in a variable to use it later
 						data.process	= set_activity( 'Load entry' );
 					},
@@ -586,10 +591,10 @@ $(document).ready(function()
 							$Form.data('entryid',getEntryID($(this)));
 
 							setActive($(this));
-							if ( data.publish == 1 ) $publish.addClass('published');
+							if ( data.publish ) $publish.addClass('published');
 							else $publish.removeClass('published');
 
-							setInformation($footer,data.display_name,data.createdFull,data.modifiedFull);
+							setInformation($footer,data.display_name,data.created,data.modified);
 
 							setValue($Form,$WYSIWYG.attr('id'),data,data.options);
 

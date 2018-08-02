@@ -547,17 +547,6 @@ if (!class_exists('blackNews', false))
 			// Muss ich noch checken... weiß ich selbst gerade nicht mehr, warum das gesetzt sein muss
 			self::$options['variant']	= $options['variant'];
 
-/*			$form	= CC_Form::getInstance();
-
-			self::setParserValue(
-				'fields',
-				$form->setEntryID(blackNewsEntry::getEntryID())->getFields()
-			);
-
-			self::setParserValue('bot_temp',$form->getTime() );
-
-			if( $form->isSend() ) $form->setMail();
-*/
 			$parser->setPath( CAT_PATH . '/modules/' . static::$directory . '/templates/' . self::getVariant() );
 			$parser->setFallbackPath( CAT_PATH . '/modules/' . static::$directory . '/templates/default' );
 
@@ -722,8 +711,7 @@ if (!class_exists('blackNews', false))
 
 			$backend->updateWhenModified();
 
-
-			$action		= CAT_Helper_Validate::sanitizePost('action');
+			$action		= CAT_Helper_Validate::sanitizePost( 'action' );
 			$return		= array();
 			self::setIDs();
 

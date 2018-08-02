@@ -32,6 +32,7 @@ if (!class_exists('blackNewsEntry', false))
 		private	static $typ;
 		protected static $options	= array();
 		private	static $info	= array();
+		private	static $values	= array();
 		private	static $seoUrl;
 
 		private static $staticVars	= array( 'staticVars', 'modified', 'eventID', 'timestamp', 'instance' );
@@ -147,7 +148,7 @@ if (!class_exists('blackNewsEntry', false))
 		 * @param void $name
 		 * @param void $value
 		 */
-		private static function setOption($name, $value)
+		private static function setOption( $name, $value )
 		{
 			// Get info from table
 			return self::db()->query(
@@ -172,24 +173,25 @@ if (!class_exists('blackNewsEntry', false))
 
 			// Get info from table
 			self::$info = self::db()->query(
-				'SELECT * FROM `:prefix:mod_blackNewsEntry` ' .
+				'SELECT `entryID`, `section_id`, `title`, `content`, `text`, `modified`, `created`, `userID`, `seoURL`, `position`, `publish`, ' .
+				'DATE_FORMAT(`publishDate`, "%Y-%m-%d") AS publishDate, ' .
+				'DATE_FORMAT(`publishDate`, "%H:%i") AS publishTime, ' .
+				'DATE_FORMAT(`unpublishDate`, "%Y-%m-%d") AS unpublishDate, ' .
+				'DATE_FORMAT(`unpublishDate`, "%H:%i") AS unpublishTime ' .
+				'FROM `:prefix:mod_blackNewsEntry` ' .
 					'WHERE `entryID` = :entryID',
 				array(
 					'entryID'	=> self::getEntryID()
 				)
 			)->fetchRow();
+
 			self::$info['username']		= CAT_Users::getInstance()->get_user_details(self::$info['userID'],'username');
 			self::$info['display_name']	= CAT_Users::getInstance()->get_user_details(self::$info['userID'],'display_name');
-			
-			
-			self::$info['publishDate']		= self::$info['publishDate'] != '' ? self::getDateTimeInput('publishDate') : '';
-			self::$info['unpublishDate']	= self::$info['unpublishDate'] != '' ? self::getDateTimeInput('unpublishDate') : '';
-/*
-			self::$info['publishDate']		= self::$info['publishDate'] != '' ? self::getDateTimeInput('publishDate') : '';
-			self::$info['unpublishDate']	= self::$info['unpublishDate'] != '' ? self::getDateTimeInput('unpublishDate') : '';
-#			self::$info['username']		= ;
-#			self::$info['display_name']	= ;
-*/			return $name ? self::$info[$name] : self::$info;
+
+		#	self::$info['publishDate']		= self::$info['publishDate'] != '' ? self::getDateTimeInput('publishDate') : '';
+		#	self::$info['unpublishDate']	= self::$info['unpublishDate'] != '' ? self::getDateTimeInput('unpublishDate') : '';
+
+			return $name ? self::$info[$name] : self::$info;
 		}
 		/**
 		 * Fill the object with the values of an event from database
@@ -203,7 +205,7 @@ if (!class_exists('blackNewsEntry', false))
 		{
 			// Get info from table
 			self::$info = self::db()->query(
-				'SELECT * FROM `:prefix:mod_blackNewsEntry` ' .
+				'SELECT `entryID`, `section_id`, `title`, `content`, `text`, `modified`, `created`, `userID`, `seoURL`, `position`, `publishDate`, `unpublishDate`, `publish` FROM `:prefix:mod_blackNewsEntry` ' .
 					'WHERE `entryID` = :entryID',
 				array(
 					'entryID'	=> self::getEntryID()
@@ -213,23 +215,26 @@ if (!class_exists('blackNewsEntry', false))
 			if( ( isset($getEvent) && $getEvent->numRows() > 0 )
 				&& !false == ($row = $getEvent->fetchRow() ) )
 			{
-				$this->setProperty( 'calID',		$row['calID']);
-				$this->setProperty( 'publishDate',	$row['publishDate']);
-				$this->setProperty( 'username',		CAT_Users::getInstance()->get_user_details($info['userID'],'username') );
-				$this->setProperty( 'display_name',	CAT_Users::getInstance()->get_user_details($info['userID'],'display_name'));
-				$this->setProperty( 'kind',			$row['kind']);
-				$this->setProperty( 'start',		$row['start']);
-				$this->setProperty( 'end',			$row['end']);
-				$this->setProperty( 'timestamp',	$row['timestamp']);
-				$this->setProperty( 'eventURL',		$row['eventURL']);
-				$this->setProperty( 'UID',			$row['UID']);
-				$this->setProperty( 'published',	$row['published']);
-				$this->setProperty( 'allday',		$row['allday']);
-				$this->setProperty( 'modified',		$row['modified']);
-				$this->setProperty( 'createdID',	$row['createdID']);
-				$this->setProperty( 'modifiedID',	$row['modifiedID']);
+				$this->setProperty( 'calID',			$row['calID']);
+				$this->setProperty( 'publishDate',		$row['publishDate']);
+				$this->setProperty( 'username',			CAT_Users::getInstance()->get_user_details($info['userID'],'username') );
+				$this->setProperty( 'display_name',		CAT_Users::getInstance()->get_user_details($info['userID'],'display_name'));
+				$this->setProperty( 'kind',				$row['kind']);
+				$this->setProperty( 'start',			$row['start']);
+				$this->setProperty( 'end',				$row['end']);
+				$this->setProperty( 'timestamp',		$row['timestamp']);
+				$this->setProperty( 'eventURL',			$row['eventURL']);
+				$this->setProperty( 'UID',				$row['UID']);
+				$this->setProperty( 'publish',			$row['publish']);
+				$this->setProperty( 'allday',			$row['allday']);
+				$this->setProperty( 'modified',			$row['modified']);
+				$this->setProperty( 'createdID',		$row['createdID']);
+				$this->setProperty( 'publishDate',		$row['publishDate']);
+				$this->setProperty( 'unpublishDate',	$row['unpublishDate']);
+				$this->setProperty( 'publishTime',		$row['publishTime']);
+				$this->setProperty( 'unpublishTime',	$row['unpublishTime']);
+				$this->setProperty( 'modifiedID',		$row['modifiedID']);
 			}
-
 			if ( $returnArray ) return $this->createReturnArray();
 			else return $this;
 		}
@@ -258,12 +263,16 @@ if (!class_exists('blackNewsEntry', false))
 				'timestamp'		=> $this->getProperty('timestamp'),
 				'eventURL'		=> $this->getProperty('eventURL'),
 				'UID'			=> $this->getProperty('UID'),
-				'published'		=> $this->getProperty('published'),
+				'publish'		=> $this->getProperty('publish'),
 				'allday'		=> $this->getProperty('allday'),
 				'timestampDate'	=> $this->getDateTimeInput('timestamp','%d.%m.%Y'),
 				'timestampTime'	=> $this->getDateTimeInput('timestamp','%H:%M'),
 				'modifiedDate'	=> $this->getDateTimeInput('modified'),
 				'modifiedTime'	=> $this->getDateTimeInput('modified','%H:%M'),
+				'publishDate'	=> $this->getProperty('publishDate'),
+				'unpublishDate'	=> $this->getProperty('unpublishDate'),
+				'publishTime'	=> $this->getProperty('publishTime'),
+				'unpublishTime'	=> $this->getProperty('unpublishTime'),
 				'createdID'		=> CAT_Users::get_user_details( $this->getProperty('createdID'), 'display_name' ),
 				'modifiedID'	=> CAT_Users::get_user_details( $this->getProperty('modifiedID'), 'display_name' )
 			);
@@ -273,20 +282,31 @@ if (!class_exists('blackNewsEntry', false))
 		 * @param void $name
 		 * @param void $value
 		 */
-		public function setEntryInfo($values)
+		public function setEntryInfo(array $values)
 		{
+			foreach( $values as $k => $v )
+				self::$info[$k]	= $v;
+
+			if( $values['seoURL'] == '' )
+			{
+				self::$info['seoURL']	= parent::createTitleURL( self::$info['title'] );
+			}
+#			self::$info
 			// Add a new course
 			return self::db()->query(
 				'INSERT INTO `:prefix:mod_blackNewsEntry` ' .
-					'( `entryID`, `title`, `content`, `text`, `seoURL` ) VALUES ' .
-					'( :entryID, :title, :content, :text, :seoURL ) ' .
-					'ON DUPLICATE KEY UPDATE `title` = :title, `content`= :content, `text` = :text, `seoURL` = :seoURL',
+					'( `entryID`, `title`, `content`, `text`, `seoURL`, `publishDate`, `unpublishDate` ) VALUES ' .
+					'( :entryID, :title, :content, :text, :seoURL, :pD, :upD ) ' .
+					'ON DUPLICATE KEY UPDATE ' .
+						'`title` = :title, `content` = :content, `text` = :text, `seoURL` = :seoURL, `publishDate` = :pD, `unpublishDate` = :upD',
 				array(
 					'entryID'	=> self::getEntryID(),
-					'title'		=> $values['title'],
-					'content'	=> $values['wysiwyg'],
-					'text'		=> strip_tags( $values['wysiwyg'] ),
-					'seoURL'	=> $values['seoURL']
+					'title'		=> self::$info['title'],
+					'content'	=> self::$info['wysiwyg'],
+					'text'		=> strip_tags( self::$info['wysiwyg'] ),
+					'seoURL'	=> self::$info['seoURL'],
+					'pD'		=> date( 'Y-m-d H:i:s', strtotime(self::$info['publishDate'] . ' ' . self::$info['publishTime'])),
+					'upD'		=> date( 'Y-m-d H:i:s', strtotime(self::$info['unpublishDate'] . ' ' . self::$info['unpublishTime']))
 				)
 			);
 		}
@@ -338,8 +358,8 @@ if (!class_exists('blackNewsEntry', false))
 			if ( self::db()->query(
 				'UPDATE `:prefix:mod_blackNewsEntry` ' .
 					'SET `publish` = ( SELECT CASE ' .
-						'WHEN `publish` = 0 THEN 1 ' .
-						'ELSE 0 ' .
+						'WHEN `publish` IS NULL THEN CURRENT_TIMESTAMP ' .
+						'ELSE NULL ' .
 					'END AS publish ) ' .
 					'WHERE `entryID` = :entryID',
 				array(
@@ -348,14 +368,14 @@ if (!class_exists('blackNewsEntry', false))
 			) )
 			{
 				return array(
-					'message'	=> 'Eintrag veröffentlicht',
+					'message'	=> self::getEntryInfo('publish') === NULL ?  'Eintrag offline' : 'Eintrag veröffentlicht',
 					'publish'	=> self::getEntryInfo('publish'),
 					'entryID'	=> self::getEntryID(),
 					'success'	=> true
 				);
 			} else
 				return array(
-					'message'	=> 'Eintrag veröffentlicht',
+					'message'	=> self::getEntryInfo('publish') === NULL ?  'Eintrag offline' : 'Eintrag veröffentlicht',
 					'publish'	=> self::getEntryInfo('publish'),
 					'entryID'	=> self::getEntryID(),
 					'success'	=> true
@@ -372,7 +392,9 @@ if (!class_exists('blackNewsEntry', false))
 			// Set publish
 			if ( self::db()->query(
 				'INSERT INTO `:prefix:mod_blackNewsEntry` ' .
-					'( `section_id`, `userID`, `title`) VALUES ( :section_id, :userID, :title )',
+					'( `section_id`, `userID`, `title`, `position` ) ' .
+					'VALUES ( :section_id, :userID, :title, ' .
+					'( SELECT MAX(t.`position`) FROM (SELECT `position` FROM `:prefix:mod_blackNewsEntry`) t ) + 1 )',
 				array(
 					'section_id'	=> parent::$section_id,
 					'userID'		=> CAT_Users::getInstance()->get_user_id(),
@@ -397,15 +419,16 @@ if (!class_exists('blackNewsEntry', false))
 		{
 			self::$entryID	= CAT_Helper_Validate::sanitizePost('entryID');
 
-			self::setEntryInfo(CAT_Helper_Validate::sanitizePost('values'));
+			self::setEntryInfo( CAT_Helper_Validate::sanitizePost( 'values' ) );
 
-			if ($options = CAT_Helper_Validate::sanitizePost('options') )
+			if ( $options = CAT_Helper_Validate::sanitizePost( 'options' ) )
 				foreach($options as $opt)
 				{
 					self::setOption($opt['name'],$opt['value']);
 				}
 				return array(
 					'message'	=> 'Eintrag gespeichert',
+					'values'	=> self::$info,
 					'entryID'	=> self::getEntryID(),
 					'success'	=> true
 				);
@@ -660,7 +683,7 @@ if (!class_exists('blackNewsEntry', false))
 		 * @return string
 		 *
 		 **/
-		protected function getDateTimeInput($prop=NULL,$format='%Y-%m-%d')
+		protected function getDateTimeInput($prop=NULL,$format='%Y-%m-%d %H:%M')
 		{
 			if (!self::getInstance()->getProperty($prop)) return false;
 			return strftime($format, strtotime(self::getInstance()->getProperty($prop)) );
