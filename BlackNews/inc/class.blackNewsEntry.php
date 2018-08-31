@@ -291,8 +291,18 @@ if (!class_exists('blackNewsEntry', false))
 			{
 				self::$info['seoURL']	= parent::createTitleURL( self::$info['title'] );
 			}
-#			self::$info
-			// Add a new course
+
+			// use HTMLPurifier to clean up the contents if enabled
+			if ( 
+				$backend->db()->get_one(
+					"SELECT `value` FROM `:prefix:settings` " .
+						"WHERE `name` = 'enable_htmlpurifier' AND `value` = 'true'" )
+			)
+				self::$info['wysiwyg'] = CAT_Helper_Protect::getInstance()->purify(
+					self::$info['wysiwyg'],array('Core.CollectErrors'=>true)
+				);
+
+			// Add a new entry
 			return self::db()->query(
 				'INSERT INTO `:prefix:mod_blackNewsEntry` ' .
 					'( `entryID`, `title`, `content`, `text`, `seoURL`, `publishDate`, `unpublishDate` ) VALUES ' .
