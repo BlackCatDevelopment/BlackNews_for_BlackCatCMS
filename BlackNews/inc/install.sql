@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntry` (
 	`userID` int(11) unsigned NULL,
 	`seoURL` varchar(255) NOT NULL DEFAULT '',
 	`position` int(11) unsigned NULL DEFAULT '1',
-	`publish` boolean NOT NULL DEFAULT false,
+	`publish` DATETIME NULL,
 	PRIMARY KEY (`entryID`),
 	CONSTRAINT `blackNews` FOREIGN KEY (`bnID`) REFERENCES `:prefix:mod_blackNews`(`bnID`) ON DELETE CASCADE,
 	CONSTRAINT `user` FOREIGN KEY (`userID`) REFERENCES `:prefix:users`(`user_id`) ON DELETE SET NULL
@@ -57,13 +57,13 @@ CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntryOptions` (
 	CONSTRAINT `entryOptions` FOREIGN KEY (`entryID`) REFERENCES `:prefix:mod_blackNewsEntry`(`entryID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
-CREATE TRIGGER `blackNewsEntryInsert` BEFORE INSERT ON `:prefix:mod_blackNewsEntry` FOR EACH ROW 
-SET NEW.position = (
-	SELECT MAX(position)+1 AS position
-	FROM `:prefix:mod_blackNewsEntry`
-	WHERE bnID = NEW.bnID
-);
+-- Is implemented in the class
+-- CREATE TRIGGER `blackNewsEntryInsert` BEFORE INSERT ON `:prefix:mod_blackNewsEntry` FOR EACH ROW 
+-- SET NEW.position = (
+-- 	SELECT MAX(position)+1 AS position
+-- 	FROM `:prefix:mod_blackNewsEntry`
+-- 	WHERE bnID = NEW.bnID
+-- );
 
 CREATE TRIGGER `blackNewsEntryOptionsUpdate` BEFORE UPDATE ON `:prefix:mod_blackNewsEntryOptions`
 	FOR EACH ROW
@@ -81,7 +81,7 @@ CREATE TRIGGER `blackNewsEntryOptionsUpdate` BEFORE UPDATE ON `:prefix:mod_black
 
 
 
-
+/*
 
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsForm` (
 	`fieldID` int(11) unsigned NOT NULL AUTO_INCREMENT,

@@ -9,12 +9,6 @@
 /*!40101 SET NAMES utf8 */;
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
 
-DROP TABLE IF EXISTS
-	`:prefix:mod_blackNewsForm`,
-	`:prefix:mod_blackNewsOptions`,
-	`:prefix:mod_blackNewsEntryOptions`,
-	`:prefix:mod_blackNewsEntry`;
-
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntry` (
 	`entryID` int(11) unsigned NOT NULL AUTO_INCREMENT,
 	`section_id` int(11) NOT NULL DEFAULT 0,
@@ -26,7 +20,9 @@ CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntry` (
 	`userID` int(11) unsigned NULL,
 	`seoURL` varchar(255) NOT NULL DEFAULT '',
 	`position` int(11) unsigned NULL DEFAULT 1,
-	`publish` boolean NOT NULL DEFAULT false,
+	`publishDate` DATETIME NULL DEFAULT NULL,
+	`unpublishDate` DATETIME NULL DEFAULT NULL,
+	`publish` DATETIME NULL DEFAULT NULL,
 	PRIMARY KEY (`entryID`),
 	CONSTRAINT `:prefix:bN_User` FOREIGN KEY (`userID`) REFERENCES `:prefix:users`(`user_id`) ON DELETE CASCADE,
 	CONSTRAINT `:prefix:bN_sections` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
@@ -59,12 +55,13 @@ DEFAULT CHARSET=utf8
 COLLATE='utf8_general_ci';
 
 
-CREATE TRIGGER `:prefix:bNEntrIn` BEFORE INSERT ON `:prefix:mod_blackNewsEntry` FOR EACH ROW 
-SET NEW.position = (
-	SELECT MAX(position)+1 AS position
-	FROM `:prefix:mod_blackNewsEntry`
-	WHERE section_id = NEW.section_id
-);
+-- Is implemented in the class
+-- CREATE TRIGGER `:prefix:bNEntrIn` BEFORE INSERT ON `:prefix:mod_blackNewsEntry` FOR EACH ROW 
+-- SET NEW.position = (
+-- 	SELECT MAX(position)+1 AS position
+-- 	FROM `:prefix:mod_blackNewsEntry`
+-- 	WHERE section_id = NEW.section_id
+-- );
 
 CREATE TRIGGER `:prefix:bNEntrOptUp` BEFORE UPDATE ON `:prefix:mod_blackNewsEntryOptions`
 	FOR EACH ROW
@@ -103,7 +100,7 @@ COLLATE='utf8_general_ci';
 
 
 
-
+/*
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsForm` (
 	`fieldID` int(11) unsigned NOT NULL AUTO_INCREMENT,
 	`entryID` int(11) unsigned NOT NULL,
