@@ -1,6 +1,13 @@
 <?php
 /**
  *
+ *
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    |
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'
+ *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 3 of the License, or (at
@@ -15,204 +22,253 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author			Matthias Glienke
- *   @copyright			2016, Black Cat Development
+ *   @copyright			2018, Black Cat Development
  *   @link				http://blackcat-cms.org
  *   @license			http://www.gnu.org/licenses/gpl.html
  *   @category			CAT_Modules
- *   @package			blacknews
+ *   @package			blackNews
  *
  */
 
 // include class.secure.php to protect this file and the whole CMS!
-if (defined('CAT_PATH')) {	
-	include(CAT_PATH.'/framework/class.secure.php'); 
+if (defined("CAT_PATH")) {
+    include CAT_PATH . "/framework/class.secure.php";
 } else {
-	$oneback = "../";
-	$root = $oneback;
-	$level = 1;
-	while (($level < 10) && (!file_exists($root.'/framework/class.secure.php'))) {
-		$root .= $oneback;
-		$level += 1;
-	}
-	if (file_exists($root.'/framework/class.secure.php')) {
-		include($root.'/framework/class.secure.php'); 
-	} else {
-		trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
-	}
+    $oneback = "../";
+    $root = $oneback;
+    $level = 1;
+    while ($level < 10 && !file_exists($root . "framework/class.secure.php")) {
+        $root .= $oneback;
+        $level += 1;
+    }
+    if (file_exists($root . "/framework/class.secure.php")) {
+        include $root . "/framework/class.secure.php";
+    } else {
+        trigger_error(
+            sprintf(
+                "[ <b>%s</b> ] Can't include class.secure.php!",
+                $_SERVER["SCRIPT_NAME"]
+            ),
+            E_USER_ERROR
+        );
+    }
 }
 // end include class.secure.php
 
-if ( CAT_Helper_Page::getPagePermission( $page_id, 'admin' ) !== true )
-{
-	$backend->print_error( 'You do not have permissions to modify this page!' );
+global $backend, $val, $users;
+
+require_once "../../inc/class.blackNews.php";
+
+blackNewsEntry::saveEntry();
+
+$backend = CAT_Backend::getInstance("start", "start", false, false);
+$val = CAT_Helper_Validate::getInstance();
+$users = CAT_Users::getInstance();
+
+$page_id = $val->sanitizePost("page_id", "numeric");
+$section_id = $val->sanitizePost("section_id", "numeric");
+$entryID = $val->sanitizePost("entryID", "numeric");
+$values = $val->sanitizePost("values");
+
+if (!$page_id || !$section_id || !$entryID) {
+    exit();
 }
 
-// ============================= 
-// ! Get the current news_id 
-// ============================= 
-if ( $action = $val->sanitizePost( 'action' ) )
-{
-	// ====================================== 
-	// ! Upload images and save to database
-	// ====================================== 
-	switch ( $action )
-	{
-		case 'addEntry':
-			$return		= $BlackNews->addEntry();
-			$ajax_return	= array(
-				'message'		=> is_array($return) ? $PageHelper->lang()->translate('Entry added successfully') :
-									$PageHelper->lang()->translate('An error occured'),
-				'page_id'		=> $page_id,
-				'section_id'	=> $section_id,
-				'values'		=> $return,
-				'success'		=> is_array($return) ? true : false
-			);
-			break;
+$options = [
+    "admin_groups" => "1,2",
+    "description" => "",
+    "keywords" => "",
+    "language" => "DE",
+    "level" => 0, // just a default here
+    "link" => "/",
+    "menu" => 1,
+    "menu_title" => htmlspecialchars(
+        $values["title"],
+        ENT_QUOTES,
+        "UTF-8",
+        false
+    ),
+    "modified_by" => $users->get_user_id(),
+    "modified_when" => time(),
+    "page_title" => "",
+    "parent" => $page_id,
+    "position" => 1, // just a default here
+    "searching" => "0",
+    "target" => "_self",
+    "template" => "",
+    "variant" => null,
+    "viewing_groups" => 1,
+    "visibility" => "none",
+];
 
-		case 'deleteEntry':
-			$success	= $BlackNews->removeEntry();
-			if ( $success )
-			{
-				$ajax_return	= array(
-					'message'	=> $backend->lang()->translate('Entry deleted successfully'),
-					'news_id'	=> $news_id,
-					'success'	=> true
-				);
-			}
-			else {
-				$ajax_return	= array(
-					'message'	=> $backend->lang()->translate( $backend->get_error() ),
-					'success'	=> false
-				);
-			}
-			break;
+// check titles
+if (CAT_Helper_Page::sanitizeTitles($options) === false) {
+    CAT_Object::json_error(
+        $backend->lang()->translate("Please enter a menu title")
+    );
+    exit();
+}
 
-		case 'getInfo':
-			$getValues			= $BlackNews->getEntries( $news_id );
-			$ajax_return	= array(
-				'values'		=> $getValues[$news_id],
-				'section_id'	=> $section_id,
-				'message'		=> $backend->lang()->translate( 'Loading successful' ),
-				'success'		=> true
-			);
-			break;
+// changes the values in the options array
+CAT_Helper_Page::sanitizeLink($options);
+CAT_Helper_Page::sanitizeTemplate($options);
+CAT_Helper_Page::sanitizeLanguage($options);
 
-		case 'publish':
-			$pub	= $val->sanitizePost('publish','numeric');
-			$set	= $BlackNews->setPublished( $pub );
-			$ajax_return	= array(
-				'active'	=> $pub != 0 ? 1 : 0,
-				'news_id'	=> $news_id,
-				'message'	=> $lang->translate(sprintf( 'Entry %s successfully!', $set ) ),
-				'success'	=> true
-			);
-			break;
+// Check if page already exists; checks access file, directory, and database
+if (CAT_Helper_Page::exists($options["link"])) {
+    CAT_Object::json_error(
+        $backend
+            ->lang()
+            ->translate("A page with the same or similar link exists")
+    );
+    exit();
+}
 
-		case 'reorder':
-			$success	= $BlackNews->reorderEntries( $val->sanitizePost('positions','array') );
+// ========================
+// ! Validate page position
+// ========================
+require CAT_PATH . "/framework/class.order.php";
+$order = new order(CAT_TABLE_PREFIX . "pages", "position", "page_id", "parent");
 
-			$ajax_return	= array(
-				'message'	=> $success === true ?
-						$lang->translate( 'Entries sorted successfully' )
-						: $lang->translate( 'Sort failed' ),
-				'success'	=> $success
-			);
-			break;
+// First clean order
+$order->clean($options["parent"]);
 
-		case 'saveEntry':
-			$short_check			= $val->sanitizePost('short_check','numeric') != '' ? 1 : 0;
-#$url					= addslashes( $val->sanitizePost('url') );
-			$success	= $BlackNews->saveEntry(
-				array(
-					'time'					=> $val->sanitizePost('time'),
-					'category'				=> $val->sanitizePost('category'),
-					'start'					=> $val->sanitizePost('start'),
-					'end'					=> $val->sanitizePost('end'),
-					'title'					=> $val->sanitizePost('title'),
-					'subtitle'				=> $val->sanitizePost('subtitle'),
-					#'url'					=> $val->sanitizePost('url'),
-					'auto_generate'			=> $val->sanitizePost('auto_generate','numeric'),
-					'auto_generate_size'	=> $val->sanitizePost('auto_generate_size','numeric'),
-					'short_cont'			=> $val->sanitizePost( 'bN_short_' . $section_id ),
-					'long_cont'				=> $val->sanitizePost( 'bN_long_' . $section_id )
-				)
-			);
+// Get new order
+$options["position"] = $order->get_new($options["parent"]);
 
-			$entry_options	= $val->sanitizePost('entry_options');
-			$url			= $BlackNews->getEntryOptions('url');
-			if ( $entry_options != '' )
-			{
-				foreach( array_filter( explode(',', $entry_options) ) as $option )
-				{
-					if( !$BlackNews->saveEntryOptions( $option, $val->sanitizePost( $option ) )) $error = true;
-					if ( $option == 'url' && $url != $val->sanitizePost( $option ) )
-					{
-						$BlackNews->removeAccessFolder( $url );
-						$url	= $BlackNews->createAccessFile( $val->sanitizePost( $option ) );
-					}
-				}
-			}
-			$time	= $val->sanitizePost('time') != '' ? $val->sanitizePost('time') : time();
-			$ajax_return	= array(
-				'message'	=> $success === true ?
-						$lang->translate( 'Entry saved successfully' )
-						: $lang->translate( 'Save failed' ),
-				'pageurl'	=> $url,
-				'title'		=> $val->sanitizePost('title'),
-				'subtitle'	=> $val->sanitizePost('subtitle'),
-				'category'	=> $val->sanitizePost('category'),
-				'news_id'	=> $news_id,
-				'image_url'	=> isset($picture) ? CAT_URL . MEDIA_DIRECTORY . '/blacknews/' . $picture : '',
-				'time'		=> CAT_Helper_DateTime::getInstance()->getDateTime( $time ),
-				'success'	=> $success
-			);
+// ================================
+// ! Insert page into pages table
+// ================================
+$newPage_id = CAT_Helper_Page::addPage($options);
+if (!$newPage_id) {
+    CAT_Object::json_error(
+        $backend->lang()->translate("Unable to create the page: ") .
+            $backend->db()->getError()
+    );
+    exit();
+}
 
-			break;
+// Work out root parent
+$root_parent = 12; //CAT_Helper_Page::getRootParent($newPage_id);
+// Work out page trail
+$page_trail = "12,12," . $newPage_id; //CAT_Helper_Page::getPageTrail($newPage_id);
 
-		case 'saveOptions':
-			$options		= $val->sanitizePost('options');
+$result = CAT_Helper_Page::updatePage($newPage_id, [
+    "root_parent" => $root_parent,
+    "page_trail" => $page_trail,
+]);
+if (!$result) {
+    // try to recover = delete page
+    CAT_Helper_Page::deletePage($newPage_id);
+    CAT_Object::json_error($backend->db()->getError());
+    exit();
+}
 
-			// =========================== 
-			// ! save options for gallery   
-			// =========================== 
-			if ( $options != '' )
-			{
-				foreach( array_filter( explode(',', $options) ) as $option )
-				{
-					if( !$BlackNews->saveOptions( $option, $val->sanitizePost( $option ) )) $error = true;
-				}
-			}
-			$ajax_return	= array(
-				'message'	=> $lang->translate( 'Options saved successfully!' ),
-				'success'	=> true
-			);
-			break;
+// ====================
+// ! Create access file
+// ====================
+$result = CAT_Helper_Page::createAccessFile(
+    $options["link"],
+    $newPage_id,
+    $options["level"]
+);
+if (!$result) {
+    // try to recover = delete page
+    CAT_Helper_Page::deletePage($newPage_id);
+    CAT_Object::json_error(
+        $backend
+            ->lang()
+            ->translate(
+                "Error creating access file in the pages directory, cannot open file"
+            )
+    );
+    exit();
+}
 
-		default:
-			// =========================== 
-			// ! save variant of blacknews   
-			// =========================== 
-			$BlackNews->saveOptions( 'variant', $val->sanitizePost('variant') );
+$module = "cc_catgallery";
 
-			$ajax_return	= array(
-				'message'	=> $lang->translate( 'Variant saved successfully!' ),
-				'success'	=> true
-			);
+// ==========================================
+// ! Add new record into the sections table
+// ==========================================
+$backend
+    ->db()
+    ->query(
+        sprintf(
+            "INSERT INTO `%ssections` (`page_id`,`position`,`module`,`block`) VALUES ('%d','1', '%s','1')",
+            CAT_TABLE_PREFIX,
+            $newPage_id,
+            $module
+        )
+    );
 
-			break;
-	}
+// ======================
+// ! Get the section id
+// ======================
+$oldSection_id = $section_id;
+$section_id = $backend->db()->lastInsertId();
 
-	$BlackNews->createRSS();
-	$update_when_modified = true;
-	CAT_Backend::updateWhenModified();
+// ======================================================
+// ! Include the selected modules add file if it exists
+// ======================================================
+require_once "../../../cc_catgallery/inc/class.catgallery.php";
+$catGallery = new catGallery(true);
 
+// ==========================================
+// ! Add new gallery _id to entry
+// ==========================================
+if ($catGallery) {
+    $backend
+        ->db()
+        ->query(
+            "INSERT INTO `:prefix:mod_blackNewsEntryOptions` " .
+                '(`entryID`, `name`, `value`) VALUES ( :entryID, "catGallery", :value ) ' .
+                "ON DUPLICATE KEY UPDATE `value` = :value",
+            [
+                "entryID" => $entryID,
+                "value" => $catGallery->getGalleryID(),
+            ]
+        );
+    foreach (
+        [
+            "title" => $values["title"],
+            "variant" => "cubicGallery",
+            "resize_y" => "240",
+            "resize_x" => "240",
+        ]
+        as $k => $v
+    ) {
+        $backend
+            ->db()
+            ->query(
+                "REPLACE INTO `:prefix:mod_cc_catgallery_options` " .
+                    "SET `gallery_id`	= :gallery_id, " .
+                    "`name`			= :name, " .
+                    "`value`		= :value",
+                [
+                    "gallery_id" => $catGallery->getGalleryID(),
+                    "name" => $k,
+                    "value" => $v,
+                ]
+            );
+    }
+}
+$section_id = $oldSection_id;
+// ==============================
+// ! Check if there is a db error
+// ==============================
+if ($backend->db()->isError()) {
+    CAT_Object::json_error($backend->db()->getError());
+    exit();
 } else {
-	$ajax_return	= array(
-		'message'	=> $lang->translate( 'You sent an invalid ID' ),
-		'success'	=> false,
-	);
+    // print success and redirect
+    $ajax = [
+        "message" => $backend->lang()->translate("Page added successfully"),
+        "url" => CAT_ADMIN_URL . "/pages/modify.php?page_id=" . $newPage_id,
+        "success" => true,
+    ];
+    echo json_encode($ajax);
+    exit();
 }
-
-
+exit();
 
 ?>

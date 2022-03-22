@@ -1,0 +1,65 @@
+/*
+   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
+  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
+   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
+  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
+
+   @author          Black Cat Development
+   @copyright       2016 Black Cat Development
+   @link            http://blackcat-cms.org
+   @license         http://www.gnu.org/licenses/gpl.html
+   @category        CAT_Core
+   @package         CAT_Core
+
+*/
+
+.includeErfahrung {
+	padding:	5rem 0;
+	background:	white;
+}
+
+	.includeErfahrung h2 span {
+		color:			rgba(198, 008, 091, 1);
+		font-size:		1.4rem;
+		display:		block;
+		padding:	 	0 0 0 2rem;
+		font-weight:	400;
+	}
+
+	.includeErfahrung figure {
+		display:		-webkit-box;
+		display:		-moz-box;
+		display:		-o-flexbox;
+		display:		-ms-flexbox;
+		display:		flex;
+		padding:		0;
+		margin:			0;
+	}
+	.includeErfahrung figure > p {
+		-webkit-box-flex:		1;
+		-webkit-flex:			1 0 38%;
+		-ms-flex:				1 0 38%;
+		flex:					1 0 38%;
+		padding:				0 1rem 0 0;
+	}
+	.includeErfahrung figure > figcaption {
+		-webkit-box-flex:		1;
+		-webkit-flex:			1 0 62%;
+		-ms-flex:				1 0 62%;
+		flex:					1 0 62%;
+		padding:				0 0 0 1rem;
+	}
+	.includeErfahrung_mImage {
+		width:					100%;
+		height:					auto;
+		-webkit-border-radius:	.35rem;
+		-moz-border-radius:		.35rem;
+		-o-box-shadow:			.35rem;
+		-ms-box-shadow:			.35rem;
+		border-radius:			.35rem;
+	}
+
+
+	.includeErfahrungButton {
+		float:	right;
+	}
