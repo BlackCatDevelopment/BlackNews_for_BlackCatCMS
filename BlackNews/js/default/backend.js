@@ -1,17 +1,33 @@
-/*
-   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
-  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
-   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
-  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
-
-   @author          Black Cat Development
-   @copyright       2016 Black Cat Development
-   @link            http://blackcat-cms.org
-   @license         http://www.gnu.org/licenses/gpl.html
-   @category        CAT_Core
-   @package         CAT_Core
-
-*/
+/**
+ *
+ *
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    |
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or (at
+ *   your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful, but
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ *   General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *
+ *   @author			Matthias Glienke
+ *   @copyright		2022, Black Cat Development
+ *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
+ *   @license			https://www.gnu.org/licenses/gpl-3.0.html
+ *   @category		CAT_Modules
+ *   @package			blackNews
+ *
+ */
 
 if (typeof bN_PU !== "function") {
   function bN_PU(state) {
@@ -226,8 +242,11 @@ $(document).ready(function () {
         $sBar = $("#blackNewsList_" + bcID.section_id),
         $Form = $("#bc_Form_" + bcID.section_id),
         $OptForm = $("#bc_Options_" + bcID.section_id),
+        $CatForm = $("#bc_Categories_" + bcID.section_id),
         $OptButton = $("#bn_gOpt_" + bcID.section_id),
+        $CatButton = $("#bn_gCat_" + bcID.section_id),
         $saveOpt = $OptForm.find("#saveOption_" + bcID.section_id),
+        $saveCat = $OptForm.find("#saveCategories_" + bcID.section_id),
         saveField = getValue($Form, $WYSIWYG.attr("id")),
         $formular = $("#bc_Formular_" + bcID.section_id),
         $table = $formular.children("table").children("tbody"),
@@ -283,6 +302,10 @@ $(document).ready(function () {
       $OptButton.click(function (e) {
         e.preventDefault();
         $OptForm.toggleClass("active");
+      });
+      $CatButton.click(function (e) {
+        e.preventDefault();
+        $CatForm.toggleClass("active");
       });
 
       $formular.on("click", "button", function (e) {
@@ -605,17 +628,18 @@ $(document).ready(function () {
 
       $saveOpt.click(function (e) {
         e.preventDefault();
+        var $form = $(this).closest("form");
         $.ajax({
           type: "POST",
           context: $bcUL,
           url: CAT_URL + "/modules/blacknews/save.php",
           dataType: "JSON",
           data: {
-            action: "saveOptions",
+            action: $form.find("input[name=action]").val(),
             _cat_ajax: 1,
             page_id: bcID.page_id,
             section_id: bcID.section_id,
-            options: getOptions($OptForm),
+            options: getOptions($form),
           },
           cache: false,
           beforeSend: function (data) {

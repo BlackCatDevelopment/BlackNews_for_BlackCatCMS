@@ -1,32 +1,49 @@
-/*
-   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
-  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
-   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
-  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
-
-   @author          Black Cat Development
-   @copyright       2016 Black Cat Development
-   @link            http://blackcat-cms.org
-   @license         http://www.gnu.org/licenses/gpl.html
-   @category        CAT_Core
-   @package         CAT_Core
-
-*/
+/**
+ *
+ *
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    |
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or (at
+ *   your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful, but
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ *   General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *
+ *   @author			Matthias Glienke
+ *   @copyright		2022, Black Cat Development
+ *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
+ *   @license			https://www.gnu.org/licenses/gpl-3.0.html
+ *   @category		CAT_Modules
+ *   @package			blackNews
+ *
+ */
 
 @font-face {
-  font-family: 'blackNews';
-  src:  url('fonts/blackNews.eot?m5rbgl');
-  src:  url('fonts/blackNews.eot?m5rbgl#iefix') format('embedded-opentype'),
-    url('fonts/blackNews.ttf?m5rbgl') format('truetype'),
-    url('fonts/blackNews.woff?m5rbgl') format('woff'),
-    url('fonts/blackNews.svg?m5rbgl#blackNews') format('svg');
+  font-family: "blackNews";
+  src: url("fonts/blackNews.eot?m5rbgl");
+  src: url("fonts/blackNews.eot?m5rbgl#iefix") format("embedded-opentype"),
+    url("fonts/blackNews.ttf?m5rbgl") format("truetype"),
+    url("fonts/blackNews.woff?m5rbgl") format("woff"),
+    url("fonts/blackNews.svg?m5rbgl#blackNews") format("svg");
   font-weight: normal;
   font-style: normal;
 }
 
-[class^="bc_icon-"]:before, [class*=" bc_icon-"]:before {
+[class^="bc_icon-"]:before,
+[class*=" bc_icon-"]:before {
   /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'blackNews' !important;
+  font-family: "blackNews" !important;
   speak: none;
   font-style: normal;
   font-weight: normal;
@@ -40,248 +57,244 @@
 }
 
 .bc_icon-published:before {
-	color:		#de0446;
-	content:	"\e91d";
+  color: #de0446;
+  content: "\e91d";
 }
 .bc_icon-published.published:before {
-	color:	#4fc200;
+  color: #4fc200;
 }
 .bc_icon-seourl:before {
   content: "\e9cb";
 }
 
-
-
 .bc_MainContent hr {
-	border-top:	1px solid rgba(177, 190, 199, 1.000);
+  border-top: 1px solid rgba(177, 190, 199, 1);
 }
-
 
 .blackNews {
-	display:		-webkit-box;
-	display:		-moz-box;
-	display:		-o-flexbox;
-	display:		-ms-flexbox;
-	display:		flex;
-	align-items:	stretch;
-	border:			1px solid #9da8b2;
-	clear:			both;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -o-flexbox;
+  display: -ms-flexbox;
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #9da8b2;
+  clear: both;
 }
-	.blackNews h3 {
-		padding:	1em 0;
-	}
-	.bc_sidebar {
-		-webkit-box-flex:	1;
-		-webkit-flex:		1 0 250px;
-		-ms-flex:			1 0 250px;
-		flex:				1 0 250px;
-		width:				250px;
-		border-right:		1px solid #9da8b2;
-	}
-		.bc_sidebar button {
-			margin:		.2em;
-			width:		calc(100% - .4em);
-		}
-		.bc_sidebar ul {
-		max-height:			800px;
-		overflow-y:			scroll;
-			margin:		0;
-			padding:	.2em 0;
-		}
-			.bc_sidebar li {
-				margin:		0;
-				padding:	.4em;
-				cursor:		pointer;
-			}
-			.bc_sidebar li:hover {
-				background:	white;
-			}
-			.bc_sidebar li.active {
-				font-weight:	700;
-				background:		white;
-			}
-	
-	.bc_Main {
-		display:	inline-block;
-		width:		calc(100% - 250px);
-	}
-	.bc_MainButtons {
-		text-align:		right;
-		border-bottom:	1px solid #9da8b2;
-		background:		#f4f7fa;
-	}
-		.bc_MainButtons button {
-			margin:	.2em .5em .2em 1.5em;
-		}
-	.bc_MainContent {
-		padding:	1em;
-	}
-	.bc_Main footer {
-		font-size:	.9em;
-		padding:	.5em 1em;
-		background:	#d8dbdd;
-		text-align:	right;
-	}
-	.bcVersion {
-		display:	block;
-		font-size:	.9em;
-	}
-	.bcLabel {
-		display:	inline-block;
-		width:		10em;
-	}
-	.bc_Form input, 
-	.bc_Form textarea,
-	.bc_Form select {
-		width:				calc( 100% - 15em );
-		vertical-align:		top;
-	}
-	.bc_Form textarea {
-		height:	10em;
-	}
+.blackNews h3 {
+  padding: 1em 0;
+}
+.bc_sidebar {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1 0 250px;
+  -ms-flex: 1 0 250px;
+  flex: 1 0 250px;
+  width: 250px;
+  border-right: 1px solid #9da8b2;
+}
+.bc_sidebar button {
+  margin: 0.2em;
+  width: calc(100% - 0.4em);
+}
+.bc_sidebar ul {
+  max-height: 800px;
+  overflow-y: scroll;
+  margin: 0;
+  padding: 0.2em 0;
+}
+.bc_sidebar li {
+  margin: 0;
+  padding: 0.4em;
+  cursor: pointer;
+}
+.bc_sidebar li:hover {
+  background: white;
+}
+.bc_sidebar li.active {
+  font-weight: 700;
+  background: white;
+}
 
+.bc_Main {
+  display: inline-block;
+  width: calc(100% - 250px);
+}
+.bc_MainButtons {
+  text-align: right;
+  border-bottom: 1px solid #9da8b2;
+  background: #f4f7fa;
+}
+.bc_MainButtons button {
+  margin: 0.2em 0.5em 0.2em 1.5em;
+}
+.bc_MainContent {
+  padding: 1em;
+}
+.bc_Main footer {
+  font-size: 0.9em;
+  padding: 0.5em 1em;
+  background: #d8dbdd;
+  text-align: right;
+}
+.bcVersion {
+  display: block;
+  font-size: 0.9em;
+}
+.bcLabel {
+  display: inline-block;
+  width: 12em;
+}
+.bc_Form input,
+.bc_Form textarea,
+.bc_Form select {
+  width: calc(100% - 15em);
+  vertical-align: top;
+}
+.bc_Form textarea {
+  height: 10em;
+}
 
 .bc_icon-pubAct {
-	color:	#409e00;
+  color: #409e00;
 }
 
 .bc_icon-pubInAct {
-	color:		#de0446;
+  color: #de0446;
 }
 
 .bc_icon-pubInAct,
 .published .bc_icon-pubAct {
-	display:	inline-block;
+  display: inline-block;
 }
 .published .bc_icon-pubInAct,
 .bc_icon-pubAct {
-	display:	none;
+  display: none;
 }
 
 .bc_skin {
-	padding:   		0;
-	float:	   		right;
-	width:	   		350px;
-	margin:	   		0em 1em 0em 0em;
-	border:	   		1px solid #b1bec7;
-	border-bottom:	0px none;
-	background:		#f4f7fa;
-	position:  		relative;
-	z-index:		1;
+  padding: 0;
+  float: right;
+  width: 350px;
+  margin: 0em 1em 0em 0em;
+  border: 1px solid #b1bec7;
+  border-bottom: 0px none;
+  background: #f4f7fa;
+  position: relative;
+  z-index: 1;
 }
-	.bc_skin > * {
-		padding:	0.4em 1em;
-	}
-	.bc_skin select,
-	.bc_skin input {
-		margin:	0.4em 0em;
-		width:	100%;
-	}
-	.bc_skin p {
-		font-size:		1em;
-		margin:			0px;
-		color:			#818a92;
-		font-weight:	700;
-		cursor:			pointer;
-	}
-		.bc_skin small {
-			font-weight:	300;
-			font-size:		0.9em;
-			float:			right;
-		}
-	.bc_skin > form {
-		padding:	 	1em 0.8em 0.2em 0.8em;
-		line-height:	1.8em;
-		width:			90%;
-		left:			5%;
-		position:		absolute;
-	}
+.bc_skin > * {
+  padding: 0.4em 1em;
+}
+.bc_skin select,
+.bc_skin input {
+  margin: 0.4em 0em;
+  width: 100%;
+}
+.bc_skin p {
+  font-size: 1em;
+  margin: 0px;
+  color: #818a92;
+  font-weight: 700;
+  cursor: pointer;
+}
+.bc_skin small {
+  font-weight: 300;
+  font-size: 0.9em;
+  float: right;
+}
+.bc_skin > form {
+  padding: 1em 0.8em 0.2em 0.8em;
+  line-height: 1.8em;
+  width: 90%;
+  left: 5%;
+  position: absolute;
+}
 
 .bn_optionForm {
-	position:					absolute;
-	background:					rgba(255, 255, 255, .95);
-	padding:					2em;
-	top:						5em;
-	left:						0em;
-	width:						30em;
-	z-index:					99;
-	-webkit-transform:			scale(0);
-	-ms-transform:				scale(0);
-	transform:					scale(0);
-	-webkit-transform-origin :	4em 1em;
-	-moz-transform-origin :		4em 1em;
-	-o-transform-origin :		4em 1em;
-	-ms-transform-origin :		4em 1em;
-	transform-origin :			4em 1em;
-	-webkit-transition:			all 550ms cubic-bezier(0.23, 1, .32, 1);
-	-moz-transition:			all 550ms cubic-bezier(0.23, 1, .32, 1);
-	-ms-transition:				all 550ms cubic-bezier(0.23, 1, .32, 1);
-	-o-transition:				all 550ms cubic-bezier(0.23, 1, .32, 1);
-	transition:					all 550ms cubic-bezier(0.23, 1, .32, 1);
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2em;
+  top: 5em;
+  left: 0em;
+  width: 30em;
+  z-index: 99;
+  -webkit-transform: scale(0);
+  -ms-transform: scale(0);
+  transform: scale(0);
+  -webkit-transform-origin: 4em 1em;
+  -moz-transform-origin: 4em 1em;
+  -o-transform-origin: 4em 1em;
+  -ms-transform-origin: 4em 1em;
+  transform-origin: 4em 1em;
+  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1);
+  -moz-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1);
+  -ms-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1);
+  -o-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .bn_optionForm.active {
-	top:			7em;
-	transform:		scale(1);
+  top: 7em;
+  z-index: 9999;
+  transform: scale(1);
 }
-	.bn_optionForm input, 
-	.bn_optionForm textarea {
-		width:				calc( 100% - 10em );
-		vertical-align:		top;
-	}
-	.bn_optionForm textarea {
-		height:	10em;
-	}
-	.bn_optionForm button {
-		margin:			2em 0 0 0;
-		width:			100%;
-		border-bottom:	0 none;
-	}
+.bn_optionForm input,
+.bn_optionForm textarea {
+  width: calc(100% - 10em);
+  vertical-align: top;
+}
+.bn_optionForm textarea {
+  height: 10em;
+}
+.bn_optionForm button {
+  margin: 2em 0 0 0;
+  width: 100%;
+  border-bottom: 0 none;
+}
 
 .bn_gOpt {
-	margin:	0 0 0 1em;
+  margin: 0 0 0 1em;
 }
 
-
 .bN_previewIMG {
-	width:		auto;
-	height:		auto;	
-	max-width:	300px;
-	max-height:	200px;
+  width: auto;
+  height: auto;
+  max-width: 300px;
+  max-height: 200px;
 }
 
 .bc_Formular {
-	padding:	1em;
-	margin:		2em 0 0 0;
-	border-top:	3px double black;
+  padding: 1em;
+  margin: 2em 0 0 0;
+  border-top: 3px double black;
 }
-	.bc_Formular table {
-		width: 100%;
-	}
-		.bc_Formular tr {
-			border-bottom:	1px solid black;
-		}
-		.bn_FormularInput {
-			background: rgba(228, 228, 228, 1.000);
-		}
-		.bc_icon-FieldDD::before {
-			color:		#de0446;
-			content:	"\e91d";	
-		}
-		.bc_Formular input[type="text"] {
-			width: 120px;
-		}
-		
-				.bN_dropzone {
-					background:		url(images/ps_neutral.png);
-					font-size:		1.2em;
-					color:			#282a2e;
-					border:			1px solid #818a92;
-					text-align:		center;
-					padding:		1em;
-					margin:			1em 0;
-				}
-					.bN_dropzone span {
-						font-size:	0.8em;
-						color:		#818a92;
-						display:	block;
-					}
+.bc_Formular table {
+  width: 100%;
+}
+.bc_Formular tr {
+  border-bottom: 1px solid black;
+}
+.bn_FormularInput {
+  background: rgba(228, 228, 228, 1);
+}
+.bc_icon-FieldDD::before {
+  color: #de0446;
+  content: "\e91d";
+}
+.bc_Formular input[type="text"] {
+  width: 120px;
+}
+
+.bN_dropzone {
+  background: url(images/ps_neutral.png);
+  font-size: 1.2em;
+  color: #282a2e;
+  border: 1px solid #818a92;
+  text-align: center;
+  padding: 1em;
+  margin: 1em 0;
+}
+.bN_dropzone span {
+  font-size: 0.8em;
+  color: #818a92;
+  display: block;
+}

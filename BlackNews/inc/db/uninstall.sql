@@ -10,25 +10,14 @@
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
 
 
-DROP TRIGGER IF EXISTS `blackNewsEntryInsert`;
-DROP TRIGGER IF EXISTS `blackNewsEntryUpdate`;
-DROP TRIGGER IF EXISTS `blackNewsEntryOptionsUpdate`;
 
-DROP TABLE IF EXISTS `:prefix:mod_blackNewsOptions`;
-DROP TABLE IF EXISTS `:prefix:mod_blackNewsEntryOptions`;
-DROP TABLE IF EXISTS `:prefix:mod_blackNewsEntry`;
-DROP TABLE IF EXISTS `:prefix:mod_blackNews`;
-
-
-
-
-
-
-
-
-
-
-
-
+DROP TRIGGER IF EXISTS `:prefix:bNEntrIn`;
+DROP TRIGGER IF EXISTS `:prefix:bNEntrOptUp`;
 DROP TRIGGER IF EXISTS `blackNewsForm`;
-DROP TABLE IF EXISTS `:prefix:mod_blackNewsForm`;
+
+DROP TABLE IF EXISTS
+`:prefix:mod_blackNewsForm`,
+`:prefix:mod_blackNewsOptions`,
+`:prefix:mod_blackNewsEntryOptions`,
+`:prefix:mod_blackNewsEntry`,
+`:prefix:mod_blackNews`;

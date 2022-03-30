@@ -1,12 +1,12 @@
 <?php
 /**
  *
- *                                                                                           
- * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.   
- * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'  
- * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.  
- * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    | 
- * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'  
+ *
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    |
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,45 +22,50 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author			Matthias Glienke
- *   @copyright			2018, Black Cat Development
- *   @link				http://blackcat-cms.org
- *   @license			http://www.gnu.org/licenses/gpl.html
- *   @category			CAT_Modules
+ *   @copyright		2022, Black Cat Development
+ *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
+ *   @license			https://www.gnu.org/licenses/gpl-3.0.html
+ *   @category		CAT_Modules
  *   @package			blackNews
  *
  */
 
 // include class.secure.php to protect this file and the whole CMS!
-if (defined('CAT_PATH')) {
-	include(CAT_PATH.'/framework/class.secure.php'); 
+if (defined("CAT_PATH")) {
+  include CAT_PATH . "/framework/class.secure.php";
 } else {
-	$oneback = "../";
-	$root = $oneback;
-	$level = 1;
-	while (($level < 10) && (!file_exists($root.'/framework/class.secure.php'))) {
-		$root .= $oneback;
-		$level += 1;
-	}
-	if (file_exists($root.'/framework/class.secure.php')) { 
-		include($root.'/framework/class.secure.php'); 
-	} else {
-		trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
-	}
+  $oneback = "../";
+  $root = $oneback;
+  $level = 1;
+  while ($level < 10 && !file_exists($root . "/framework/class.secure.php")) {
+    $root .= $oneback;
+    $level += 1;
+  }
+  if (file_exists($root . "/framework/class.secure.php")) {
+    include $root . "/framework/class.secure.php";
+  } else {
+    trigger_error(
+      sprintf(
+        "[ <b>%s</b> ] Can't include class.secure.php!",
+        $_SERVER["SCRIPT_NAME"]
+      ),
+      E_USER_ERROR
+    );
+  }
 }
 // end include class.secure.php
 
-require_once( 'inc/class.blackNews.php' );
+require_once "inc/class.blackNews.php";
 
-
-$module_directory		= blackNews::getInfo('directory');
-$module_name			= blackNews::getInfo('name');
-$module_function		= 'page';
-$module_version			= blackNews::getInfo('version');
-$module_platform		= blackNews::getInfo('platform');
-$module_author			= blackNews::getInfo('author');
-$module_license			= blackNews::getInfo('license');
-$module_description		= blackNews::getInfo('description');
-$module_guid			= blackNews::getInfo('guid');
-$module_variants		= blackNews::getAllVariants();
+$module_directory = blackNews::getInfo("directory");
+$module_name = blackNews::getInfo("name");
+$module_function = "page";
+$module_version = blackNews::getInfo("version");
+$module_platform = blackNews::getInfo("platform");
+$module_author = blackNews::getInfo("author");
+$module_license = blackNews::getInfo("license");
+$module_description = blackNews::getInfo("description");
+$module_guid = blackNews::getInfo("guid");
+$module_variants = blackNews::getAllVariants();
 
 ?>

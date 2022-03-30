@@ -1,11 +1,13 @@
 <?php
 
 /**
- * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.   
- * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'  
- * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.  
- * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    | 
- * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'  
+ *
+ *
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    |
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,12 +22,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- *  @author          Black Cat Development
- *  @copyright       2018 Black Cat Development
- *  @link            https://blackcat-cms.org
- *  @license         http://www.gnu.org/licenses/gpl.html
- *  @category        CAT_Modules
- *  @package         blackNews
+ *   @author			Matthias Glienke
+ *   @copyright		2022, Black Cat Development
+ *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
+ *   @license			https://www.gnu.org/licenses/gpl-3.0.html
+ *   @category		CAT_Modules
+ *   @package			blackNews
  *
  */
 

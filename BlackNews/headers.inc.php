@@ -22,10 +22,10 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author			Matthias Glienke
- *   @copyright			2018, Black Cat Development
- *   @link				http://blackcat-cms.org
- *   @license			http://www.gnu.org/licenses/gpl.html
- *   @category			CAT_Modules
+ *   @copyright		2022, Black Cat Development
+ *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
+ *   @license			https://www.gnu.org/licenses/gpl-3.0.html
+ *   @category		CAT_Modules
  *   @package			blackNews
  *
  */

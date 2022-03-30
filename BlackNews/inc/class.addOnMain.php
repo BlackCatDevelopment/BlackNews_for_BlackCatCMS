@@ -1,19 +1,35 @@
 <?php
 
-/*
-   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
-  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
-   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
-  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
-
-	@author			Black Cat Development
-	@copyright		2016 Black Cat Development
-	@link			http://blackcat-cms.org
-	@license		http://www.gnu.org/licenses/gpl.html
-	@category		CAT_Core
-	@package		CAT_Core
-
-*/
+/**
+ *
+ *
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    |
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or (at
+ *   your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful, but
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ *   General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *
+ *   @author			Matthias Glienke
+ *   @copyright		2022, Black Cat Development
+ *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
+ *   @license			https://www.gnu.org/licenses/gpl-3.0.html
+ *   @category		CAT_Modules
+ *   @package			blackNews
+ *
+ */
 
 if (!interface_exists("addOnInterface", false)) {
   interface addOnInterface
@@ -120,7 +136,7 @@ if (!class_exists("addOnMain", false)) {
      */
     public static function install()
     {
-      self::uninstall();
+      # self::uninstall();
 
       $errors = self::sqlProcess(
         CAT_PATH . "/modules/" . static::$directory . "/inc/db/structure.sql"
@@ -271,6 +287,8 @@ if (!class_exists("addOnMain", false)) {
 
     public static function remove()
     {
+      global $page_id;
+      global $section_id;
       // Remove from database
       if (
         self::$db->query(
@@ -280,8 +298,8 @@ if (!class_exists("addOnMain", false)) {
             "WHERE `page_id` =:page_id " .
             "AND `section_id` =:section_id",
           [
-            "page_id" => $this->page_id,
-            "section_id" => $this->section_id,
+            "page_id" => $page_id,
+            "section_id" => $section_id,
           ]
         )
       ) {

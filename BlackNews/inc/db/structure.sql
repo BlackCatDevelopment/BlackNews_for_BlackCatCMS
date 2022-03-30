@@ -9,11 +9,7 @@
 /*!40101 SET NAMES utf8 */;
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
 
-DROP TABLE IF EXISTS
-	`:prefix:mod_blackNewsForm`,
-	`:prefix:mod_blackNewsOptions`,
-	`:prefix:mod_blackNewsEntryOptions`,
-	`:prefix:mod_blackNewsEntry`;
+
 
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntry` (
 	`entryID` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -41,7 +37,7 @@ COLLATE='utf8_general_ci';
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsOptions` (
 	`section_id` int(11) NOT NULL DEFAULT 0,
 	`name` varchar(255) NOT NULL DEFAULT '',
-	`value` TEXT DEFAULT '',
+	`value` TEXT null,
 	PRIMARY KEY (`section_id`, `name`),
 	CONSTRAINT `:prefix:bN_Options` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
 ) COMMENT='Options for BlackNews'
@@ -52,7 +48,7 @@ COLLATE='utf8_general_ci';
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntryOptions` (
 	`entryID` int(11) unsigned NOT NULL,
 	`name` varchar(255) NOT NULL DEFAULT '',
-	`value` TEXT DEFAULT '',
+	`value` TEXT null,
 	PRIMARY KEY (`entryID`, `name`),
 	CONSTRAINT `:prefix:bN_entrOpt` FOREIGN KEY (`entryID`) REFERENCES `:prefix:mod_blackNewsEntry`(`entryID`) ON DELETE CASCADE
 ) COMMENT='Options for BlackNews Entries'

@@ -1,19 +1,36 @@
 <?php
 
-/*
-   ____  __      __    ___  _  _  ___    __   ____     ___  __  __  ___
-  (  _ \(  )    /__\  / __)( )/ )/ __)  /__\ (_  _)   / __)(  \/  )/ __)
-   ) _ < )(__  /(__)\( (__  )  (( (__  /(__)\  )(    ( (__  )    ( \__ \
-  (____/(____)(__)(__)\___)(_)\_)\___)(__)(__)(__)    \___)(_/\/\_)(___/
+/**
+ *
+ *
+ * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.
+ * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'
+ * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.
+ * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    |
+ * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or (at
+ *   your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful, but
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ *   General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *
+ *   @author			Matthias Glienke
+ *   @copyright		2022, Black Cat Development
+ *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
+ *   @license			https://www.gnu.org/licenses/gpl-3.0.html
+ *   @category		CAT_Modules
+ *   @package			blackNews
+ *
+ */
 
-	@author			Black Cat Development
-	@copyright		2016 Black Cat Development
-	@link			http://blackcat-cms.org
-	@license		http://www.gnu.org/licenses/gpl.html
-	@category		CAT_Core
-	@package		CAT_Core
-
-*/
 ini_set("display_errors", 1);
 ini_set("display_startup_errors", 1);
 error_reporting(E_ALL);
@@ -47,12 +64,12 @@ if (!class_exists("blackNews", false)) {
     protected static $name = "blackNews";
     protected static $directory = "blacknews";
     protected static $version = "0.7";
-    protected static $author = "Matthias Glienke, letima";
+    protected static $author = "Matthias Glienke, letima development";
     protected static $license = "GNU General Public License";
     protected static $description = "Module for implementing news";
     protected static $guid = "3cf5feb8-7873-4d55-a6f4-33aafed211da";
-    protected static $home = "https://letima.de";
-    protected static $platform = "2.x";
+    protected static $home = "https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS";
+    protected static $platform = "1.x";
 
     public function __construct(int $section_id = null)
     {
@@ -68,17 +85,19 @@ if (!class_exists("blackNews", false)) {
     public static function init()
     {
       parent::init();
-
-      // Get all options
-      $result = self::$db->query(
-        "SELECT `value`, `section_id` FROM `:prefix:mod_blackNewsOptions` " .
-          'WHERE `name` = "permalink"'
-      );
-
       self::$routeUrls = [];
-      if ($result && $result->rowCount() > 0) {
-        while (false !== ($permalink = $result->fetch())) {
-          self::$routeUrls[$permalink["section_id"]] = $permalink["value"];
+
+      if (CAT_Helper_Addons::isModuleInstalled(static::$directory)) {
+        // Get all options
+        $result = self::$db->query(
+          "SELECT `value`, `section_id` FROM `:prefix:mod_blackNewsOptions` " .
+            'WHERE `name` = "permalink"'
+        );
+
+        if ($result && $result->rowCount() > 0) {
+          while (false !== ($permalink = $result->fetch())) {
+            self::$routeUrls[$permalink["section_id"]] = $permalink["value"];
+          }
         }
       }
     }
@@ -315,40 +334,40 @@ if (!class_exists("blackNews", false)) {
      *
      */
     /*public static function getByCategory($addOpt=NULL,int $catID=0)
-		{
-			// Get all entries
-			$result = self::$db->query(
-				'SELECT * FROM `:prefix:mod_blackNewsEntry` E ' .
-					'LEFT JOIN `:prefix:mod_blackNewsCategoryEntries` EC ON E.entryID = EC.entryID ' .
-					'LEFT JOIN `:prefix:mod_blackNewsCategory` C ON EC.catID = C.catID ' .
-					'WHERE C.catID = :catID ' .
-						'AND E.`section_id` = :section_id ' .
-						'ORDER BY E.`position` DESC',
-				array(
-					'section_id'		=> $this->section_id,
-					'catID'				=> $catID
-				)
-			);
-			if( $result && $result->rowCount() > 0 )
-			{
-				$i	= 0;
-				while ( false !== ( $entry = $result->fetch() ) )
-				{
-					$entries[++$i]	= $entry;
-					if($addOpt)
-					{
-						foreach( blackNewsEntry::getInstance($entry['entryID'])->getOption() as $name => $value )
-						{
-							$entries[$i][$name]	= $value;
-						}
-						$entries[$i]['username']	= CAT_Users::getInstance()->get_user_details($entries[$i]['userID'],'username');
-						$entries[$i]['display_name']	= CAT_Users::getInstance()->get_user_details($entries[$i]['userID'],'display_name');
-						$entries[$i]['image']			= blackNewsEntry::getInstance($entry['entryID'])->getImage();
-					}
-				}
-			}
-			return $entries;
-		}*/
+    {
+      // Get all entries
+      $result = self::$db->query(
+        'SELECT * FROM `:prefix:mod_blackNewsEntry` E ' .
+          'LEFT JOIN `:prefix:mod_blackNewsCategoryEntries` EC ON E.entryID = EC.entryID ' .
+          'LEFT JOIN `:prefix:mod_blackNewsCategory` C ON EC.catID = C.catID ' .
+          'WHERE C.catID = :catID ' .
+            'AND E.`section_id` = :section_id ' .
+            'ORDER BY E.`position` DESC',
+        array(
+          'section_id'		=> $this->section_id,
+          'catID'				=> $catID
+        )
+      );
+      if( $result && $result->rowCount() > 0 )
+      {
+        $i	= 0;
+        while ( false !== ( $entry = $result->fetch() ) )
+        {
+          $entries[++$i]	= $entry;
+          if($addOpt)
+          {
+            foreach( blackNewsEntry::getInstance($entry['entryID'])->getOption() as $name => $value )
+            {
+              $entries[$i][$name]	= $value;
+            }
+            $entries[$i]['username']	= CAT_Users::getInstance()->get_user_details($entries[$i]['userID'],'username');
+            $entries[$i]['display_name']	= CAT_Users::getInstance()->get_user_details($entries[$i]['userID'],'display_name');
+            $entries[$i]['image']			= blackNewsEntry::getInstance($entry['entryID'])->getImage();
+          }
+        }
+      }
+      return $entries;
+    }*/
 
     /**
      *
@@ -607,14 +626,14 @@ if (!class_exists("blackNews", false)) {
       }
 
       /*			if( $rUrl == $sUrl && ( $rUrl == CAT_URL . $_SERVER['REQUEST_URI'] ) )
-			{
-				$redirect	= CAT_Registry::get('USE_SHORT_URLS') ?
-					CAT_URL  . '/' . $this->getOption('permalink') . '/'
-					: CAT_URL . '/' . trim(PAGES_DIRECTORY,'/') . '/' . $this->getOption('permalink') . '/';
-				header("HTTP/1.1 301 Moved Permanently");
-				header("Location:" . $redirect );
-				exit();
-			}*/
+      {
+        $redirect	= CAT_Registry::get('USE_SHORT_URLS') ?
+          CAT_URL  . '/' . $this->getOption('permalink') . '/'
+          : CAT_URL . '/' . trim(PAGES_DIRECTORY,'/') . '/' . $this->getOption('permalink') . '/';
+        header("HTTP/1.1 301 Moved Permanently");
+        header("Location:" . $redirect );
+        exit();
+      }*/
     }
 
     /**
@@ -749,21 +768,21 @@ if (!class_exists("blackNews", false)) {
 
       /*			self::getRoute(PAGES_DIRECTORY);
 
-			self::checkRedirect();
+      self::checkRedirect();
 
-			$rUrl	= CAT_Registry::get('USE_SHORT_URLS') ?
-					CAT_URL . '/' . $this->routeUrl
-					: CAT_URL . '/' . trim(PAGES_DIRECTORY,'/') . '/' . $this->routeUrl;
+      $rUrl	= CAT_Registry::get('USE_SHORT_URLS') ?
+          CAT_URL . '/' . $this->routeUrl
+          : CAT_URL . '/' . trim(PAGES_DIRECTORY,'/') . '/' . $this->routeUrl;
 
-			if ( $this->routeUrl == $this->getOption('permalink') )
-				#|| !$this-> routeQuery )#$rUrl == CAT_Helper_Page::getLink(self::$page_id) )
-			{
-				$this->setParserValue('entries',$this->getOverview(true));
-				$this->template	= 'view';
-			} else {
-				$this->setParserValue('entry',$this->getEntry());
-				$this->template	= 'viewEntry';
-			}
+      if ( $this->routeUrl == $this->getOption('permalink') )
+        #|| !$this-> routeQuery )#$rUrl == CAT_Helper_Page::getLink(self::$page_id) )
+      {
+        $this->setParserValue('entries',$this->getOverview(true));
+        $this->template	= 'view';
+      } else {
+        $this->setParserValue('entry',$this->getEntry());
+        $this->template	= 'viewEntry';
+      }
 */
       $this->setParserValue("categories", $this->getCategories());
 
@@ -911,6 +930,36 @@ if (!class_exists("blackNews", false)) {
       // Reset parserValues
       $this->parserValues = [];
 
+      // Check if catGallery is installed
+      if (CAT_Helper_Addons::isModuleInstalled("cc_catgallery")) {
+        $this->setParserValue(
+          "isCatGallery",
+          CAT_Helper_Addons::isModuleInstalled("cc_catgallery"),
+          true
+        );
+        $gal = [];
+
+        // Get all children pages using catGallery
+        $getGal = self::$db->query(
+          "SELECT DISTINCT main.`gallery_id`, opt.`value` as 'title' FROM `:prefix:mod_cc_catgallery` main " .
+            "LEFT JOIN `:prefix:mod_cc_catgallery_options` opt " .
+            "ON opt.`gallery_id` = main.`gallery_id` " .
+            "WHERE main.`section_id` IN " .
+            "(SELECT `section_id` FROM `:prefix:sections` se LEFT JOIN `:prefix:pages` pa ON pa.`page_id` = se.`page_id` WHERE pa.`parent`= :parent ) " .
+            "AND opt.`name` = 'title' ORDER BY main.`gallery_id` DESC",
+          [
+            "parent" => $this->page_id,
+          ]
+        );
+
+        if ($getGal && $getGal->rowCount() > 0) {
+          while (!false == ($id = $getGal->fetch())) {
+            $gal[$id["gallery_id"]] = $id["title"];
+          }
+        }
+
+        $this->setParserValue("galleries", $gal);
+      }
       $this->setParserValue("options", $this->getOption(), true);
 
       $this->setParserValue("sections", $this->getAllNewsSections(), true);
@@ -932,7 +981,7 @@ if (!class_exists("blackNews", false)) {
       }
 
       $this->setParserValue("usergroups", CAT_Users::getGroups(), true);
-      $getGroupMembers = $this->parserValues["options"]["usergroup"]
+      $getGroupMembers = isset($this->parserValues["options"]["usergroup"])
         ? $this->parserValues["options"]["usergroup"]
         : 1;
       $this->setParserValue("users", CAT_Users::getMembers($getGroupMembers));
@@ -1052,6 +1101,7 @@ if (!class_exists("blackNews", false)) {
           break;
         case "saveOptions":
           $return = $this->saveOptions();
+          $return["message"] = $backend->lang()->translate("Options saved");
           break;
         case "orderEntries":
           $return = [
@@ -1081,12 +1131,12 @@ if (!class_exists("blackNews", false)) {
           break;
         case "removeIMG":
           /*$deleted	= blackNewsEntry::removeImage();
-					$return	= array(
-						'message'	=> $deleted === true
-							? $lang->translate( 'Image deleted successfully!' )
-							: $lang->translate( 'An error occoured!' ),
-						'success'	=> $deleted
-					);*/
+          $return	= array(
+            'message'	=> $deleted === true
+              ? $lang->translate( 'Image deleted successfully!' )
+              : $lang->translate( 'An error occoured!' ),
+            'success'	=> $deleted
+          );*/
           $return = [
             "message" => "delete",
             "success" => true,

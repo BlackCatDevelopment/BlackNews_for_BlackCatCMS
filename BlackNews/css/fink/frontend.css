@@ -1,33 +1,3 @@
-/**
- *
- * ,-----.  ,--.              ,--.    ,-----.          ,--.       ,-----.,--.   ,--. ,---.
- * |  |) /_ |  | ,--,--. ,---.|  |,-.'  .--./ ,--,--.,-'  '-.    '  .--./|   `.'   |'   .-'
- * |  .-.  \|  |' ,-.  || .--'|     /|  |    ' ,-.  |'-.  .-'    |  |    |  |'.'|  |`.  `-.
- * |  '--' /|  |\ '-'  |\ `--.|  \  \'  '--'\\ '-'  |  |  |      '  '--'\|  |   |  |.-'    |
- * `------' `--' `--`--' `---'`--'`--'`-----' `--`--'  `--'       `-----'`--'   `--'`-----'
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 3 of the License, or (at
- *   your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful, but
- *   WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- *   General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program; if not, see <http://www.gnu.org/licenses/>.
- *
- *   @author			Matthias Glienke
- *   @copyright		2022, Black Cat Development
- *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
- *   @license			https://www.gnu.org/licenses/gpl-3.0.html
- *   @category		CAT_Modules
- *   @package			blackNews
- *
- */
-
 .bN_List > div.c_1024 {
   padding: 1rem;
   display: -webkit-box;
@@ -93,9 +63,6 @@
   -ms-transition: all 1.55s cubic-bezier(0.23, 1, 0.32, 1);
   -o-transition: all 1.55s cubic-bezier(0.23, 1, 0.32, 1);
   transition: all 1.55s cubic-bezier(0.23, 1, 0.32, 1);
-  -webkit-border-radius: 0.35rem 0.35rem 0 0;
-  -moz-border-radius: 0.35rem 0.35rem 0 0;
-  border-radius: 0.35rem 0.35rem 0 0;
   overflow: hidden;
 }
 .bN_Entries figure > div::after {
@@ -105,8 +72,6 @@
   left: -1px;
   right: -1px;
   content: "";
-  background: url(images/bottom-white.svg) center bottom no-repeat;
-  background-size: 100% auto;
   height: 5.5rem;
   display: block;
 }
@@ -115,6 +80,7 @@
 }
 .bN_author {
   position: absolute;
+  text-align: center;
   z-index: 2;
   background: #fff;
   height: 52px;
@@ -134,11 +100,11 @@
   -ms-transform: scale(1);
   -o-transform: scale(1);
   transform: scale(1);
-  -webkit-box-shadow: #0e141f 0 0 0.6rem -0.2rem;
-  -moz-box-shadow: #0e141f 0 0 0.6rem -0.2rem;
-  -o-box-shadow: #0e141f 0 0 0.6rem -0.2rem;
-  -ms-box-shadow: #0e141f 0 0 0.6rem -0.2rem;
-  box-shadow: #0e141f 0 0 0.6rem -0.2rem;
+  -webkit-box-shadow: rgba(033, 055, 060, 1) 0 0 0.6rem -0.2rem;
+  -moz-box-shadow: rgba(033, 055, 060, 1) 0 0 0.6rem -0.2rem;
+  -o-box-shadow: rgba(033, 055, 060, 1) 0 0 0.6rem -0.2rem;
+  -ms-box-shadow: rgba(033, 055, 060, 1) 0 0 0.6rem -0.2rem;
+  box-shadow: rgba(033, 055, 060, 1) 0 0 0.6rem -0.2rem;
 }
 .bN_author::before {
   font-size: 2rem;
@@ -151,15 +117,16 @@
   -ms-transform: translate(-50%, -50%);
   -o-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
-  background: -webkit-linear-gradient(
-    315deg,
-    #f8ec3b 0,
-    #c6085b 50%,
-    #591689 100%
-  );
+  background: rgba(033, 055, 060, 1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+.bN_author img {
+  margin: 0.65rem auto;
+  max-width: 80%;
+  height: auto;
+}
+
 article.bN_Entries:hover .bN_author {
   -webkit-transform: scale(1.02);
   -moz-transform: scale(1.02);
@@ -167,11 +134,11 @@ article.bN_Entries:hover .bN_author {
   -o-transform: scale(1.02);
   transform: scale(1.02);
   bottom: 1.3rem;
-  -webkit-box-shadow: #0e141f 0 0 1.5rem -0.3rem;
-  -moz-box-shadow: #0e141f 0 0 1.5rem -0.3rem;
-  -o-box-shadow: #0e141f 0 0 1.5rem -0.3rem;
-  -ms-box-shadow: #0e141f 0 0 1.5rem -0.3rem;
-  box-shadow: #0e141f 0 0 1.5rem -0.3rem;
+  -webkit-box-shadow: rgba(033, 055, 060, 1) 0 0 1.5rem -0.3rem;
+  -moz-box-shadow: rgba(033, 055, 060, 1) 0 0 1.5rem -0.3rem;
+  -o-box-shadow: rgba(033, 055, 060, 1) 0 0 1.5rem -0.3rem;
+  -ms-box-shadow: rgba(033, 055, 060, 1) 0 0 1.5rem -0.3rem;
+  box-shadow: rgba(033, 055, 060, 1) 0 0 1.5rem -0.3rem;
 }
 .bN_Entries:nth-of-type(1) {
   padding: 0 !important;
@@ -215,7 +182,6 @@ article.bN_Entries:hover .bN_author {
 }
 .bN_Entries aside a,
 .incNews_Entries aside a {
-  border-bottom: 0 none;
   -webkit-transition: all 1.55s cubic-bezier(0.23, 1, 0.32, 1);
   -moz-transition: all 1.55s cubic-bezier(0.23, 1, 0.32, 1);
   -ms-transition: all 1.55s cubic-bezier(0.23, 1, 0.32, 1);
@@ -228,42 +194,36 @@ article.bN_Entries:hover .bN_author {
   padding: 0 0 3rem;
   background: #fff;
   margin: 0;
-  -webkit-border-radius: 0.35rem;
-  -moz-border-radius: 0.35rem;
-  border-radius: 0.35rem;
   -webkit-transition: a35l 550ms cubic-bezier(0.23, 1, 0.32, 1);
   -moz-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1);
   -ms-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1);
   -o-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1);
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1);
-  -webkit-box-shadow: #0e141f 0 0 2rem -1rem;
-  -moz-box-shadow: #0e141f 0 0 2rem -1rem;
-  -o-box-shadow: #0e141f 0 0 2rem -1rem;
-  -ms-box-shadow: #0e141f 0 0 2rem -1rem;
-  box-shadow: #0e141f 0 0 2rem -1rem;
+  -webkit-box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -1rem;
+  -moz-box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -1rem;
+  -o-box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -1rem;
+  -ms-box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -1rem;
+  box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -1rem;
 }
 .bN_Entries figure:hover {
   margin: -0.1rem 0 0.1rem;
-  -webkit-box-shadow: #0e141f 0 0 4rem -1rem;
-  -moz-box-shadow: #0e141f 0 0 4rem -1rem;
-  -o-box-shadow: #0e141f 0 0 4rem -1rem;
-  -ms-box-shadow: #0e141f 0 0 4rem -1rem;
-  box-shadow: #0e141f 0 0 4rem -1rem;
+  -webkit-box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -1rem;
+  -moz-box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -1rem;
+  -o-box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -1rem;
+  -ms-box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -1rem;
+  box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -1rem;
 }
 .bN_List figure > img {
-  -webkit-border-radius: 0.35rem;
-  -moz-border-radius: 0.35rem;
-  border-radius: 0.35rem;
 }
 .bN_List figcaption {
-  padding: 0.5rem 1rem 1rem;
+  padding: 0.5rem 2rem 3rem 2rem;
 }
 .bN_Entries figcaption aside {
-  color: #258ed2;
+  color: rgba(170, 195, 191, 1);
   position: absolute;
-  left: 1rem;
-  right: 1rem;
-  bottom: 1rem;
+  left: 2rem;
+  right: 2rem;
+  bottom: 2rem;
 }
 .bN_Entries figcaption aside span {
   font-weight: 100;
@@ -281,11 +241,15 @@ article.bN_Entries:hover .bN_author {
 .bN_List figure.bN_ListFirst h1 {
   text-align: left;
   padding-bottom: 0;
+  color: rgba(255, 113, 90, 1);
+  text-transform: inherit;
+  font-size: 2.2rem;
+  letter-spacing: 0;
+  line-height: 3.2rem;
 }
 .bN_List figure.bN_ListFirst h2 {
   color: #fff;
   font-size: 1.4rem;
-  font-weight: 400;
 }
 .bN_List figure.bN_ListFirst h2 .button {
   display: block;
@@ -298,7 +262,7 @@ article.bN_Entries:hover .bN_author {
 .bN_List figure.bN_ListFirst small span {
   display: inline-block;
   padding: 0.2rem 0;
-  color: #258ed2;
+  color: rgba(170, 195, 191, 1);
 }
 .bN_List figure.bN_ListFirst h3 {
   padding-right: 65px;
@@ -322,14 +286,11 @@ a.incNews_fullLink,
 .bN_List figure.bN_ListFirst > figcaption {
   padding: 1rem;
   background: #fff;
-  -webkit-border-radius: 0.35rem;
-  -moz-border-radius: 0.35rem;
-  border-radius: 0.35rem;
-  -webkit-box-shadow: #2f104c 0 0 2rem -0.3rem;
-  -moz-box-shadow: #2f104c 0 0 2rem -0.3rem;
-  -o-box-shadow: #2f104c 0 0 2rem -0.3rem;
-  -ms-box-shadow: #2f104c 0 0 2rem -0.3rem;
-  box-shadow: #2f104c 0 0 2rem -0.3rem;
+  -webkit-box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -0.3rem;
+  -moz-box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -0.3rem;
+  -o-box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -0.3rem;
+  -ms-box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -0.3rem;
+  box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -0.3rem;
   -webkit-transition: all 250ms ease-in;
   -moz-transition: all 250ms ease-in;
   -o-transition: all 250ms ease-in;
@@ -342,11 +303,11 @@ a.incNews_fullLink,
   -ms-transform: translate(0, -0.35rem);
   -o-transform: translate(0, -0.35rem);
   transform: translate(0, -0.35rem);
-  -webkit-box-shadow: #2f104c 0 0 4rem -0.3rem;
-  -moz-box-shadow: #2f104c 0 0 4rem -0.3rem;
-  -o-box-shadow: #2f104c 0 0 4rem -0.3rem;
-  -ms-box-shadow: #2f104c 0 0 4rem -0.3rem;
-  box-shadow: #2f104c 0 0 4rem -0.3rem;
+  -webkit-box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -0.3rem;
+  -moz-box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -0.3rem;
+  -o-box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -0.3rem;
+  -ms-box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -0.3rem;
+  box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -0.3rem;
 }
 .bN_List figure.bN_ListFirst > figcaption:hover .bN_author {
   -webkit-transform: scale(1.1) translate(0.15rem, -0.05rem);
@@ -354,11 +315,11 @@ a.incNews_fullLink,
   -ms-transform: scale(1.1) translate(0.15rem, -0.05rem);
   -o-transform: scale(1.1) translate(0.15rem, -0.05rem);
   transform: scale(1.1) translate(0.15rem, -0.05rem);
-  -webkit-box-shadow: #0e141f 0 0 2rem -0.3rem;
-  -moz-box-shadow: #0e141f 0 0 2rem -0.3rem;
-  -o-box-shadow: #0e141f 0 0 2rem -0.3rem;
-  -ms-box-shadow: #0e141f 0 0 2rem -0.3rem;
-  box-shadow: #0e141f 0 0 2rem -0.3rem;
+  -webkit-box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -0.3rem;
+  -moz-box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -0.3rem;
+  -o-box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -0.3rem;
+  -ms-box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -0.3rem;
+  box-shadow: rgba(033, 055, 060, 1) 0 0 2rem -0.3rem;
 }
 .bN_List figure.bN_ListFirst > figcaption::after {
   content: "";
@@ -369,9 +330,6 @@ a.incNews_fullLink,
   width: calc(100% + 2rem);
   height: 300px;
   margin: -1rem -1rem 1rem;
-  -webkit-border-radius: 0.35rem 0.35rem 0 0;
-  -moz-border-radius: 0.35rem 0.35rem 0 0;
-  border-radius: 0.35rem 0.35rem 0 0;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -389,22 +347,7 @@ a.incNews_fullLink,
   width: 100vw;
   z-index: 0;
   overflow: hidden;
-  background: #591689;
-  background: -moz-radial-gradient(
-    circle,
-    #591689 0,
-    #c6085b 50%,
-    #f8ec3b 100%
-  );
-  background: -webkit-radial-gradient(
-    circle,
-    #591689 0,
-    #c6085b 50%,
-    #f8ec3b 100%
-  );
-  background: radial-gradient(circle, #591689 0, #c6085b 50%, #f8ec3b 100%);
-  background-position: 0 100%;
-  background-size: 200% 100%;
+  background: rgba(033, 055, 060, 1);
 }
 .bN_List figure.bN_ListFirst > div > div {
   opacity: 0.4;
@@ -436,26 +379,23 @@ a.incNews_fullLink,
 }
 @media (min-width: 1058px) {
   .bN_List figure.bN_ListFirst > figcaption .bN_ListFirstImage {
-    width: calc(50% - 1rem);
+    width: 50%;
     height: 400px;
     float: left;
-    margin: -1rem 1rem -1rem -1rem;
-    -webkit-border-radius: 0.35rem 0 0 0.35rem;
-    -moz-border-radius: 0.35rem 0 0 0.35rem;
-    border-radius: 0.35rem 0 0 0.35rem;
+    margin: -1rem 2rem -1rem -1rem;
   }
   .bN_List figure.bN_ListFirst small {
     padding: 0 0 1rem;
     position: absolute;
-    left: calc(50% - 1rem);
+    left: calc(50% + 1rem);
     bottom: 1rem;
-    width: calc(50% - 1rem);
+    width: calc(50% - 3rem);
   }
   .bN_List figure.bN_ListFirst h2 .button {
     float: right;
   }
   .bN_List figure.bN_ListFirst {
-    padding: 10rem 0 0;
+    padding: 7rem 0 0;
   }
   .bN_List article.bN_ListFirst {
     padding: 7rem 0 1rem;
@@ -504,20 +444,7 @@ a.incNews_fullLink,
   margin: 0;
   padding: 12rem 1rem 0;
   text-align: center;
-  background: #591689;
-  background: -moz-radial-gradient(
-    circle,
-    #591689 0,
-    #c6085b 50%,
-    #f8ec3b 100%
-  );
-  background: -webkit-radial-gradient(
-    circle,
-    #591689 0,
-    #c6085b 50%,
-    #f8ec3b 100%
-  );
-  background: radial-gradient(circle, #591689 0, #c6085b 50%, #f8ec3b 100%);
+  background: rgba(033, 055, 060, 1);
   background-position: 0 100%;
   background-size: 200% 100%;
 }
@@ -528,6 +455,7 @@ a.incNews_fullLink,
 #bN_Entry h1 {
   text-align: left;
   color: #fff;
+  padding-bottom: 0;
 }
 #bN_Entry small {
   color: #fff;
@@ -537,7 +465,7 @@ a.incNews_fullLink,
 }
 #bN_Entry small span {
   display: inline-block;
-  padding: 0.2rem 0 0.2rem 1.4rem;
+  /*padding: 0.2rem 0 0.2rem 1.4rem;*/
 }
 #bN_Entry small a {
   color: #fff;
@@ -547,17 +475,13 @@ a.incNews_fullLink,
   width: 62%;
   height: auto;
   margin: 0 auto -5rem;
-  -webkit-border-radius: 0.35rem;
-  -moz-border-radius: 0.35rem;
-  border-radius: 0.35rem;
-  -webkit-box-shadow: #2f104c 0 0 4rem -0.3rem;
-  -moz-box-shadow: #2f104c 0 0 4rem -0.3rem;
-  -o-box-shadow: #2f104c 0 0 4rem -0.3rem;
-  -ms-box-shadow: #2f104c 0 0 4rem -0.3rem;
-  box-shadow: #2f104c 0 0 4rem -0.3rem;
+  -webkit-box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -0.3rem;
+  -moz-box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -0.3rem;
+  -o-box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -0.3rem;
+  -ms-box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -0.3rem;
+  box-shadow: rgba(033, 055, 060, 1) 0 0 4rem -0.3rem;
 }
 #bN_Entry > figure > div {
-  opacity: 0.4;
   position: absolute;
   left: 0;
   top: 0;
@@ -590,7 +514,7 @@ a.incNews_fullLink,
 }
 @media (min-width: 1058px) {
   #bN_Entry > figure {
-    padding: 12rem 0 0;
+    padding: 7rem 0 0;
   }
   #bN_Entry article {
     padding: 7rem 0 1rem;

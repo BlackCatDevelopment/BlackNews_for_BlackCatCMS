@@ -28,28 +28,28 @@
  *
 *}
 
-<button class="fc_gradient1 fc_gradient_hover icon-cog left fc_br_top bn_gOpt" id="bn_gOpt_{$section_id}"> {translate("General options")}</button>
-<form action="{$CAT_URL}/modules/blackNews/save.php" id="bc_Options_{$section_id}" method="post" data-bnid="" class="bn_optionForm fc_shadow_big">
+<button class="fc_gradient1 fc_gradient_hover icon-cog left fc_br_top bn_gCat" id="bn_gCat_{$section_id}"> {translate("Admin categories")}</button>
+<form action="{$CAT_URL}/modules/blackNews/save.php" id="bc_Categories_{$section_id}" method="post" data-bnid="" class="bn_optionForm fc_shadow_big">
 	<input type="hidden" name="page_id" value="{$page_id}">
 	<input type="hidden" name="section_id" value="{$section_id}">
-    <input type="hidden" name="action" value="saveOptions">
+    <input type="hidden" name="action" value="saveCategories">
     
 	<input type="hidden" name="saveOptions" value="permalink,text|usergroup,select|title,text|subtitle,text">
 
-	<h3>{translate("General options")}</h3>
-    <hr>
-	<p>
-		<label for="permalink_{$section_id}" class="bcLabel">{translate("Permalink")}:</label>
+	<h3>{translate("Admin categories")}</h3>
+    Wird noch ergänzt
+	{*<p>
+		<label for="permalink_{$section_id}" class="bcLabel">{translate("Permalink")}</label>
 		<input id="permalink_{$section_id}" type="text" name="permalink" value="{$options.permalink}">
 	</p>
 <p>
-    <label for="mainTitle_{$section_id}" class="bcLabel">{translate("Title")}:</label>
+    <label for="mainTitle_{$section_id}" class="bcLabel">{translate("Titel")}</label>
     <input id="mainTitle_{$section_id}" type="text" name="title" value="{$options.title}"><br>
-    <label for="mainSubTitle_{$section_id}" class="bcLabel">{translate("Subtitle")}:</label>
+    <label for="mainSubTitle_{$section_id}" class="bcLabel">{translate("Untertitel")}</label>
     <input id="mainSubTitle_{$section_id}" type="text" name="subtitle" value="{$options.subtitle}">
 </p>
 	<p>
-		<label for="usergroup_{$section_id}" class="bcLabel">{translate("Usergroup of editors")}:</label>
+		<label for="usergroup_{$section_id}" class="bcLabel">{translate("Gruppe der Moderatoren")}</label>
 		<select id="usergroup_{$section_id}" name="usergroup">
 			{foreach $usergroups k v}
 			<option value="{$k}"{if $options.usergroup==$k} selected="selected"{/if}>{$v}</option>
@@ -57,5 +57,5 @@
 		</select>
 	</p>
 
-	<button name="save" class="fc_gradient_blue fc_gradient_hover" id="saveOption_{$section_id}">{translate("Save options")}</button>
+	<button name="save" class="fc_gradient_blue fc_gradient_hover" id="saveCategories_{$section_id}">{translate("Save categories")}</button>*}
 </form>

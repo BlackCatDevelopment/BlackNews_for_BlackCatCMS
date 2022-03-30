@@ -13,18 +13,18 @@
 
 *}
 
-<h2>Eintrag</h2>
+<h2>{translate("Entry")}</h2>
 <input type="hidden" name="page_id" value="{$page_id}">
 <input type="hidden" name="section_id" value="{$section_id}">
 <input type="hidden" name="saveFields" value="title,text|seoURL,text|wysiwyg_{$section_id},wysiwyg|publishDate,date|unpublishDate,date|userID,select">
 <input type="hidden" name="saveOptions" value="catGallery,select{*schulart,select|type,select|subject,text|start,text|end,text|price,text|formularTitle,text|formularDisclaimer,text|formularMailTitelKunde,text|formularMailTitelAnbieter,text|formularPartner,text|linkedPDF,text*}">
-<span class="bcLabel">Titel:</span><input type="text" name="title" value="{if $entry.title}{$entry.title}{/if}"><br>
-<span class="bcLabel">URL:</span><input type="text" name="seoURL" value="{if $entry.seoURL}{$entry.seoURL}{/if}"><br>
-<span class="bcLabel">Veröffentlichen am:</span><input type="date" name="publishDate" value="{if $entry.publishDate}{$entry.publishDate}{/if}" placeholder="Format: dd.mm.yyyy"><br>
-<span class="bcLabel">Veröffentlichen bis:</span><input type="date" name="unpublishDate" value="{if $entry.unpublishDate}{$entry.unpublishDate}{/if}" placeholder="Format: dd.mm.yyyy"><br>
+<span class="bcLabel">{translate("Title")}:</span><input type="text" name="title" value="{if $entry.title}{$entry.title}{/if}"><br>
+<span class="bcLabel">URL:</span><input type="text" name="seoURL" value="{if $entry.seoURL}{$entry.seoURL}{/if}" placeholder="{translate("Will be set automatically on first save")}"><br>
+<span class="bcLabel">{translate("Publish on")}:</span><input type="date" name="publishDate" value="{if $entry.publishDate}{$entry.publishDate}{/if}" placeholder="Format: dd.mm.yyyy"><br>
+<span class="bcLabel">{translate("Publish until")}:</span><input type="date" name="unpublishDate" value="{if $entry.unpublishDate}{$entry.unpublishDate}{/if}" placeholder="Format: dd.mm.yyyy"><br>
 <hr>
 <div id="bN_dropzone_{$section_id}" class="bN_dropzone fc_br_all">
-	{translate('Drag &amp; drop')}<span>{translate('your image here or click to upload')}.</span>
+	{translate('Drag &amp; drop')}<span>{translate("your image here or click to upload")}.</span>
 </div>
 
 <div id="bN_imgs_{$section_id}" class="bN_imgs">
@@ -38,13 +38,13 @@
 		<div class="dz-error-message"><span data-dz-errormessage=""></span></div></div>
 </div>
 <hr>
-<h3 class="bcLabel">Beschreibung</h3>
+<h3 class="bcLabel">{translate("Description")}</h3>
 {show_wysiwyg_editor($bc_WYSIWYG.name,$bc_WYSIWYG.name,'')}
 <hr>
-<h3 class="bcLabel">Kategorie</h3>
+<h3 class="bcLabel">{translate("Category")}</h3>
 <p>
 	<select name="category" multiple="multiple" class="cc_In300px category" size="10">
-		<option value="-1">Keine Kategorie</option>
+		<option value="-1">{translate("No category")}</option>
 		{foreach $categories c}
 		<option value="{$c.catID}">{$c.category}</option>
 		{/foreach}
@@ -62,7 +62,7 @@
 {/foreach}
 </select>
 <hr>
-Benutzer w&auml;hlen:
+{translate("Select user")}
 <select name="userID">
 	{*<option value="1" {if $entry.option.userID == 1} selected="selected"{/if}>Matthias Glienke</option>*}
 	{foreach $users u}
