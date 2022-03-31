@@ -89,14 +89,26 @@ if (!class_exists("blackNews", false)) {
 
       if (CAT_Helper_Addons::isModuleInstalled(static::$directory)) {
         // Get all options
+        // $result = self::$db->query(
+        //   "SELECT `value`, `section_id` FROM `:prefix:mod_blackNewsOptions` " .
+        //     'WHERE `name` = "permalink"'
+        // );
         $result = self::$db->query(
-          "SELECT `value`, `section_id` FROM `:prefix:mod_blackNewsOptions` " .
-            'WHERE `name` = "permalink"'
+          "SELECT s.`section_id`, p.`link` FROM `:prefix:sections` s " .
+            "LEFT JOIN `:prefix:pages` p " .
+            "ON s.`page_id` = p.`page_id` " .
+            "WHERE `module` = :dir",
+          [
+            "dir" => static::$directory,
+          ]
         );
 
         if ($result && $result->rowCount() > 0) {
           while (false !== ($permalink = $result->fetch())) {
-            self::$routeUrls[$permalink["section_id"]] = $permalink["value"];
+            self::$routeUrls[$permalink["section_id"]] = trim(
+              $permalink["link"],
+              "/"
+            );
           }
         }
       }
@@ -143,14 +155,14 @@ if (!class_exists("blackNews", false)) {
      */
     private function setOption(string $name, string $value): bool
     {
-      if ($name == "permalink") {
-        $value = trim($value, "/");
-        #$oldDir	= $this->getOption('permalink');
-
-        // ToDo!s:
-        // * check if directory already exists
-        // * .htaccess anpassen
-      }
+      //       if ($name == "permalink") {
+      //         $value = trim($value, "/");
+      //         #$oldDir	= $this->getOption('permalink');
+      //
+      //         // ToDo!s:
+      //         // * check if directory already exists
+      //         // * .htaccess anpassen
+      //       }
 
       // Set info into table
       if (
@@ -416,6 +428,22 @@ if (!class_exists("blackNews", false)) {
       return 0;
     }
 
+    public function getPermalink(): string
+    {
+      $result = self::$db
+        ->query(
+          "SELECT p.`link` FROM `:prefix:sections` s " .
+            "LEFT JOIN `:prefix:pages` p " .
+            "ON s.`page_id` = p.`page_id` " .
+            "WHERE s.`section_id` = :secID AND `module` = :dir",
+          [
+            "secID" => $this->section_id,
+            "dir" => static::$directory,
+          ]
+        )
+        ->fetchColumn();
+      return trim($result, "/");
+    }
     /**
      *
      */
@@ -425,10 +453,7 @@ if (!class_exists("blackNews", false)) {
       // TODO: Add route to extra table with trigger to get history of files and automatically set 301
 
       return blackNewsEntry::getEntryByURL(
-        trim(
-          str_replace($this->getOption("permalink"), "", $this->routeUrl),
-          "/"
-        )
+        trim(str_replace($this->getPermalink(), "", $this->routeUrl), "/")
       );
     }
 
@@ -564,14 +589,9 @@ if (!class_exists("blackNews", false)) {
         self::$db->query(
           "INSERT INTO `:prefix:mod_blackNewsOptions` " .
             "( `section_id`, `name`, `value` ) VALUES " .
-            '( :section_id, "variant", "default" ),
-            ( :section_id, "permalink", :page_link )',
+            '( :section_id, "variant", "default" )',
           [
             "section_id" => $section_id,
-            "page_link" => trim(
-              CAT_Helper_Page::properties($page_id, "link"),
-              "/"
-            ),
           ]
         )
       ) {
@@ -613,17 +633,14 @@ if (!class_exists("blackNews", false)) {
 
       $bNObj = new self($section_id);
 
-      if (
-        $bNObj->getOption("permalink") . ".php" ==
-        self::$routeUrls[$section_id]
-      ) {
+      if ($bNObj->getPermalink() . ".php" == self::$routeUrls[$section_id]) {
         $redirect = CAT_Registry::get("USE_SHORT_URLS")
-          ? CAT_URL . "/" . $bNObj->getOption("permalink")
+          ? CAT_URL . "/" . $bNObj->getPermalink()
           : CAT_URL .
             "/" .
             trim(PAGES_DIRECTORY, "/") .
             "/" .
-            $bNObj->getOption("permalink");
+            $bNObj->getPermalink();
         header("HTTP/1.1 301 Moved Permanently");
         header("Location:" . $redirect);
         exit();
@@ -646,7 +663,7 @@ if (!class_exists("blackNews", false)) {
     public function checkOverview(string $rUrl = ""): bool
     {
       if (
-        $this->routeUrl == $this->getOption("permalink") ||
+        $this->routeUrl == $this->getPermalink() ||
         $rUrl == CAT_Helper_Page::getLink($this->page_id) ||
         $rUrl . ".php" == CAT_Helper_Page::getLink($this->page_id) ||
         trim($rUrl, "/") ==
@@ -865,7 +882,7 @@ if (!class_exists("blackNews", false)) {
           $this->routeQuery = "";
           if ($this->routeQuery > "") {
             $this->routeUrl =
-              $this->getOption("permalink") .
+              $this->getPermalink() .
               "/" .
               str_replace("q=", "", $this->routeQuery);
           }
@@ -968,6 +985,9 @@ if (!class_exists("blackNews", false)) {
 
         $this->setParserValue("galleries", $gal);
       }
+
+      $this->setParserValue("htaccess", $this->generateHTACCESS());
+
       $this->setParserValue("options", $this->getOption(), true);
 
       $this->setParserValue("sections", $this->getAllNewsSections(), true);
@@ -1210,6 +1230,32 @@ if (!class_exists("blackNews", false)) {
     public static function upgrade()
     {
       // TODO: implement here
+    }
+
+    public function generateHTACCESS(): string
+    {
+      $start =
+        "
+########## Begin - BlackNews - redirect - SectionID " . (int) $this->section_id;
+      $hint = "
+########## Automatically generated! Do not change the following lines!";
+      $end =
+        "
+########## End - BlackNews - redirect - SectionID " . (int) $this->section_id;
+
+      $entry =
+        "
+# 
+RewriteCond %{REQUEST_URI} !" .
+        $this->getPermalink() .
+        "\.php
+RewriteRule ^" .
+        $this->getPermalink() .
+        "/(.*)$ " .
+        $this->getPermalink() .
+        ".php?q=$1 [QSA,L]
+# ";
+      return $start . $hint . $entry . $end;
     }
   }
   if (!class_exists("blackNewsEntry", false)) {

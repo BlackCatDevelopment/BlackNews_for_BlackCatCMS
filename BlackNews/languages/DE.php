@@ -110,5 +110,9 @@ $LANG = [
   "Select user" => "Benutzer w&auml;hlen:",
   "<strong>Hint:</strong> The post is optionally displayed in the specified period if it was switched online using the button at the top right." =>
     "<strong>Hinweis:</strong> Der Beitrag wird optional im angegebenen Zeitraum angezeigt, wenn er über den Button oben rechts online geschalten wurde.",
+  "The content of the .htaccess is generated automatically." =>
+    "Der Inhalt der .htaccess wird automatisch generiert.",
+  "The content of the .htaccess is generated automatically. Please copy this content into the .htaccess of your root directory." =>
+    "Der Inhalt der .htaccess wird automatisch generiert. Bitte diesen Inhalt in die .htaccess ihres root-Verzeichnis kopieren.",
 ];
 ?>

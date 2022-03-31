@@ -66,8 +66,8 @@
 .bc_icon-seourl:before {
   content: "\e9cb";
 }
-
-.bc_MainContent hr {
+.bn_optionForm hr,
+.blackNews hr {
   border-top: 1px solid rgba(177, 190, 199, 1);
 }
 

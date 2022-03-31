@@ -31,12 +31,12 @@
 <section id="bN_List_{$section_id}" class="bN_List">
   {assign var=c value=false}{foreach $entries entry}{if $entry.publish}{if $c==false}{assign var=c value=true}
   <figure class="bN_ListFirst">
-    {if $options.title}<h1 class="c_1024"> {$options.title}</h1>{/if}
+    {if $options.title}<h1 class="c_1080"> {$options.title}</h1>{/if}
     {if $category}{assign var=temp value=$categories.$category}{$temp}{assign var=class value=$temp.url}
-      <h2 class="c_1024 {$catIcons.$class}">{$temp.category}</h2>
-      {elseif $options.subtitle}<h2 class="c_1024">{$options.subtitle}</h2>{/if}
+      <h2 class="c_1080 {$catIcons.$class}">{$temp.category}</h2>
+      {elseif $options.subtitle}<h2 class="c_1080">{$options.subtitle}</h2>{/if}
     <div><div style="background-image:url({$entry.image});"></div></div>
-    <figcaption class="c_1024">
+    <figcaption class="c_1080">
       {if $entry.image}<div style="background-image:url({$entry.image});" class="bN_ListFirstImage">
         <img src="{$entry.image}" alt="{$entry.title}">
       </div>{/if}
@@ -52,7 +52,7 @@
       </div>
     </figcaption>
   </figure>
-  <div class="c_1024">
+  <div class="c_1080">
 {else}
 <article class="bN_Entries">	
   <figure>

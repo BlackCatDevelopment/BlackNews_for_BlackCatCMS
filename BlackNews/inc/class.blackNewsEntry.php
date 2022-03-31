@@ -255,115 +255,6 @@ if (!class_exists("blackNewsEntry", false)) {
           : "")
         : $this->info;
     }
-    /**
-     * Fill the object with the values of an event from database
-     *
-     * @access public
-     * @param  bool		$returnArray	- option whether an array should be returned
-     * @return object/array
-     *
-     **/
-    public function getEvent($returnArray = null)
-    {
-      // Get info from table
-      $this->info = self::$db
-        ->query(
-          "SELECT `entryID`, `section_id`, `title`, `content`, `text`, `modified`, `created`, `userID`, `seoURL`, `position`, `publishDate`, `unpublishDate`, `publish` FROM `:prefix:mod_blackNewsEntry` " .
-            "WHERE `entryID` = :entryID",
-          [
-            "entryID" => $this->getEntryID(),
-          ]
-        )
-        ->fetchRow();
-
-      if (
-        isset($getEvent) &&
-        $getEvent->numRows() > 0 &&
-        !false == ($row = $getEvent->fetchRow())
-      ) {
-        $this->setProperty("calID", $row["calID"]);
-        $this->setProperty("publishDate", $row["publishDate"]);
-        $this->setProperty(
-          "username",
-          CAT_Users::getInstance()->get_user_details(
-            $info["userID"],
-            "username"
-          )
-        );
-        $this->setProperty(
-          "display_name",
-          CAT_Users::getInstance()->get_user_details(
-            $info["userID"],
-            "display_name"
-          )
-        );
-        $this->setProperty("kind", $row["kind"]);
-        $this->setProperty("start", $row["start"]);
-        $this->setProperty("end", $row["end"]);
-        $this->setProperty("timestamp", $row["timestamp"]);
-        $this->setProperty("eventURL", $row["eventURL"]);
-        $this->setProperty("UID", $row["UID"]);
-        $this->setProperty("publish", $row["publish"]);
-        $this->setProperty("allday", $row["allday"]);
-        $this->setProperty("modified", $row["modified"]);
-        $this->setProperty("createdID", $row["userID"]);
-        $this->setProperty("publishDate", $row["publishDate"]);
-        $this->setProperty("unpublishDate", $row["unpublishDate"]);
-        $this->setProperty("publishTime", $row["publishTime"]);
-        $this->setProperty("unpublishTime", $row["unpublishTime"]);
-        $this->setProperty("modifiedID", $row["userID"]);
-      }
-      if ($returnArray) {
-        return $this->createReturnArray();
-      } else {
-        return $this;
-      }
-    }
-
-    /**
-     * create the array for callback if needed
-     *
-     * @access private
-     * @return array
-     *
-     **/
-    private function createReturnArray()
-    {
-      return [
-        "calID" => $this->getProperty("calID"),
-        "location" => $this->getProperty("location"),
-        "title" => $this->getProperty("title"),
-        "description" => $this->getProperty("description"),
-        "kind" => $this->getProperty("kind"),
-        "start_date" => $this->getDateTimeInput("start"),
-        "start_day" => $this->getDateTimeInput("start", "%d"),
-        "start_time" => $this->getDateTimeInput("start", "%H:%M"),
-        "end_date" => $this->getDateTimeInput("end"),
-        "end_day" => $this->getDateTimeInput("end", "%d"),
-        "end_time" => $this->getDateTimeInput("end", "%H:%M"),
-        "timestamp" => $this->getProperty("timestamp"),
-        "eventURL" => $this->getProperty("eventURL"),
-        "UID" => $this->getProperty("UID"),
-        "publish" => $this->getProperty("publish"),
-        "allday" => $this->getProperty("allday"),
-        "timestampDate" => $this->getDateTimeInput("timestamp", "%d.%m.%Y"),
-        "timestampTime" => $this->getDateTimeInput("timestamp", "%H:%M"),
-        "modifiedDate" => $this->getDateTimeInput("modified"),
-        "modifiedTime" => $this->getDateTimeInput("modified", "%H:%M"),
-        "publishDate" => $this->getProperty("publishDate"),
-        "unpublishDate" => $this->getProperty("unpublishDate"),
-        "publishTime" => $this->getProperty("publishTime"),
-        "unpublishTime" => $this->getProperty("unpublishTime"),
-        "createdID" => CAT_Users::get_user_details(
-          $this->getProperty("createdID"),
-          "display_name"
-        ),
-        "modifiedID" => CAT_Users::get_user_details(
-          $this->getProperty("modifiedID"),
-          "display_name"
-        ),
-      ];
-    }
 
     /**
      * @param void $name
@@ -428,7 +319,7 @@ if (!class_exists("blackNewsEntry", false)) {
           "( `entryID`, `title`, `content`, `text`, `seoURL`, `publishDate`, `unpublishDate`, `userID` ) VALUES " .
           "( :entryID, :title, :content, :text, :seoURL, :pD, :upD, :userID ) " .
           "ON DUPLICATE KEY UPDATE " .
-          "`title` = :title, `content` = :content, `text` = :text, `seoURL` = :seoURL, `publishDate` = :pD, `unpublishDate` = :upD, `userID` = :userID",
+          "`title` = :title, `content` = :content, `text` = :text, `seoURL` = :seoURL, `modified` = CURRENT_TIMESTAMP, `publishDate` = :pD, `unpublishDate` = :upD, `userID` = :userID",
         [
           "entryID" => $this->getEntryID(),
           "title" => $this->info["title"],
@@ -701,6 +592,8 @@ if (!class_exists("blackNewsEntry", false)) {
         return [
           "message" => "Eintrag angelegt",
           "html" => $entryObj->getHTML("entryList"),
+          "values" => $entryObj->getEntryInfo(),
+          "image" => $entryObj->getImage(),
           "entryID" => $entryID,
           "success" => true,
         ];
@@ -725,7 +618,8 @@ if (!class_exists("blackNewsEntry", false)) {
       }
       return [
         "message" => "Eintrag gespeichert",
-        "values" => $this->info,
+        "image" => $this->getImage(),
+        "values" => $this->getEntryInfo(),
         "entryID" => $this->getEntryID(),
         "success" => true,
       ];

@@ -38,16 +38,18 @@
 
 	<h3>{translate("General options")}</h3>
     <hr>
-	<p>
+{*	<p>
 		<label for="permalink_{$section_id}" class="bcLabel">{translate("Permalink")}:</label>
 		<input id="permalink_{$section_id}" type="text" name="permalink" value="{if $options.permalink}{$options.permalink}{/if}">
 	</p>
+    <hr>*}
 <p>
     <label for="mainTitle_{$section_id}" class="bcLabel">{translate("Title")}:</label>
     <input id="mainTitle_{$section_id}" type="text" name="title" value="{if $options.title}{$options.title}{/if}"><br>
     <label for="mainSubTitle_{$section_id}" class="bcLabel">{translate("Subtitle")}:</label>
     <input id="mainSubTitle_{$section_id}" type="text" name="subtitle" value="{if $options.subtitle}{$options.subtitle}{/if}">
 </p>
+<hr>
 	<p>
 		<label for="usergroup_{$section_id}" class="bcLabel">{translate("Usergroup of editors")}:</label>
 		<select id="usergroup_{$section_id}" name="usergroup">
@@ -58,4 +60,8 @@
 	</p>
 
 	<button name="save" class="fc_gradient_blue fc_gradient_hover" id="saveOption_{$section_id}">{translate("Save options")}</button>
+    
+    <hr>
+    <small>{translate("The content of the .htaccess is generated automatically. Please copy this content into the .htaccess of your root directory.")}</small>
+    <textarea placeholder="{translate("The content of the .htaccess is generated automatically.")}" id="bc_htaccess_{$section_id}" style="width:100%">{if $htaccess}{$htaccess}{/if}</textarea>
 </form>
