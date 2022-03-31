@@ -247,7 +247,8 @@ if (!class_exists("blackNews", false)) {
     public function getOverview(
       bool $addOpt = false,
       int $start = 0,
-      int $limit = 0
+      int $limit = 0,
+      bool $frontend = false
     ): array {
       $catID = $this->getOption("category") ? $this->getOption("category") : 0;
 
@@ -273,6 +274,11 @@ if (!class_exists("blackNews", false)) {
             "ON cat.`catID` = catE.`catID` " .
             "WHERE catE.`catID` = :catID " .
             "AND nE.`section_id` = :section_id " .
+            ($frontend
+              ? "AND ((nE.`publishDate` < CURRENT_TIMESTAMP OR nE.`publishDate` IS NULL) " .
+                "AND (nE.`unpublishDate` > CURRENT_TIMESTAMP OR nE.`unpublishDate` IS NULL)) " .
+                "AND publish IS NOT NULL "
+              : "") .
             "ORDER BY nE.`position` DESC, nE.`publishDate` DESC" .
             $between,
           [
@@ -282,7 +288,7 @@ if (!class_exists("blackNews", false)) {
         );
       } else {
         $result = self::$db->query(
-          "SELECT nE.`entryID`, nE.`section_id`, `title`, `content`, `text`, `modified`, `created`, `userID`, `seoURL`, `position`, `publish`, `category`, `url`, " .
+          "SELECT CURRENT_TIMESTAMP , nE.`entryID`, nE.`section_id`, `title`, `content`, `text`, `modified`, `created`, `userID`, `seoURL`, `position`, `publish`, `category`, `url`, " .
             'DATE_FORMAT(nE.`publishDate`, "%Y-%m-%d") AS publishDate, ' .
             'DATE_FORMAT(nE.`publishDate`, "%H:%i") AS publishTime, ' .
             'DATE_FORMAT(nE.`unpublishDate`, "%Y-%m-%d") AS unpublishDate, ' .
@@ -292,6 +298,11 @@ if (!class_exists("blackNews", false)) {
             "LEFT JOIN `:prefix:mod_blackNewsCategoryEntries` catE ON nE.`entryID` = catE.`entryID`" .
             "LEFT JOIN `:prefix:mod_blackNewsCategory` C ON catE.catID = C.catID " .
             "WHERE nE.`section_id` = :section_id " .
+            ($frontend
+              ? "AND ((nE.`publishDate` < CURRENT_TIMESTAMP OR nE.`publishDate` IS NULL) " .
+                "AND (nE.`unpublishDate` > CURRENT_TIMESTAMP OR nE.`unpublishDate` IS NULL)) " .
+                "AND publish IS NOT NULL "
+              : "") .
             "ORDER BY nE.`position` DESC, nE.`publishDate` DESC" .
             $between,
           [
@@ -326,7 +337,6 @@ if (!class_exists("blackNews", false)) {
           }
         }
       }
-
       return $entries;
     }
 
@@ -545,35 +555,29 @@ if (!class_exists("blackNews", false)) {
     /**
      *
      */
-    public static function add()
+    public static function add(): bool
     {
       // Add a new blackNews
-      return true;
+      global $section_id;
+      global $page_id;
       if (
         self::$db->query(
-          "INSERT INTO `:prefix:mod_blackNews` " .
-            "( `section_id` ) VALUES " .
-            "( :section_id )",
+          "INSERT INTO `:prefix:mod_blackNewsOptions` " .
+            "( `section_id`, `name`, `value` ) VALUES " .
+            '( :section_id, "variant", "default" ),
+            ( :section_id, "permalink", :page_link )',
           [
-            "section_id" => $this->section_id,
+            "section_id" => $section_id,
+            "page_link" => trim(
+              CAT_Helper_Page::properties($page_id, "link"),
+              "/"
+            ),
           ]
         )
       ) {
-        #self::$bnID	= self::$db->lastInsertId();
-        if (
-          self::$db->query(
-            "INSERT INTO `:prefix:mod_blackNewsOptions` " .
-              "( `section_id`, `name`, `value` ) VALUES " .
-              '( :section_id, "variant", "default" )',
-            [
-              "section_id" => $this->section_id,
-            ]
-          )
-        ) {
-          return $this;
-        }
+        return true;
       } else {
-        return null;
+        return false;
       }
     }
 
@@ -704,7 +708,11 @@ if (!class_exists("blackNews", false)) {
 
       if (self::checkOverview($rUrl) || self::checkCategory()) {
         $this->setParserValue("category", $this->getOption("category"), true);
-        $this->setParserValue("entries", $this->getOverview(true), true);
+        $this->setParserValue(
+          "entries",
+          $this->getOverview(true, 0, 0, true),
+          true
+        );
         $this->template = "view";
       } else {
         // $getEntry = new blackNewsEntry($entry["entryID"]);
@@ -1184,6 +1192,7 @@ if (!class_exists("blackNews", false)) {
       }
       return $id ? true : false;
     }
+
     /**
      *
      */

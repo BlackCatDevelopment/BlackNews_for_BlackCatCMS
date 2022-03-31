@@ -57,6 +57,7 @@ if (defined("CAT_PATH")) {
 // end include class.secure.php
 
 $LANG = [
+  "Post" => "Eintrag",
   "Add entry" => "Neuer Eintrag",
   "Additional information" => "Weitere Informationen",
   "Automatic publish" => "Automatisches Ver&ouml;ffentlichen",
@@ -107,5 +108,7 @@ $LANG = [
   "No category" => "Keine Kategorie",
   "Entry" => "Eintrag",
   "Select user" => "Benutzer w&auml;hlen:",
+  "<strong>Hint:</strong> The post is optionally displayed in the specified period if it was switched online using the button at the top right." =>
+    "<strong>Hinweis:</strong> Der Beitrag wird optional im angegebenen Zeitraum angezeigt, wenn er über den Button oben rechts online geschalten wurde.",
 ];
 ?>

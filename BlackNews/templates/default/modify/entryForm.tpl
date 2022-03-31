@@ -13,15 +13,17 @@
 
 *}
 
-<h2>{translate("Entry")}</h2>
+<h2>{translate("Post")}</h2>
 <input type="hidden" name="page_id" value="{$page_id}">
 <input type="hidden" name="section_id" value="{$section_id}">
-<input type="hidden" name="saveFields" value="title,text|seoURL,text|wysiwyg_{$section_id},wysiwyg|publishDate,date|unpublishDate,date|userID,select">
+<input type="hidden" name="saveFields" value="title,text|seoURL,text|wysiwyg_{$section_id},wysiwyg|publishDate,date|unpublishDate,date|publishTime,time|unpublishTime,time|userID,select">
 <input type="hidden" name="saveOptions" value="catGallery,select{*schulart,select|type,select|subject,text|start,text|end,text|price,text|formularTitle,text|formularDisclaimer,text|formularMailTitelKunde,text|formularMailTitelAnbieter,text|formularPartner,text|linkedPDF,text*}">
 <span class="bcLabel">{translate("Title")}:</span><input type="text" name="title" value="{if $entry.title}{$entry.title}{/if}"><br>
-<span class="bcLabel">URL:</span><input type="text" name="seoURL" value="{if $entry.seoURL}{$entry.seoURL}{/if}" placeholder="{translate("Will be set automatically on first save")}"><br>
-<span class="bcLabel">{translate("Publish on")}:</span><input type="date" name="publishDate" value="{if $entry.publishDate}{$entry.publishDate}{/if}" placeholder="Format: dd.mm.yyyy"><br>
-<span class="bcLabel">{translate("Publish until")}:</span><input type="date" name="unpublishDate" value="{if $entry.unpublishDate}{$entry.unpublishDate}{/if}" placeholder="Format: dd.mm.yyyy"><br>
+<span class="bcLabel">URL:</span><input type="text" name="seoURL" value="{if $entry.seoURL}{$entry.seoURL}{/if}" placeholder="{translate("Will be set automatically on first save")}">
+<hr>
+<p><small>{translate("<strong>Hint:</strong> The post is optionally displayed in the specified period if it was switched online using the button at the top right.")}</small></p>
+<span class="bcLabel">{translate("Publish on")}:</span><input type="date" name="publishDate" value="{if $entry.publishDate}{$entry.publishDate}{/if}" placeholder="Format: dd.mm.yyyy"><input type="time" name="publishTime" value="{if $entry.publishTime}{$entry.publishTime}{/if}" placeholder="Format: hh.mm"><br>
+<span class="bcLabel">{translate("Publish until")}:</span><input type="date" name="unpublishDate" value="{if $entry.unpublishDate}{$entry.unpublishDate}{/if}" placeholder="Format: dd.mm.yyyy" ><input type="time" name="unpublishTime" value="{if $entry.unpublishTime}{$entry.unpublishTime}{/if}" placeholder="Format: hh.mm"><br>
 <hr>
 <div id="bN_dropzone_{$section_id}" class="bN_dropzone fc_br_all">
 	{translate('Drag &amp; drop')}<span>{translate("your image here or click to upload")}.</span>

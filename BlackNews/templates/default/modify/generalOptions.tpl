@@ -40,13 +40,13 @@
     <hr>
 	<p>
 		<label for="permalink_{$section_id}" class="bcLabel">{translate("Permalink")}:</label>
-		<input id="permalink_{$section_id}" type="text" name="permalink" value="{$options.permalink}">
+		<input id="permalink_{$section_id}" type="text" name="permalink" value="{if $options.permalink}{$options.permalink}{/if}">
 	</p>
 <p>
     <label for="mainTitle_{$section_id}" class="bcLabel">{translate("Title")}:</label>
-    <input id="mainTitle_{$section_id}" type="text" name="title" value="{$options.title}"><br>
+    <input id="mainTitle_{$section_id}" type="text" name="title" value="{if $options.title}{$options.title}{/if}"><br>
     <label for="mainSubTitle_{$section_id}" class="bcLabel">{translate("Subtitle")}:</label>
-    <input id="mainSubTitle_{$section_id}" type="text" name="subtitle" value="{$options.subtitle}">
+    <input id="mainSubTitle_{$section_id}" type="text" name="subtitle" value="{if $options.subtitle}{$options.subtitle}{/if}">
 </p>
 	<p>
 		<label for="usergroup_{$section_id}" class="bcLabel">{translate("Usergroup of editors")}:</label>

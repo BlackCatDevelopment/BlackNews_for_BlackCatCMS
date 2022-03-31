@@ -114,6 +114,18 @@ function setValue($el, wID, standard, options) {
                   $temp.val(values[field[0]] ? values[field[0]] : "");
                 }
                 break;
+              case "time":
+                var $temp = $el.find("[name=" + field[0] + "]");
+                // Check whether the browser supports input with type date - otherwise fallback to datepicker
+                if ($temp.get(0).type != "time") {
+                  $temp.datepicker(
+                    "setTime",
+                    values[field[0]] ? new Date(values[field[0]]) : null
+                  );
+                } else {
+                  $temp.val(values[field[0]] ? values[field[0]] : "");
+                }
+                break;
               default:
                 $el
                   .find("[name=" + field[0] + "]")
@@ -339,10 +351,12 @@ $(document).ready(function () {
           },
           cache: false,
           beforeSend: function (data) {
+            console.log(data);
             // Set activity and store in a variable to use it later
             data.process = set_activity(process);
           },
           success: function (data, textStatus, jqXHR) {
+            console.log(data, textStatus, jqXHR);
             if (data.success === true) {
               return_success(jqXHR.process, data.message);
               if (action == "addField") {
@@ -382,10 +396,12 @@ $(document).ready(function () {
           },
           cache: false,
           beforeSend: function (data) {
+            console.log(data);
             // Set activity and store in a variable to use it later
             data.process = set_activity("Saving entry");
           },
           success: function (data, textStatus, jqXHR) {
+            console.log(data, textStatus, jqXHR);
             if (data.success === true) {
               return_success(jqXHR.process, data.message);
               $sBar

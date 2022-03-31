@@ -119,6 +119,9 @@
   display: inline-block;
   width: calc(100% - 250px);
 }
+.bc_Main small {
+  font-size: 0.9em;
+}
 .bc_MainButtons {
   text-align: right;
   border-bottom: 1px solid #9da8b2;
@@ -149,6 +152,12 @@
 .bc_Form select {
   width: calc(100% - 15em);
   vertical-align: top;
+}
+.bc_Form input[type="date"] {
+  width: 150px;
+}
+.bc_Form input[type="time"] {
+  width: 100px;
 }
 .bc_Form textarea {
   height: 10em;

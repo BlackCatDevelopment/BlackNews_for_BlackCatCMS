@@ -249,7 +249,11 @@ if (!class_exists("blackNewsEntry", false)) {
       #	$this->info['publishDate']		= $this->info['publishDate'] != '' ? self::getDateTimeInput('publishDate') : '';
       #	$this->info['unpublishDate']	= $this->info['unpublishDate'] != '' ? self::getDateTimeInput('unpublishDate') : '';
 
-      return $name ? $this->info[$name] : $this->info;
+      return $name
+        ? (isset($this->info[$name])
+          ? $this->info[$name]
+          : "")
+        : $this->info;
     }
     /**
      * Fill the object with the values of an event from database
@@ -431,30 +435,46 @@ if (!class_exists("blackNewsEntry", false)) {
           "content" => $this->info["wysiwyg"],
           "text" => strip_tags($this->info["wysiwyg"]),
           "seoURL" => $this->info["seoURL"],
-          "pD" => date(
-            "Y-m-d H:i:s",
-            strtotime(
-              (isset($this->info["publishDate"])
-                ? $this->info["publishDate"]
-                : "") .
-                " " .
-                (isset($this->info["publishTime"])
-                  ? $this->info["publishTime"]
-                  : "")
-            )
-          ),
-          "upD" => date(
-            "Y-m-d H:i:s",
-            strtotime(
-              (isset($this->info["unpublishDate"])
-                ? $this->info["unpublishDate"]
-                : "") .
-                " " .
-                (isset($this->info["unpublishTime"])
-                  ? $this->info["unpublishTime"]
-                  : "")
-            )
-          ),
+          "pD" =>
+            (isset($this->info["publishDate"]) &&
+              $this->info["publishDate"] != "") ||
+            (isset($this->info["publishTime"]) &&
+              $this->info["publishTime"] != "")
+              ? date(
+                "Y-m-d H:i:s",
+                strtotime(
+                  (isset($this->info["publishDate"]) &&
+                  $this->info["publishDate"] != ""
+                    ? $this->info["publishDate"]
+                    : "") .
+                    " " .
+                    (isset($this->info["publishTime"]) &&
+                    $this->info["publishTime"] != ""
+                      ? $this->info["publishTime"]
+                      : "00:00")
+                )
+              )
+              : null,
+          "upD" =>
+            (isset($this->info["unpublishDate"]) &&
+              $this->info["unpublishDate"] != "") ||
+            (isset($this->info["unpublishTime"]) &&
+              $this->info["unpublishTime"] != "")
+              ? date(
+                "Y-m-d H:i:s",
+                strtotime(
+                  (isset($this->info["unpublishDate"]) &&
+                  $this->info["unpublishDate"] != ""
+                    ? $this->info["unpublishDate"]
+                    : "") .
+                    " " .
+                    (isset($this->info["unpublishTime"]) &&
+                    $this->info["unpublishTime"] != ""
+                      ? $this->info["unpublishTime"]
+                      : "00:00")
+                )
+              )
+              : null,
           "userID" => isset($this->info["userID"])
             ? $this->info["userID"]
             : null,
