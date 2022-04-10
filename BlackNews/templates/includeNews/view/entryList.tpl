@@ -17,16 +17,16 @@
 	<figure>
 		{if $entry.image}<div style="background-image: url('{$entry.image}');">
 			<img src="{$entry.image}" class="incNews_mImage" alt="{$entry.title}">
-			{$class=$entry.url}<span class="bN_author {$catIcons.$class}" title="{$entry.category}"></span>
+			{assign var=class value=$entry.url}<span class="bN_author {$catIcons.$class}" title="{$entry.category}"></span>
 		</div>{/if}
 		<figcaption>
 			<h3>{$entry.title}</h3>
 			{truncateHTML($entry.text,250," ...")}
 			<aside>
-				<a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" class="ics-coffee">weiterlesen ...</a>
+				<a href="{cat_url}/{$permalink}/{$entry.seoURL}/" class="ics-coffee">weiterlesen ...</a>
 				<span class="ics-calendar">{format_date(strtotime($entry.publishDate))}</span>
 			</aside>
-			<a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" title="{str_replace('"','',$entry.title)}" class="incNews_fullLink"></a>
+			<a href="{cat_url}/{$permalink}/{$entry.seoURL}/" title="{str_replace('"','',$entry.title)}" class="incNews_fullLink"></a>
 		</figcaption>
 	</figure>
 </article>

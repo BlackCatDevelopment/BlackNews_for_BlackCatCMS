@@ -98,7 +98,7 @@ if (!class_exists("blackNewsEntry", false)) {
     /**
      * @param void
      */
-    public static function getEntryByURL($seoURL = null)
+    public static function getEntryByURL($seoURL = null, bool $getObject = true)
     {
       if (!$seoURL) {
         return false;
@@ -107,14 +107,18 @@ if (!class_exists("blackNewsEntry", false)) {
       $entryID = self::$db
         ->query(
           'SELECT `entryID` FROM `:prefix:mod_blackNewsEntry`
-					WHERE `seoURL` = :seoURL',
+          WHERE `seoURL` = :seoURL',
           [
             "seoURL" => $seoURL,
           ]
         )
         ->fetchColumn();
-      $returnEntry = new self($entryID);
-      return $returnEntry->getEntry();
+      if ($getObject) {
+        $returnEntry = new self($entryID);
+        return $returnEntry->getEntry();
+      } else {
+        return $entryID;
+      }
     } // end getEntryByURL()
 
     /**
@@ -234,6 +238,7 @@ if (!class_exists("blackNewsEntry", false)) {
         !false == ($row = $getEntry->fetchRow())
       ) {
         $this->info = $row;
+        $this->info["seoURLencode"] = urlencode($this->info["seoURL"]);
         $this->info["username"] = CAT_Users::getInstance()->get_user_details(
           $this->info["userID"],
           "username"
@@ -981,8 +986,8 @@ if (!class_exists("blackNewsEntry", false)) {
       }
 
       /*				'INSERT INTO `:prefix:mod_blacknews_content`
-						(`page_id`, `section_id`, `news_id`, `title`, `subtitle`, `auto_generate_size`, `auto_generate` , `content`, `short`)
-						VALUES (:page_id, :section_id, :news_id, :title, :subtitle, :auto_generate_size, :auto_generate, :content, :short )';*/
+            (`page_id`, `section_id`, `news_id`, `title`, `subtitle`, `auto_generate_size`, `auto_generate` , `content`, `short`)
+            VALUES (:page_id, :section_id, :news_id, :title, :subtitle, :auto_generate_size, :auto_generate, :content, :short )';*/
     }
   }
 }

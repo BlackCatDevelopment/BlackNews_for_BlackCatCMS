@@ -422,13 +422,14 @@ if (!class_exists("blackNews", false)) {
       $secs = $this->getAllNewsSections();
       foreach ($secs as $k => $v) {
         if (in_array($v["link"], $urls)) {
-          return -(int) $v["page_id"];
+          $this->setParserValue("refererIsCategory", true);
+          return (int) $v["page_id"];
         }
       }
       return 0;
     }
 
-    public function getPermalink(): string
+    public function getPermalink(int $secID = null): string
     {
       $result = self::$db
         ->query(
@@ -437,7 +438,7 @@ if (!class_exists("blackNews", false)) {
             "ON s.`page_id` = p.`page_id` " .
             "WHERE s.`section_id` = :secID AND `module` = :dir",
           [
-            "secID" => $this->section_id,
+            "secID" => $secID ? $secID : $this->section_id,
             "dir" => static::$directory,
           ]
         )
@@ -707,7 +708,7 @@ if (!class_exists("blackNews", false)) {
 
       // Reset parserValues
       $this->initSetParserValue();
-
+      $this->setParserValue("isRoot", CAT_Users::is_root());
       $this->getRoute(PAGES_DIRECTORY);
 
       self::checkRedirect();
@@ -723,6 +724,16 @@ if (!class_exists("blackNews", false)) {
       // Check if user came from CategoryPage
       $this->setParserValue("referer", $this->getReferer(), true);
 
+      $this->setParserValue(
+        "permalink",
+        $this->getPermalink(
+          isset($this->parserValues["options"]["setNews"]) &&
+          $this->parserValues["options"]["setNews"] > 0
+            ? $this->parserValues["options"]["setNews"]
+            : null
+        )
+      );
+
       if (self::checkOverview($rUrl) || self::checkCategory()) {
         $this->setParserValue("category", $this->getOption("category"), true);
         $this->setParserValue(
@@ -733,7 +744,6 @@ if (!class_exists("blackNews", false)) {
         $this->template = "view";
       } else {
         // $getEntry = new blackNewsEntry($entry["entryID"]);
-
         $this->setParserValue("entry", $this->getEntry());
         $this->template = "viewEntry";
       }
@@ -1192,25 +1202,25 @@ if (!class_exists("blackNews", false)) {
     /**
      *
      */
-    public static function checkNewsInSection($pageID): bool
+    public static function checkNewsInSection(int $pageID): bool
     {
       $result = self::$db->query(
         "SELECT `entryID` " .
-          "FROM `:prefix:mod_blackNewsEntry`, `:prefix:sections` " .
-          "WHERE `:prefix:sections`.`page_id` = :page_id " .
-          'AND `:prefix:sections`.`module`="blacknews" ' .
-          "AND `:prefix:sections`.`section_id` = `:prefix:mod_blackNewsEntry`.`section_id`",
+          "FROM `:prefix:mod_blackNewsEntry` bn, `:prefix:sections` sec " .
+          "WHERE sec.`page_id` = :page_id " .
+          'AND sec.`module`="blacknews" ' .
+          "AND sec.`section_id` = bn.`section_id`",
         [
           "page_id" => $pageID,
         ]
       );
-      $id = false;
+      $id = [];
       if ($result && $result->rowCount() > 0) {
         while (false !== ($option = $result->fetch())) {
-          $id = $option["entryID"];
+          $id[] = $option["entryID"];
         }
       }
-      return $id ? true : false;
+      return count($id) > 0 ? true : false;
     }
 
     /**

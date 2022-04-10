@@ -41,8 +41,8 @@
         </figcaption>
     </figure>
     <article class="c_1080">
-            {$entry.content}
-        <p><br><a class="button {if $referer>0}{$catIcons.$class}{else}icon-arrow-left{/if}" href="{if $referer>0}{cat_url}/{$options.permalink}/{$entry.category.0.url}{elseif $referer<0}{cmsplink(-$referer)}{else}{cat_url}/{$options.permalink}{/if}"> Zur&uuml;ck zu{if $referer>0} {$entry.category.0.category}{elseif $referer<0} {*menutitle(-$referer)*}{else}r &Uuml;bersicht{/if}</a></p>
+        {$entry.content}
+        <p><br><a class="button {if $referer&&!$refererIsCategory}{$catIcons.$class}{else}icon-arrow-left{/if}" href="{if $referer>0}{cat_url}/{$options.permalink}/{$entry.category.0.url}{elseif $referer<0}{*cmsplink(-$referer)*}{else}{cat_url}/{$options.permalink}{/if}"> Zur&uuml;ck zu{if $referer&&!$refererIsCategory} {$entry.category.0.category}{elseif $referer&&$refererIsCategory} {menutitle($referer)}{else}r &Uuml;bersicht{/if}</a></p>
         {$gallery}
     </article>
 </section>

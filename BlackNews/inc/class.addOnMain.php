@@ -649,6 +649,7 @@ if (!class_exists("addOnMain", false)) {
         "CAT_ADMIN_URL" => CAT_ADMIN_URL,
         "CAT_PATH" => CAT_PATH,
         "CAT_URL" => CAT_URL,
+        "fullUrl" => CAT_Helper_Validate::getURI(CAT_URL),
         "version" => CAT_Helper_Addons::getModuleVersion(static::$directory),
         "allVariants" => self::getAllVariants(),
         "page_id" => $this->page_id,
