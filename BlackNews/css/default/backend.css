@@ -30,21 +30,22 @@
  */
 
 @font-face {
-  font-family: "blackNews";
-  src: url("fonts/blackNews.eot?m5rbgl");
-  src: url("fonts/blackNews.eot?m5rbgl#iefix") format("embedded-opentype"),
-    url("fonts/blackNews.ttf?m5rbgl") format("truetype"),
-    url("fonts/blackNews.woff?m5rbgl") format("woff"),
-    url("fonts/blackNews.svg?m5rbgl#blackNews") format("svg");
+  font-family: "blacknews";
+  src: url("fonts/blacknews.eot?p6b53x");
+  src: url("fonts/blacknews.eot?p6b53x#iefix") format("embedded-opentype"),
+    url("fonts/blacknews.ttf?p6b53x") format("truetype"),
+    url("fonts/blacknews.woff?p6b53x") format("woff"),
+    url("fonts/blacknews.svg?p6b53x#blacknews") format("svg");
   font-weight: normal;
   font-style: normal;
+  font-display: block;
 }
 
-[class^="bc_icon-"]:before,
-[class*=" bc_icon-"]:before {
+[class^="bN-icon-"]::before,
+[class*=" bN-icon-"]::before {
   /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: "blackNews" !important;
-  speak: none;
+  font-family: "blacknews" !important;
+  speak: never;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
@@ -56,16 +57,155 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.bc_icon-published:before {
-  color: #de0446;
-  content: "\e91d";
+.bN-icon-blacknews:before {
+  content: "\e900";
 }
-.bc_icon-published.published:before {
+.bN-icon-catgallery .path1:before {
+  content: "\e901";
+  color: rgb(242, 243, 244);
+}
+.bN-icon-catgallery .path2:before {
+  content: "\e902";
+  margin-left: -1em;
+  color: none;
+}
+.bN-icon-catgallery .path3:before {
+  content: "\e903";
+  margin-left: -1em;
+  color: rgb(216, 30, 0);
+  opacity: 0.6005;
+}
+.bN-icon-catgallery .path4:before {
+  content: "\e904";
+  margin-left: -1em;
+  color: rgb(56, 213, 255);
+  opacity: 0.6005;
+}
+.bN-icon-catgallery .path5:before {
+  content: "\e905";
+  margin-left: -1em;
+  color: rgb(213, 210, 0);
+  opacity: 0.6005;
+}
+.bN-icon-catgallery .path6:before {
+  content: "\e906";
+  margin-left: -1em;
+  color: rgb(171, 31, 121);
+  opacity: 0.6005;
+}
+.bN-icon-catgallery .path7:before {
+  content: "\e907";
+  margin-left: -1em;
+  color: rgb(255, 124, 0);
+  opacity: 0.6005;
+}
+.bN-icon-catgallery .path8:before {
+  content: "\e908";
+  margin-left: -1em;
+  color: rgb(0, 167, 121);
+  opacity: 0.6005;
+}
+.bN-icon-catgallery .path9:before {
+  content: "\e909";
+  margin-left: -1em;
+  color: rgb(42, 52, 63);
+  opacity: 0.7762;
+}
+.bN-icon-letima:before {
+  content: "\e90a";
+}
+.bN-icon-quill:before {
+  content: "\e919";
+}
+.bN-icon-images:before {
+  content: "\e940";
+}
+.bN-icon-new:before {
+  content: "\e97b";
+}
+.bN-icon-feed:before {
+  content: "\e986";
+}
+.bN-icon-book:before {
+  content: "\e990";
+}
+.bN-icon-file-plus:before {
+  content: "\e9a2";
+}
+.bN-icon-tag:before {
+  content: "\e9ee";
+}
+.bN-icon-tags:before {
+  content: "\e9ef";
+}
+.bN-icon-mail:before {
+  content: "\ea31";
+}
+.bN-icon-clock:before {
+  content: "\ea4f";
+}
+.bN-icon-calendar:before {
+  content: "\ea5f";
+}
+.bN-icon-user:before {
+  content: "\eaf7";
+}
+.bN-icon-users:before {
+  content: "\eaf8";
+}
+.bN-icon-coffee:before {
+  content: "\ebc9";
+}
+.bN-icon-addon:before {
+  content: "\ec21";
+}
+.bN-icon-arrow-up:before {
+  content: "\edba";
+}
+.bN-icon-arrow-right:before {
+  content: "\edbe";
+}
+.bN-icon-arrow-down:before {
+  content: "\edc2";
+}
+.bN-icon-arrow-left:before {
+  content: "\edc6";
+}
+.bN-icon-share:before {
+  content: "\eee0";
+}
+.bN-icon-facebook:before {
+  content: "\eeef";
+}
+.bN-icon-twitter:before {
+  content: "\eef5";
+}
+.bN-icon-rss:before {
+  content: "\eefa";
+}
+.bN-icon-github:before {
+  content: "\ef0f";
+}
+.bN-icon-tumblr:before {
+  content: "\ef18";
+}
+.bN-icon-linkedin:before {
+  content: "\ef29";
+}
+.bN-icon-pinterest:before {
+  content: "\ef31";
+}
+.bN-icon-xing:before {
+  content: "\ef33";
+}
+
+.bN-icon-feed:before {
+  color: #de0446;
+}
+.bN-icon-feed.published:before {
   color: #4fc200;
 }
-.bc_icon-seourl:before {
-  content: "\e9cb";
-}
+
 .bn_optionForm hr,
 .blackNews hr {
   border-top: 1px solid rgba(177, 190, 199, 1);
@@ -163,20 +303,20 @@
   height: 10em;
 }
 
-.bc_icon-pubAct {
+.bN-icon-pubAct {
   color: #409e00;
 }
 
-.bc_icon-pubInAct {
+.bN-icon-pubInAct {
   color: #de0446;
 }
 
-.bc_icon-pubInAct,
-.published .bc_icon-pubAct {
+.bN-icon-pubInAct,
+.published .bN-icon-pubAct {
   display: inline-block;
 }
-.published .bc_icon-pubInAct,
-.bc_icon-pubAct {
+.published .bN-icon-pubInAct,
+.bN-icon-pubAct {
   display: none;
 }
 
@@ -285,7 +425,7 @@
 .bn_FormularInput {
   background: rgba(228, 228, 228, 1);
 }
-.bc_icon-FieldDD::before {
+.bN-icon-FieldDD::before {
   color: #de0446;
   content: "\e91d";
 }

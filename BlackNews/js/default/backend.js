@@ -41,9 +41,9 @@ if (typeof bN_PU !== "function") {
 }
 
 function setInformation($f, user, crea, mod) {
-  $f.children(".icon-user").text(" " + user);
-  $f.children(".icon-calendar").text(" " + crea);
-  $f.children(".icon-modify").text(" " + mod);
+  $f.children(".bNfooterUser").text(" " + user);
+  $f.children(".bNfooterCreated").text(" " + crea);
+  $f.children(".bNfooterModify").text(" " + mod);
 }
 
 function resetForm($Form) {
@@ -595,7 +595,7 @@ $(document).ready(function () {
                   "src",
                   data.image
                     ? data.image + "?" + Math.floor(Math.random() * 10000)
-                    : "/"
+                    : ""
                 );
                 $Form.data("entryid", getEntryID($(this)));
 
@@ -707,7 +707,7 @@ $(document).ready(function () {
       $table.sortable({
         axis: "y",
         items: "tr:not(.bn_FormularInput)",
-        handle: ".bc_icon-FieldDD",
+        handle: ".bN-icon-FieldDD",
         update: function (event, ui) {
           var $cur = $(this),
             dates = {

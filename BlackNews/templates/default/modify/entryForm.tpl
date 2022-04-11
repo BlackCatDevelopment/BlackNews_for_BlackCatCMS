@@ -22,8 +22,8 @@
 <span class="bcLabel">URL:</span><input type="text" name="seoURL" value="{if $entry.seoURL}{$entry.seoURL}{/if}" placeholder="{translate("Will be set automatically on first save")}">
 <hr>
 <p><small>{translate("<strong>Hint:</strong> The post is optionally displayed in the specified period if it was switched online using the button at the top right.")}</small></p>
-<span class="bcLabel">{translate("Publish on")}:</span><input type="date" name="publishDate" value="{if $entry.publishDate}{$entry.publishDate}{/if}" placeholder="Format: dd.mm.yyyy"><input type="time" name="publishTime" value="{if $entry.publishTime}{$entry.publishTime}{/if}" placeholder="Format: hh.mm"><br>
-<span class="bcLabel">{translate("Publish until")}:</span><input type="date" name="unpublishDate" value="{if $entry.unpublishDate}{$entry.unpublishDate}{/if}" placeholder="Format: dd.mm.yyyy" ><input type="time" name="unpublishTime" value="{if $entry.unpublishTime}{$entry.unpublishTime}{/if}" placeholder="Format: hh.mm"><br>
+<span class="bcLabel bN-icon-calendar"> {translate("Publish on")}:</span><input type="date" name="publishDate" value="{if $entry.publishDate}{$entry.publishDate}{/if}" placeholder="Format: dd.mm.yyyy"><input type="time" name="publishTime" value="{if $entry.publishTime}{$entry.publishTime}{/if}" placeholder="Format: hh.mm"><br>
+<span class="bcLabel bN-icon-calendar"> {translate("Publish until")}:</span><input type="date" name="unpublishDate" value="{if $entry.unpublishDate}{$entry.unpublishDate}{/if}" placeholder="Format: dd.mm.yyyy" ><input type="time" name="unpublishTime" value="{if $entry.unpublishTime}{$entry.unpublishTime}{/if}" placeholder="Format: hh.mm"><br>
 <hr>
 <div id="bN_dropzone_{$section_id}" class="bN_dropzone fc_br_all">
 	{translate('Drag &amp; drop')}<span>{translate("your image here or click to upload")}.</span>
@@ -32,7 +32,7 @@
 <div id="bN_imgs_{$section_id}" class="bN_imgs">
 	<div class="dz-preview dz-processing dz-image-preview">
 		<div class="dz-details">
-			<img data-dz-thumbnail="" alt="Kein Bild bisher hochgeladen" src="" id="bN_previewIMG_{$section_id}">
+			<img data-dz-thumbnail="" alt="{translate("No image uploaded yet")}" src="" id="bN_previewIMG_{$section_id}">
 		</div>
 		<div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress="" style="width: 0%;"></span></div>
 		<div class="dz-success-mark"><span>✔</span></div>
@@ -40,10 +40,10 @@
 		<div class="dz-error-message"><span data-dz-errormessage=""></span></div></div>
 </div>
 <hr>
-<h3 class="bcLabel">{translate("Description")}</h3>
+<h3 class="bcLabel bN-icon-quill"> {translate("Description")}</h3>
 {show_wysiwyg_editor($bc_WYSIWYG.name,$bc_WYSIWYG.name,'')}
 <hr>
-<h3 class="bcLabel">{translate("Category")}</h3>
+<h3 class="bcLabel bN-icon-tags"> {translate("Category")}</h3>
 <p>
 	<select name="category" multiple="multiple" class="cc_In300px category" size="10">
 		<option value="-1">{translate("No category")}</option>
@@ -52,13 +52,13 @@
 		{/foreach}
 	</select>
 </p>
-	<small><strong>Hinweis:</strong> Mehrfachauswahl (Mit gedr&uuml;ckter Taste - Windows: Strg; Mac: cmd/command) m&ouml;glich.<br>Sobald der erste Punkt &quot;Keine Kategorie&quot; gew&auml;hlt wird, werden alle Kategorien gel&ouml;scht!</small>
+	<small>{translate("<strong>Note:</strong> Multiple selection (with pressed key - Windows: Ctrl; Mac: cmd/command) possible.<br>As soon as the first point &quot;No category&quot; is selected, all categories will be deleted!")}</small>
 <hr>
-<h3>Galerie</h3>
-<button class="bc_addGallery fc_gradient1 fc_gradient_hover" name="bc_addGallery">Neue Galerie hinzuf&uuml;gen</button><br><br>
-...oder Galerie ausw&auml;hlen:
+<h3 class="bN-icon-images">  {translate("Gallery")}</h3>
+<button class="bc_addGallery fc_gradient1 fc_gradient_hover" name="bc_addGallery"> {translate("Add new gallery")}</button><br><br>
+...{translate("or select gallery")}:
 <select name="catGallery">
-	<option value="0"{if !$entry.option.catGallery} selected="selected"{/if}>--- Keine gewählt ---</option>
+	<option value="0"{if !$entry.option.catGallery} selected="selected"{/if}>--- {translate("None selected")} ---</option>
 {foreach $galleries ind gal}
 	<option value="{$ind}"{if $entry.option.catGallery == $ind} selected="selected"{/if}>{$gal}</option>
 {/foreach}

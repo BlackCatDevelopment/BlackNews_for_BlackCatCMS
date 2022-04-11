@@ -45,8 +45,8 @@
         {truncateHTML($entry.content,400,' ...')}
         {assign var=class value=$entry.url}<span class="{$catIcons.$class} bN_author" title="{$entry.category}"></span>
         <small>
-          <a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" class="icon-coffee">weiterlesen ...</a>
-          <span class="icon-calendar">{format_date(strtotime($entry.publishDate))}</span>
+          <a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" class="bN-icon-coffee"> {translate("continue reading")} ...</a>
+          <span class="bN-icon-calendar"> {format_date(strtotime($entry.publishDate))}</span>
         </small>
         <a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" title="{str_replace('"','',$entry.title)}"></a>
       </div>
@@ -64,8 +64,8 @@
       <h3>{$entry.title}</h3>
       {truncateHTML($entry.text,250,' ...')}
       <aside>
-        <a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" class="icon-coffee">weiterlesen ...</a>
-        <span class="icon-calendar">{format_date(strtotime($entry.publishDate))}</span>
+        <a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" class="bN-icon-coffee"> {translate("continue reading")} ...</a>
+        <span class="bN-icon-calendar"> {format_date($entry.publishUT)}</span>
       </aside>
       <a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" title="{str_replace('"','',$entry.title)}"  class="incNews_fullLink"></a>
     </figcaption>

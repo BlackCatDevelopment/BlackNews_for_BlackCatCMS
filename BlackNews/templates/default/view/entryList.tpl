@@ -37,9 +37,9 @@
 		<h2>{$entry.title}</h2>
 		{if $entry.short}{$entry.short}{else}<p>{truncateHTML($entry.text,100)}</p>{/if}
 		<aside>
-			<a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" class="icon-book"> <span>weiterlesen...</span></a>
-			<span class="bNDate">{date('d.m.',$entry.publishUT)}</span>
-			<span class="bNYear">{date('y',$entry.publishUT)}</span>
+			<a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" class="bN-icon-coffee"> <span>weiterlesen...</span></a>
+			<span class="bNDate">{if $entry.publishUT}{date('d.m.',$entry.publishUT)}{else}{date('d.m.',$entry.isPublishUT)}{/if}</span>
+			<span class="bNYear">{if $entry.publishUT}{date('y',$entry.publishUT)}{else}{date('y',$entry.isPublishUT)}{/if}</span>
 		</aside>
 		{if $entry.image}</figcaption>
 	</figure>{/if}

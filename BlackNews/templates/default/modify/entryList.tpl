@@ -27,6 +27,6 @@
  *   @package			blackNews
  *
 *}
-<li class="bc_Entries bc_icon-published{if $entry.publish} published{/if}" id="bc_Entry_{$entry.entryID}" data-entryid="{$entry.entryID}">
+<li class="bc_Entries bN-icon-feed{if $entry.publish} published{/if}" id="bc_Entry_{$entry.entryID}" data-entryid="{$entry.entryID}">
 	{$entry.title}
 </li>

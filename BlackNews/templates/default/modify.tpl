@@ -35,7 +35,7 @@
 	{include(modify/set_skin.tpl)}
 	<div class="blackNews fc_br_all">
 		<aside class="bc_sidebar fc_br_left fc_gradient1">
-			<button class="bc_add fc_gradient_blue fc_gradient_hover icon-plus fc_br_topleft"> Eintrag hinzuf&uuml;gen</button>
+			<button class="bc_add fc_gradient_blue fc_gradient_hover bN-icon-file-plus fc_br_topleft"> Eintrag hinzuf&uuml;gen</button>
 			<ul id="blackNewsList_{$section_id}">{foreach $entries entry}{include(modify/entryList.tpl)}{/foreach}</ul>
 		</aside><div class="bc_Main" class="fc_br_right fc_border_all">
 			<form action="{$CAT_URL}/modules/blackNews/save.php" id="bc_Form_{$section_id}" class="bc_Form" method="post" data-entryid="16">
@@ -45,8 +45,8 @@
 				</div>
 				{include(modify/buttons.tpl)}
 			</form>
-			<footer>Erzeugt von: <strong class="icon-user"> {$user}</strong> &bull; Erstellt: <strong class="icon-calendar"> {$created}</strong> &bull; Letzte &Auml;nderung: <strong class="icon-modify"> {$modified}</strong></footer>
+			<footer>Erzeugt von: <strong class="bN-icon-user bNfooterUser"> {$user}</strong> &bull; Erstellt: <strong class="bN-icon-calendar bNfooterCreated"> {$created}</strong> &bull; Letzte &Auml;nderung: <strong class="bN-icon-quill bNfooterModify"> {$modified}</strong></footer>
 		</div>
 	</div>
-	<small class="bcVersion">Modulversion: {$version}</small>
+	<small class="bcVersion bN-icon-blacknews"> Modulversion: {$version}</small>
 </div>

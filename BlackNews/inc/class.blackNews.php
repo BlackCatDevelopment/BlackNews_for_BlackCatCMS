@@ -274,6 +274,9 @@ if (!class_exists("blackNews", false)) {
       if ($catID > 0) {
         $result = self::$db->query(
           "SELECT nE.`entryID`, nE.`section_id`, `title`, `content`, `text`, `modified`, `created`, `userID`, `seoURL`, `position`, `publish`, `category`, `url`, " .
+            'DATE_FORMAT(nE.`publish`, "%Y-%m-%d") AS isPublishDate, ' .
+            'DATE_FORMAT(nE.`publish`, "%H:%i") AS isPublishTime, ' .
+            "UNIX_TIMESTAMP(nE.`publish`) AS isPublishUT, " .
             'DATE_FORMAT(nE.`publishDate`, "%Y-%m-%d") AS publishDate, ' .
             'DATE_FORMAT(nE.`publishDate`, "%H:%i") AS publishTime, ' .
             'DATE_FORMAT(nE.`unpublishDate`, "%Y-%m-%d") AS unpublishDate, ' .
@@ -301,6 +304,9 @@ if (!class_exists("blackNews", false)) {
       } else {
         $result = self::$db->query(
           "SELECT CURRENT_TIMESTAMP , nE.`entryID`, nE.`section_id`, `title`, `content`, `text`, `modified`, `created`, `userID`, `seoURL`, `position`, `publish`, `category`, `url`, " .
+            'DATE_FORMAT(nE.`publish`, "%Y-%m-%d") AS isPublishDate, ' .
+            'DATE_FORMAT(nE.`publish`, "%H:%i") AS isPublishTime, ' .
+            "UNIX_TIMESTAMP(nE.`publish`) AS isPublishUT, " .
             'DATE_FORMAT(nE.`publishDate`, "%Y-%m-%d") AS publishDate, ' .
             'DATE_FORMAT(nE.`publishDate`, "%H:%i") AS publishTime, ' .
             'DATE_FORMAT(nE.`unpublishDate`, "%Y-%m-%d") AS unpublishDate, ' .

@@ -114,5 +114,13 @@ $LANG = [
     "Der Inhalt der .htaccess wird automatisch generiert.",
   "The content of the .htaccess is generated automatically. Please copy this content into the .htaccess of your root directory." =>
     "Der Inhalt der .htaccess wird automatisch generiert. Bitte diesen Inhalt in die .htaccess ihres root-Verzeichnis kopieren.",
+  "continue reading" => "weiterlesen",
+  "Gallery" => "Galerie",
+  "None selected" => "Keine gew&auml;hlt",
+  "Add new gallery" => "Neue Galerie hinzuf&uuml;gen",
+  "or select gallery" => "oder Galerie ausw&auml;hlen",
+  "<strong>Note:</strong> Multiple selection (with pressed key - Windows: Ctrl; Mac: cmd/command) possible.<br>As soon as the first point &quot;No category&quot; is selected, all categories will be deleted!" =>
+    "<strong>Hinweis:</strong> Mehrfachauswahl (Mit gedr&uuml;ckter Taste - Windows: Strg; Mac: cmd/command) m&ouml;glich.<br>Sobald der erste Punkt &quot;Keine Kategorie&quot; gew&auml;hlt wird, werden alle Kategorien gel&ouml;scht!",
+  "No image uploaded yet" => "Kein Bild bisher hochgeladen",
 ];
 ?>
