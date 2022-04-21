@@ -34,7 +34,7 @@
         <figcaption class="c_1080">
             <h1>{$entry.title}</h1>
             <small>{assign var=class value=$entry.category.0.url}
-                <a href="{cat_url}/{$options.permalink}/{$entry.category.0.url}" class="{$catIcons.$class}" title="{$entry.category.0.category}">{$entry.category.0.category}</a>
+                <a href="{cat_url}/{$permalink}/{$entry.category.0.url}" class="{$catIcons.$class}" title="{$entry.category.0.category}">{$entry.category.0.category}</a>
                 <span class="icon-calendar">{format_date(strtotime($entry.publishDate))}</span>
             </small>
             <img src="{$entry.image}" alt="{$entry.title}">
@@ -42,7 +42,7 @@
     </figure>
     <article class="c_1080">
         {$entry.content}
-        <p><br><a class="button {if $referer&&!$refererIsCategory}{$catIcons.$class}{else}icon-arrow-left{/if}" href="{if $referer>0}{cat_url}/{$options.permalink}/{$entry.category.0.url}{elseif $referer<0}{*cmsplink(-$referer)*}{else}{cat_url}/{$options.permalink}{/if}"> Zur&uuml;ck zu{if $referer&&!$refererIsCategory} {$entry.category.0.category}{elseif $referer&&$refererIsCategory} {menutitle($referer)}{else}r &Uuml;bersicht{/if}</a></p>
+        <p><br><a class="button {if $referer&&!$refererIsCategory}{$catIcons.$class}{else}icon-arrow-left{/if}" href="{if $referer>0}{cat_url}/{$permalink}/{$entry.category.0.url}{elseif $referer<0}{*cmsplink(-$referer)*}{else}{cat_url}/{$permalink}{/if}"> Zur&uuml;ck zu{if $referer&&!$refererIsCategory} {$entry.category.0.category}{elseif $referer&&$refererIsCategory} {menutitle($referer)}{else}r &Uuml;bersicht{/if}</a></p>
         {$gallery}
     </article>
 </section>

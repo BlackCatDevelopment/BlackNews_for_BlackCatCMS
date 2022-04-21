@@ -17,7 +17,7 @@
 <input type="hidden" name="page_id" value="{$page_id}">
 <input type="hidden" name="section_id" value="{$section_id}">
 <input type="hidden" name="saveFields" value="title,text|seoURL,text|wysiwyg_{$section_id},wysiwyg|publishDate,date|unpublishDate,date|publishTime,time|unpublishTime,time|userID,select">
-<input type="hidden" name="saveOptions" value="catGallery,select{*schulart,select|type,select|subject,text|start,text|end,text|price,text|formularTitle,text|formularDisclaimer,text|formularMailTitelKunde,text|formularMailTitelAnbieter,text|formularPartner,text|linkedPDF,text*}">
+<input type="hidden" name="saveOptions" value="catGallery,select|truncate,text">
 <span class="bcLabel">{translate("Title")}:</span><input type="text" name="title" value="{if $entry.title}{$entry.title}{/if}"><br>
 <span class="bcLabel">URL:</span><input type="text" name="seoURL" value="{if $entry.seoURL}{$entry.seoURL}{/if}" placeholder="{translate("Will be set automatically on first save")}">
 <hr>
@@ -40,7 +40,8 @@
 		<div class="dz-error-message"><span data-dz-errormessage=""></span></div></div>
 </div>
 <hr>
-<h3 class="bcLabel bN-icon-quill"> {translate("Description")}</h3>
+<h3 class="bcLabel bN-icon-quill"> {translate("Description")}</h3><br>
+<span class="">{translate("Maximum characters in preview text")}:</span><input type="text" name="truncate" value="{if $entry.options.truncate}{$entry.options.truncate}{/if}" placeholder="400" ><br>
 {show_wysiwyg_editor($bc_WYSIWYG.name,$bc_WYSIWYG.name,'')}
 <hr>
 <h3 class="bcLabel bN-icon-tags"> {translate("Category")}</h3>

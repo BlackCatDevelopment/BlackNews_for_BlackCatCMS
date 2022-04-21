@@ -35,20 +35,21 @@
     {if $category}{assign var=temp value=$categories.$category}{$temp}{assign var=class value=$temp.url}
       <h2 class="c_1080 {$catIcons.$class}">{$temp.category}</h2>
       {elseif $options.subtitle}<h2 class="c_1080">{$options.subtitle}</h2>{/if}
-    <div><div style="background-image:url({$entry.image});"></div></div>
-    <figcaption class="c_1080">
+    <div>{if $entry.image}<div style="background-image:url({$entry.image});"></div>{/if}</div>
+    <figcaption class="c_1080{if !$entry.image} bN_noFirstImage{/if}">
       {if $entry.image}<div style="background-image:url({$entry.image});" class="bN_ListFirstImage">
         <img src="{$entry.image}" alt="{$entry.title}">
       </div>{/if}
       <div>
         <h3>{$entry.title}</h3>
-        {truncateHTML($entry.content,400,' ...')}
+        {if !$entry.truncate}{assign var=truncate value=400}{else}{assign var=truncate value=$entry.truncate}{/if}
+        {truncateHTML($entry.content,$truncate,' ...')}
         {assign var=class value=$entry.url}<span class="{$catIcons.$class} bN_author" title="{$entry.category}"></span>
         <small>
-          <a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" class="bN-icon-coffee"> {translate("continue reading")} ...</a>
-          <span class="bN-icon-calendar"> {format_date(strtotime($entry.publishDate))}</span>
+          <a href="{cat_url}/{$permalink}/{$entry.seoURL}/" class="bN-icon-coffee"> {translate("continue reading")} ...</a>
+          <span class="bN-icon-calendar"> {if $entry.publishUT}{cat_format_date($entry.publishUT)}{else}{cat_format_date($entry.isPublishUT)}{/if}</span>
         </small>
-        <a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" title="{str_replace('"','',$entry.title)}"></a>
+        <a href="{cat_url}/{$permalink}/{$entry.seoURL}/" title="{str_replace('"','',$entry.title)}"></a>
       </div>
     </figcaption>
   </figure>
@@ -62,12 +63,13 @@
     </div>{/if}
     <figcaption>
       <h3>{$entry.title}</h3>
-      {truncateHTML($entry.text,250,' ...')}
+      {if !$entry.truncate}{assign var=truncate value=250}{else}{assign var=truncate value=$entry.truncate}{/if}
+      {truncateHTML($entry.text,$truncate,' ...')}
       <aside>
-        <a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" class="bN-icon-coffee"> {translate("continue reading")} ...</a>
-        <span class="bN-icon-calendar"> {format_date($entry.publishUT)}</span>
+        <a href="{cat_url}/{$permalink}/{$entry.seoURL}/" class="bN-icon-coffee"> {translate("continue reading")} ...</a>
+        <span class="bN-icon-calendar"> {if $entry.publishUT}{cat_format_date($entry.publishUT)}{else}{cat_format_date($entry.isPublishUT)}{/if}</span>
       </aside>
-      <a href="{cat_url}/{$options.permalink}/{$entry.seoURL}/" title="{str_replace('"','',$entry.title)}"  class="incNews_fullLink"></a>
+      <a href="{cat_url}/{$permalink}/{$entry.seoURL}/" title="{str_replace('"','',$entry.title)}"  class="incNews_fullLink"></a>
     </figcaption>
   </figure>
 </article>{/if}

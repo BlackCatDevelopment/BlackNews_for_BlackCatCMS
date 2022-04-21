@@ -15,7 +15,7 @@
 {$permalink}
 {if count($entries)>0}
 <section id="incNews_{$section_id}" class="incNews c_1080">
-	<a href="{cat_url}/{$permalink}/{if $options.category}{$firstEntry.url}{/if}" class="button ics-arrow-right">Alle {if $options.category}{$firstEntry.category}{else}Neuigkeiten{/if}</a>
+	<a href="{cat_url}/{$permalink}/{if $options.category}{$firstEntry.url}{/if}" class="button ics-arrow-right">{translate("All")} {if $options.category}{$firstEntry.category}{else}{translate("news")}{/if}</a>
 	{if $options.title}<h2>{$options.title}{if $options.title} <span>{$options.sub_title}</span>{/if}</h2>{/if}
 	<div>
 		{foreach $entries i entry}

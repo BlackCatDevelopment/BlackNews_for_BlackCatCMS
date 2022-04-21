@@ -86,10 +86,18 @@ if (!class_exists("blackNewsEntry", false)) {
      */
     public function getEntry()
     {
+      CAT_Helper_I18n::getInstance(LANGUAGE)->addFile(
+        LANGUAGE . ".php",
+        CAT_Helper_Directory::sanitizePath(
+          CAT_PATH . "/modules/" . static::$directory . "/languages"
+        )
+      );
       return array_merge($this->getEntryInfo(), [
         "entryID" => $this->getEntryID(),
         "image" => $this->getImage(),
-        "message" => "Eintrag geladen",
+        "message" => CAT_Helper_I18n::getInstance(LANGUAGE)
+          ->lang()
+          ->translate("Post loaded"),
         "options" => $this->getOption(),
         "category" => $this->getCategory(),
         "success" => true,
@@ -531,7 +539,18 @@ if (!class_exists("blackNewsEntry", false)) {
     public function publishEntry()
     {
       $this->getEntryID();
-
+      CAT_Helper_I18n::getInstance(LANGUAGE)->addFile(
+        LANGUAGE . ".php",
+        CAT_Helper_Directory::sanitizePath(
+          CAT_PATH . "/modules/" . static::$directory . "/languages"
+        )
+      );
+      $published = CAT_Helper_I18n::getInstance(LANGUAGE)
+        ->lang()
+        ->translate("Post published");
+      $unpublished = CAT_Helper_I18n::getInstance(LANGUAGE)
+        ->lang()
+        ->translate("Post offline");
       // Set publish
       if (
         self::$db->query(
@@ -548,9 +567,7 @@ if (!class_exists("blackNewsEntry", false)) {
       ) {
         return [
           "message" =>
-            $this->getEntryInfo("publish") === null
-              ? "Eintrag offline"
-              : "Eintrag veröffentlicht",
+            $this->getEntryInfo("publish") === null ? $unpublished : $published,
           "publish" => $this->getEntryInfo("publish"),
           "entryID" => $this->getEntryID(),
           "success" => true,
@@ -558,9 +575,7 @@ if (!class_exists("blackNewsEntry", false)) {
       } else {
         return [
           "message" =>
-            $this->getEntryInfo("publish") === null
-              ? "Eintrag offline"
-              : "Eintrag veröffentlicht",
+            $this->getEntryInfo("publish") === null ? $unpublished : $published,
           "publish" => $this->getEntryInfo("publish"),
           "entryID" => $this->getEntryID(),
           "success" => true,
@@ -594,8 +609,17 @@ if (!class_exists("blackNewsEntry", false)) {
         $entryObj = new blackNewsEntry($entryID);
         $entryObj->getEntryInfo();
 
+        CAT_Helper_I18n::getInstance(LANGUAGE)->addFile(
+          LANGUAGE . ".php",
+          CAT_Helper_Directory::sanitizePath(
+            CAT_PATH . "/modules/" . static::$directory . "/languages"
+          )
+        );
+
         return [
-          "message" => "Eintrag angelegt",
+          "message" => CAT_Helper_I18n::getInstance(LANGUAGE)
+            ->lang()
+            ->translate("Post created"),
           "html" => $entryObj->getHTML("entryList"),
           "values" => $entryObj->getEntryInfo(),
           "image" => $entryObj->getImage(),
@@ -621,8 +645,17 @@ if (!class_exists("blackNewsEntry", false)) {
           $this->setOption($opt["name"], $opt["value"]);
         }
       }
+      CAT_Helper_I18n::getInstance(LANGUAGE)->addFile(
+        LANGUAGE . ".php",
+        CAT_Helper_Directory::sanitizePath(
+          CAT_PATH . "/modules/" . static::$directory . "/languages"
+        )
+      );
+
       return [
-        "message" => "Eintrag gespeichert",
+        "message" => CAT_Helper_I18n::getInstance(LANGUAGE)
+          ->lang()
+          ->translate("Post saved"),
         "image" => $this->getImage(),
         "values" => $this->getEntryInfo(),
         "entryID" => $this->getEntryID(),
@@ -646,8 +679,17 @@ if (!class_exists("blackNewsEntry", false)) {
           ]
         )
       ) {
+        CAT_Helper_I18n::getInstance(LANGUAGE)->addFile(
+          LANGUAGE . ".php",
+          CAT_Helper_Directory::sanitizePath(
+            CAT_PATH . "/modules/" . static::$directory . "/languages"
+          )
+        );
+
         return [
-          "message" => "Eintrag gelöscht",
+          "message" => CAT_Helper_I18n::getInstance(LANGUAGE)
+            ->lang()
+            ->translate("Post deleted"),
           "success" => true,
         ];
       }
@@ -695,9 +737,17 @@ if (!class_exists("blackNewsEntry", false)) {
             ->setEntryID($this->getEntryID())
             ->addField($val);
         }
+        CAT_Helper_I18n::getInstance(LANGUAGE)->addFile(
+          LANGUAGE . ".php",
+          CAT_Helper_Directory::sanitizePath(
+            CAT_PATH . "/modules/" . static::$directory . "/languages"
+          )
+        );
 
         return [
-          "message" => "Eintrag kopiert",
+          "message" => CAT_Helper_I18n::getInstance(LANGUAGE)
+            ->lang()
+            ->translate("Post copied"),
           "html" => self::getHTML("entryList"),
           "entryID" => $this->getEntryID(),
           "success" => true,
@@ -853,7 +903,16 @@ if (!class_exists("blackNewsEntry", false)) {
         ]
       );
 
-      $title = "Neuer Eintrag";
+      CAT_Helper_I18n::getInstance(LANGUAGE)->addFile(
+        LANGUAGE . ".php",
+        CAT_Helper_Directory::sanitizePath(
+          CAT_PATH . "/modules/" . static::$directory . "/languages"
+        )
+      );
+
+      $title = CAT_Helper_I18n::getInstance(LANGUAGE)
+        ->lang()
+        ->translate("New post");
       $base = $title;
 
       if ($result && $result->rowCount() > 0) {

@@ -517,7 +517,7 @@ $(document).ready(function () {
           success: function (data, textStatus, jqXHR) {
             if (data.success === true) {
               return_success(jqXHR.process, data.message);
-              if (data.publish != null)
+              if (data.publish != null && data.publish != "")
                 $(this).add($publish).addClass("published");
               else $(this).add($publish).removeClass("published");
             } else {
