@@ -111,6 +111,7 @@ function setValue($el, wID, standard, options) {
                   );
                   editorInstance2.updateElement();
                 }, 100);
+
                 break;
               case "date":
                 var $temp = $el.find("[name=" + field[0] + "]");
@@ -285,6 +286,44 @@ $(document).ready(function () {
         }
       });
 
+      $("#bc_addGallery_" + bcID.section_id).click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          type: "POST",
+          context: $bcUL,
+          url: CAT_URL + "/modules/blacknews/save/ics/save.php",
+          dataType: "JSON",
+          data: {
+            action: "addGallery",
+            _cat_ajax: 1,
+            page_id: bcID.page_id,
+            section_id: bcID.section_id,
+            entryID: getEntryID($Form),
+            values: getValue($Form, $WYSIWYG.attr("id")),
+            options: getOptions($Form),
+          },
+          cache: false,
+          beforeSend: function (data) {
+            // Set activity and store in a variable to use it later
+            data.process = set_activity("Adding gallery");
+          },
+          success: function (data, textStatus, jqXHR) {
+            if (data.success === true) {
+              window.location.replace(data.url);
+              //						return_success( jqXHR.process, data.message );
+              //						$sBar.find('[data-entryid="' + data.entryID + '"]').text( ' ' + data.values.title );
+              //						setInformation($footer,data.values.display_name,data.values.created,data.values.modified);
+            } else {
+              return_error(jqXHR.process, data.message);
+            }
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.responseText);
+          },
+        });
+        return false;
+      });
+
       $("#bN_dropzone_" + bcID.section_id).dropzone({
         url: CAT_URL + "/modules/blacknews/save.php",
         paramName: "bNimage",
@@ -311,15 +350,15 @@ $(document).ready(function () {
           if ($IMGs.find(".dz-progress").size() == 0) bN_PU(false);
 
           /*					var $newIMG	= $(file.previewElement),
-						
-						newID	= $newIMG.attr('id') + xhr.newIMG.image_id;
+            
+            newID	= $newIMG.attr('id') + xhr.newIMG.image_id;
 
-					$newIMG.find('.dz-progress').remove();
-					$newIMG.find('.dz-filename span').text(xhr.newIMG.picture);
-					$newIMG.find('input[name=imgID]').val(xhr.newIMG.image_id);
-					$newIMG.find('.bN_image img').attr('src',xhr.newIMG.thumb);
-					$newIMG.find('input, button, textarea').prop('disabled',false);
-					$newIMG.find('.bN_disabled').removeClass('bN_disabled');*/
+          $newIMG.find('.dz-progress').remove();
+          $newIMG.find('.dz-filename span').text(xhr.newIMG.picture);
+          $newIMG.find('input[name=imgID]').val(xhr.newIMG.image_id);
+          $newIMG.find('.bN_image img').attr('src',xhr.newIMG.thumb);
+          $newIMG.find('input, button, textarea').prop('disabled',false);
+          $newIMG.find('.bN_disabled').removeClass('bN_disabled');*/
         },
       });
 
@@ -612,7 +651,8 @@ $(document).ready(function () {
                 $Form.data("entryid", getEntryID($(this)));
 
                 setActive($(this));
-                if (data.publish != null) $publish.addClass("published");
+                if (data.publish != null && data.publish != "")
+                  $publish.addClass("published");
                 else $publish.removeClass("published");
 
                 setInformation(
