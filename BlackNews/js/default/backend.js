@@ -63,6 +63,9 @@ function resetForm($Form) {
           var editorInstance = CKEDITOR.instances[wID];
           editorInstance.setData("");
           editorInstance.updateElement();
+          var editorInstance2 = CKEDITOR.instances[wID + "2"];
+          editorInstance2.setData("");
+          editorInstance2.updateElement();
           break;
         default:
           $Form.find("[name=" + field[0] + "]").val("");
@@ -98,9 +101,16 @@ function setValue($el, wID, standard, options) {
                   .prop("checked", values[field[0]] ? true : false);
                 break;
               case "wysiwyg":
-                var editorInstance = CKEDITOR.instances[wID];
-                editorInstance.setData(values.content ? values.content : "");
-                editorInstance.updateElement();
+                setTimeout(function () {
+                  var editorInstance = CKEDITOR.instances[wID];
+                  editorInstance.setData(values.content ? values.content : "");
+                  editorInstance.updateElement();
+                  var editorInstance2 = CKEDITOR.instances[wID + "2"];
+                  editorInstance2.setData(
+                    values.shortcontent ? values.shortcontent : ""
+                  );
+                  editorInstance2.updateElement();
+                }, 100);
                 break;
               case "date":
                 var $temp = $el.find("[name=" + field[0] + "]");
@@ -163,7 +173,9 @@ function getValue($Form, wID) {
           break;
         case "wysiwyg":
           var editorInstance = CKEDITOR.instances[wID];
-          saveField[field[1]] = editorInstance.getData();
+          saveField["content"] = editorInstance.getData();
+          var editorInstance2 = CKEDITOR.instances[wID + "2"];
+          saveField["shortcontent"] = editorInstance2.getData();
           break;
         default:
           saveField[field[0]] = $Form.find("[name=" + field[0] + "]").val();

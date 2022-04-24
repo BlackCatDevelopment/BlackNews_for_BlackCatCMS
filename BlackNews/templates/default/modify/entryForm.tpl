@@ -16,7 +16,7 @@
 <h2>{translate("Post")}</h2>
 <input type="hidden" name="page_id" value="{$page_id}">
 <input type="hidden" name="section_id" value="{$section_id}">
-<input type="hidden" name="saveFields" value="title,text|seoURL,text|wysiwyg_{$section_id},wysiwyg|publishDate,date|unpublishDate,date|publishTime,time|unpublishTime,time|userID,select">
+<input type="hidden" name="saveFields" value="title,text|seoURL,text|content,wysiwyg|shortcontent,wysiwyg|publishDate,date|unpublishDate,date|publishTime,time|unpublishTime,time|userID,select">
 <input type="hidden" name="saveOptions" value="catGallery,select|truncate,text">
 <span class="bcLabel">{translate("Title")}:</span><input type="text" name="title" value="{if $entry.title}{$entry.title}{/if}"><br>
 <span class="bcLabel">URL:</span><input type="text" name="seoURL" value="{if $entry.seoURL}{$entry.seoURL}{/if}" placeholder="{translate("Will be set automatically on first save")}">
@@ -40,9 +40,13 @@
 		<div class="dz-error-message"><span data-dz-errormessage=""></span></div></div>
 </div>
 <hr>
-<h3 class="bcLabel bN-icon-quill"> {translate("Description")}</h3><br>
+<h3 class="bcLabel">{translate("Description")}</h3><br>
 <span class="">{translate("Maximum characters in preview text")}:</span><input type="text" name="truncate" value="{if $entry.options.truncate}{$entry.options.truncate}{/if}" placeholder="400" ><br>
-{show_wysiwyg_editor($bc_WYSIWYG.name,$bc_WYSIWYG.name,'')}
+
+{show_wysiwyg_editor("content",$bc_WYSIWYG.name,'')}
+<hr>
+<h3 class="bcLabel">{translate("Short Description (optional)")}</h3><br>
+{show_wysiwyg_editor("shortcontent",$bc_WYSIWYG2.name,'')}
 <hr>
 <h3 class="bcLabel bN-icon-tags"> {translate("Category")}</h3>
 <p>
