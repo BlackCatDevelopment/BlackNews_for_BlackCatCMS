@@ -47,4 +47,14 @@ if (defined('CAT_PATH')) {
 # anpassen: mod_blacknews_content_options und mod_blacknews_options name = 127, value = 2047
 # delete mod_blacknews_content => id und primaray key to news_id, section_id, page_id
 
+
+if(defined('CAT_URL'))
+{
+	$page_helper	= CAT_Helper_Page::getInstance();
+	// add column; dismiss errors
+    try {
+	   $page_helper->db()->query("ALTER TABLE `" . CAT_TABLE_PREFIX . "mod_blacknews_content` ADD COLUMN `image` VARCHAR(2047) NOT NULL DEFAULT '' AFTER `subtitle`");
+    } catch ( \Exception $e ) {}
+}
+
 ?>
