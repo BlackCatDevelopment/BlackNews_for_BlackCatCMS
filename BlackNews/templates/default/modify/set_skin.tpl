@@ -23,13 +23,12 @@
  *}
 
 <div class="bN_skin fc_br_top">
-	<p class="icon-cog cc_toggle_set"> {translate('Set skin')}<small>({assign $options.variant var}{$module_variants.$var})</small></p>
+	<p class="icon-cog cc_toggle_set"> {translate('Set skin')}<small>({$var=$options.variant}{$module_variants.$var})</small></p>
 	<form action="{$CAT_URL}/modules/blacknews/save.php" method="post" class="fc_gradient1 fc_border_all_light fc_br_bottom fc_shadow_small">
 		<input type="hidden" name="page_id" value="{$page_id}" />
 		<input type="hidden" name="section_id" value="{$section_id}" />
 		<input type="hidden" name="news_id" value="{$news_id}" />
 		<input type="hidden" name="options" value="variant" />
-        <input type="hidden" name="action" value="setskin" />
 		<select name="variant">
 		{foreach $module_variants index variants}
 			<option value="{$index}"{if $index == $options.variant} selected="selected"{/if}>{$variants}</option>

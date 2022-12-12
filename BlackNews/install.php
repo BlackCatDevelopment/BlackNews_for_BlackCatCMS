@@ -74,6 +74,7 @@ if(defined('CAT_URL'))
 		. ' `section_id` INT NOT NULL DEFAULT \'0\','
 		. ' `title` VARCHAR(1024) NOT NULL DEFAULT \'\','
 		. ' `subtitle` VARCHAR(2047) NOT NULL DEFAULT \'\','
+        . '	`image` VARCHAR(2047) NOT NULL DEFAULT \'\','
 		. ' `auto_generate` TINYINT(1) NOT NULL DEFAULT \'1\','
 		. ' `auto_generate_size` INT NOT NULL DEFAULT \'300\','
 		. ' `short` TEXT NOT NULL,'

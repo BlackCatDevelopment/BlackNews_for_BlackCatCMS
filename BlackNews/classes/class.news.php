@@ -446,7 +446,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 
 			if ( isset($entries) && $entries->numRows() > 0)
 			{
-				while( !false == ($row = $entries->fetchRow() ) )
+				while( !false == ($row = $entries->fetchRow( MYSQL_ASSOC ) ) )
 				{
 					$user	= CAT_Users::getInstance()->get_user_details( $row['created_by'] );
 
@@ -577,7 +577,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 	
 				if ( isset($options) && $options->numRows() > 0)
 				{
-					while( !false == ($row = $options->fetchRow() ) )
+					while( !false == ($row = $options->fetchRow( MYSQL_ASSOC ) ) )
 					{
 						if ( isset($this->entries[$row['news_id']]) )
 							$this->entries[$row['news_id']]	= array_merge(
@@ -602,7 +602,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 	
 			if ( isset($entries) && $entries->numRows() > 0)
 			{
-				while( !false == ($row = $entries->fetchRow() ) )
+				while( !false == ($row = $entries->fetchRow( MYSQL_ASSOC ) ) )
 				{
 					if ( isset($this->entries[$row['news_id']]) )
 						$this->entries[$row['news_id']]	= array_merge(
@@ -658,7 +658,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 
 			if ( isset($getOptions) && $getOptions->numRows() > 0)
 			{
-				while( !false == ($row = $getOptions->fetchRow() ) )
+				while( !false == ($row = $getOptions->fetchRow( MYSQL_ASSOC ) ) )
 				{
 					$this->options[$row['news_id']][$row['name']]	= $row['value'];
 				}
@@ -734,7 +734,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 
 			if ( isset($getOptions) && $getOptions->numRows() > 0)
 			{
-				while( !false == ($row = $getOptions->fetchRow() ) )
+				while( !false == ($row = $getOptions->fetchRow( MYSQL_ASSOC ) ) )
 				{
 					$this->options[$row['name']]	= $row['value'];
 				}
@@ -865,7 +865,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 
 			if ( isset($getOptions) && $getOptions->numRows() > 0)
 			{
-				while( !false == ($row = $getOptions->fetchRow() ) )
+				while( !false == ($row = $getOptions->fetchRow( MYSQL_ASSOC ) ) )
 				{
 					$this->options['categories'][]	= $row['categories'];
 				}
@@ -898,7 +898,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 
 			if ( isset($getOptions) && $getOptions->numRows() > 0)
 			{
-				while( !false == ($row = $getOptions->fetchRow() ) )
+				while( !false == ($row = $getOptions->fetchRow( MYSQL_ASSOC ) ) )
 				{
 					$this->options['allCategories']	= array_merge(
 						$this->options['allCategories'],
@@ -1157,7 +1157,7 @@ if ( ! class_exists( 'BlackNews', false ) ) {
 		 **/
 		public function checkRedirect()
 		{
-			if ( !defined('NEWS_SECTION') || !NEWS_SECTION || NEWS_SECTION == 'NEWS_SECTION' )
+			if ( !NEWS_SECTION || NEWS_SECTION == 'NEWS_SECTION' )
 			{
 				header("HTTP/1.1 301 Moved Permanently");
 				// Weiterleitungsziel. Wohin soll eine permanente Weiterleitung erfolgen?
