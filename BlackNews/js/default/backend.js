@@ -35,7 +35,6 @@
  * Tag-Werte (bestehende Tags des Typs). Werte landen als JSON im hidden
  * input "tags". Wird pro Sektion in initBackend() aufgerufen.
  */
-<<<<<<< HEAD
 
 /** fetch als JSON mit Fallback: liest Text und parst; bei Fehler null */
 function bN_fetchJSON(url, body) {
@@ -54,9 +53,6 @@ function bN_fetchJSON(url, body) {
 }
 
 function initTagEditor(bcID, initialTags) {
-=======
-function initTagEditor(bcID) {
->>>>>>> parent of dc5f2f9 (Show only the entry's own tags in backend editor: getEntry() returns tags, template renders empty box, initTagEditor(bcID, tags) fills it on load, save sends tags JSON)
   var sid = bcID.section_id,
     // re-init safe: alte Listener entfernen
     typeSel0 = document.getElementById("bN_tagType_" + sid),
