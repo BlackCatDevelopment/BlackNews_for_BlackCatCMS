@@ -1512,7 +1512,8 @@ if (!class_exists("blackNews", false)) {
             global $parser, $section_id;
 
             $bnProf = isset($_GET["bn_prof"]);
-            $t0 = microtime(true);
+            $tStart = microtime(true);
+            $t0 = $tStart;
             $prof = [];
             $mark = function (string $label) use (&$prof, &$t0) {
                 $now = microtime(true);
@@ -1657,7 +1658,7 @@ if (!class_exists("blackNews", false)) {
 
             if ($bnProf) {
                 $mark("includes");
-                $total = round((microtime(true) - ($prof["start"] ?? microtime(true))) * 1000, 1);
+                $total = round((microtime(true) - $tStart) * 1000, 1);
                 $line = "BN_PROF modify: " . json_encode($prof) . " total_ms=" . $total . "\n";
                 if (class_exists("CAT_Log")) {
                     CAT_Log::getInstance()->log($line, CAT_Log::DEBUG);
