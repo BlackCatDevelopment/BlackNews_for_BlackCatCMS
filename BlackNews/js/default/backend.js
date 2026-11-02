@@ -35,6 +35,23 @@
  * Tag-Werte (bestehende Tags des Typs). Werte landen als JSON im hidden
  * input "tags". Wird pro Sektion in initBackend() aufgerufen.
  */
+
+/** fetch als JSON mit Fallback: liest Text und parst; bei Fehler null */
+function bN_fetchJSON(url, body) {
+  return fetch(url, { method: "POST", body: body.toString() })
+    .then(function (r) {
+      return r.text();
+    })
+    .then(function (txt) {
+      try {
+        return JSON.parse(txt);
+      } catch (e) {
+        console.warn("bN: non-JSON response from " + url, txt.slice(0, 200));
+        return null;
+      }
+    });
+}
+
 function initTagEditor(bcID, initialTags) {
   var sid = bcID.section_id,
     typeSel = document.getElementById("bN_tagType_" + sid),
@@ -82,13 +99,7 @@ function initTagEditor(bcID, initialTags) {
     b.append("action", "getTags");
     b.append("_cat_ajax", "1");
     b.append("section_id", sid);
-    fetch(CAT_URL + "/modules/blacknews/save.php", {
-      method: "POST",
-      body: b.toString(),
-    })
-      .then(function (r) {
-        return r.json();
-      })
+    bN_fetchJSON(CAT_URL + "/modules/blacknews/save.php", b)
       .then(function (res) {
         if (!res || !res.success) return;
         (res.types || []).forEach(function (t) {
@@ -106,13 +117,7 @@ function initTagEditor(bcID, initialTags) {
     b.append("_cat_ajax", "1");
     b.append("section_id", sid);
     b.append("type", typeSel.value);
-    fetch(CAT_URL + "/modules/blacknews/save.php", {
-      method: "POST",
-      body: b.toString(),
-    })
-      .then(function (r) {
-        return r.json();
-      })
+    bN_fetchJSON(CAT_URL + "/modules/blacknews/save.php", b)
       .then(function (res) {
         if (!res || !res.success) return;
         listEl.innerHTML = "";
