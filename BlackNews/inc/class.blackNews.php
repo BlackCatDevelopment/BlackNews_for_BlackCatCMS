@@ -342,7 +342,7 @@ if (!class_exists("blackNews", false)) {
             $cols = $light
                 ? "nE.`entryID`, nE.`section_id`, nE.`title`, nE.`seoURL`, nE.`position`, nE.`publish`, " .
                   'DATE_FORMAT(nE.`publishDate`, "%Y-%m-%d") AS publishDate, ' .
-                  "UNIX_TIMESTAMP(nE.`publishDate`) AS publishUT"
+                  "UNIX_TIMESTAMP(nE.`publishDate`) AS publishUT "
                 : "CURRENT_TIMESTAMP , nE.`entryID`, nE.`section_id`, `title`, `content`, `shortcontent`, `text`, `modified`, `created`, `userID`, `seoURL`, `position`, `publish`, `category`, `url`";
 
             // Build filter conditions: ['jahr' => [2026,...], 'tag' => ['slug',...], '<type>' => [...]]
