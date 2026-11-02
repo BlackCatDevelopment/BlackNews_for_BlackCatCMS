@@ -245,8 +245,8 @@ if (!class_exists("blackNewsEntry", false)) {
 
             if (
                 isset($getEntry) &&
-                $getEntry->numRows() > 0 &&
-                !false == ($row = $getEntry->fetchRow())
+                $getEntry->rowCount() > 0 &&
+                false !== ($row = $getEntry->fetch())
             ) {
                 $this->info = $row;
                 $this->info["seoURLencode"] = urlencode($this->info["seoURL"]);

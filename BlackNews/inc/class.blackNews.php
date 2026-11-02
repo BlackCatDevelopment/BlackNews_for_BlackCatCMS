@@ -1586,18 +1586,17 @@ if (!class_exists("blackNews", false)) {
          */
         public function save()
         {
-            if (CAT_Helper_Validate::sanitizePost("_cat_ajax") == 1) {
-                header("Content-type: application/json");
-                $backend = CAT_Backend::getInstance(
-                    "Pages",
-                    "pages_modify",
-                    false
-                );
-            } else {
-                $backend = CAT_Backend::getInstance("Pages", "pages_modify");
+            $isAjax = CAT_Helper_Validate::sanitizePost("_cat_ajax") == 1;
+            if ($isAjax) {
+                header("Content-type: application/json; charset=utf-8");
             }
+            $backend = $isAjax
+                ? null
+                : CAT_Backend::getInstance("Pages", "pages_modify");
 
-            $backend->updateWhenModified();
+            if ($backend) {
+                $backend->updateWhenModified();
+            }
 
             $action = CAT_Helper_Validate::sanitizePost("action");
             $return = [];
@@ -1766,7 +1765,7 @@ if (!class_exists("blackNews", false)) {
                     break;
             }
 
-            if (CAT_Helper_Validate::sanitizePost("_cat_ajax") == 1) {
+            if ($isAjax) {
                 while (ob_get_level() > 0) {
                     ob_end_clean();
                 }
