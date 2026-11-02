@@ -1455,11 +1455,6 @@ if (!class_exists("blackNews", false)) {
         {
             global $parser, $section_id;
 
-                $now = microtime(true);
-                $prof[$label] = round(($now - $t0) * 1000, 1);
-                $t0 = $now;
-            };
-
             $this->setIDs($section_id);
 
             // Reset parserValues
@@ -1583,13 +1578,6 @@ if (!class_exists("blackNews", false)) {
                     "/templates/default"
             );
 
-            if ($bnProf) {
-                $total = round((microtime(true) - $tStart) * 1000, 1);
-                if (class_exists("CAT_Log")) {
-                    CAT_Log::getInstance()->log($line, CAT_Log::DEBUG);
-                }
-                error_log($line);
-            }
             #if( !self::$parsed )
             $parser->output($this->template, $this->getParserValue());
 
