@@ -44,6 +44,7 @@
 	(function()\{
 		var sid = {$section_id};
 		var typeSel = document.getElementById('bN_tagType_' + sid);
+		var typeListEl = document.getElementById('bN_tagTypeList_' + sid);
 		var nameIn  = document.getElementById('bN_tagName_' + sid);
 		var listEl  = document.getElementById('bN_tagList_' + sid);
 		var addBtn  = document.getElementById('bN_tagAdd_' + sid);
@@ -76,7 +77,7 @@
 				.then(function(res)\{
 					if (!res || !res.success) return;
 					(res.types || []).forEach(function(t)\{
-						var o = document.createElement('option'); o.value = t; o.textContent = t; typeSel.appendChild(o);
+						var o = document.createElement('option'); o.value = t; o.textContent = t; typeListEl.appendChild(o);
 					});
 				});
 		}
