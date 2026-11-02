@@ -35,7 +35,7 @@
  * Tag-Werte (bestehende Tags des Typs). Werte landen als JSON im hidden
  * input "tags". Wird pro Sektion in initBackend() aufgerufen.
  */
-function initTagEditor(bcID) {
+function initTagEditor(bcID, initialTags) {
   var sid = bcID.section_id,
     typeSel = document.getElementById("bN_tagType_" + sid),
     typeListEl = document.getElementById("bN_tagTypeList_" + sid),
@@ -46,7 +46,12 @@ function initTagEditor(bcID) {
     box = document.getElementById("bN_tags_" + sid);
   if (!typeSel || !addBtn) return;
 
-  var current = [];
+  var current = Array.isArray(initialTags)
+    ? initialTags.map(function (t) {
+        return { type: t.type, name: t.name };
+      })
+    : [];
+  refreshInput();
 
   function refreshInput() {
     input.value = JSON.stringify(current);
@@ -547,6 +552,15 @@ $(document).ready(function () {
             values: getValue($Form, $WYSIWYG.attr("id")),
             options: getOptions($Form),
             category: $Form.find(".category").val(),
+            tags: (function () {
+              try {
+                return JSON.parse(
+                  $Form.find("#bN_tagsInput_" + bcID.section_id).val() || "[]"
+                );
+              } catch (e) {
+                return [];
+              }
+            })(),
           },
           cache: false,
           beforeSend: function (data) {
@@ -768,6 +782,7 @@ $(document).ready(function () {
                 );
 
                 setValue($Form, $WYSIWYG.attr("id"), data, data.options);
+                initTagEditor(bcID, data.tags || []);
 
                 $table.children("tr").not(".bn_FormularInput").remove();
                 $table.append(data.html);

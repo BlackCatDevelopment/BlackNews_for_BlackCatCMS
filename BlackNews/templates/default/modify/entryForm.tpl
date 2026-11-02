@@ -60,11 +60,7 @@
 	<small>{translate("<strong>Note:</strong> Multiple selection (with pressed key - Windows: Ctrl; Mac: cmd/command) possible.<br>As soon as the first point &quot;No category&quot; is selected, all categories will be deleted!")}</small>
 <hr>
 <h3 class="bcLabel bN-icon-tags"> {translate("Tags")}</h3>
-<p id="bN_tags_{$section_id}">
-	{foreach $tags t}
-	<span class="bN_tag" data-tagid="{$t.tagID}" data-type="{$t.type}" data-slug="{$t.slug}">{$t.type}: {$t.name}</span>
-	{/foreach}
-</p>
+<p id="bN_tags_{$section_id}"></p>
 <p>
 	<input type="text" id="bN_tagType_{$section_id}" list="bN_tagTypeList_{$section_id}" placeholder="{translate("Tag type")}" value="">
 	<datalist id="bN_tagTypeList_{$section_id}">

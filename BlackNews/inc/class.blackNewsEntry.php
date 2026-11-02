@@ -100,6 +100,7 @@ if (!class_exists("blackNewsEntry", false)) {
                     ->translate("Post loaded"),
                 "options" => $this->getOption(),
                 "category" => $this->getCategory(),
+                "tags" => $this->getEntryTags($this->getEntryID()),
                 "success" => true,
             ]);
         }
