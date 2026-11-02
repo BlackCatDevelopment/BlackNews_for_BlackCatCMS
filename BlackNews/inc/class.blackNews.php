@@ -1036,6 +1036,9 @@ if (!class_exists("blackNews", false)) {
                 )
             );
 
+            // always set, so templates can safely use {json_encode($activeFilters)}
+            $this->setParserValue("activeFilters", $this->routeFilters, true);
+
             if (self::checkOverview($rUrl) || self::checkCategory() || $this->hasFilters()) {
                 // 301 to canonical filter order (jahr first, then tags sorted)
                 $canonical = $this->getCanonicalRoute();

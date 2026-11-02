@@ -103,7 +103,7 @@
   var permalink = sec.getAttribute('data-permalink');
   var perPage   = parseInt(sec.getAttribute('data-perpage'), 10) || 20;
   var base      = '{cat_url}/' + permalink + '/';
-  var filters   = {json_encode($activeFilters)};
+  var filters   = {json_encode($activeFilters|default:[])};
   var page      = 0;
 
   function filterUrl(f)\{
