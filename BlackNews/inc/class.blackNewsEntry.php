@@ -58,7 +58,7 @@ if (!class_exists("blackNewsEntry", false)) {
         /**
          *
          */
-        public function __construct(int $entryID = null)
+        public function __construct(?int $entryID = null)
         {
             parent::__construct();
             $this->setEntryID($entryID);
@@ -461,7 +461,7 @@ if (!class_exists("blackNewsEntry", false)) {
                         ":entryID )",
                     [
                         "url" => $url,
-                        "section_id" => parent::$section_id,
+                        "section_id" => $this->section_id,
                         "entryID" => $this->getEntryID(),
                     ]
                 )
@@ -606,7 +606,7 @@ if (!class_exists("blackNewsEntry", false)) {
         /**
          *
          */
-        public static function addEntry(int $section_id = null)
+        public static function addEntry(?int $section_id = null)
         {
             $title = self::createTitle($section_id);
 
@@ -743,7 +743,7 @@ if (!class_exists("blackNewsEntry", false)) {
                         "( `section_id`, `title`, `content`, `shortcontent`, `text`, `userID` ) " .
                         "VALUES ( :section_id, :title, :content, :short, :text, :userID )",
                     [
-                        "section_id" => parent::$section_id,
+                        "section_id" => $this->section_id,
                         "title" => $this->info["title"],
                         "content" => $this->info["content"],
                         "short" => $this->info["shortcontent"],
@@ -952,7 +952,7 @@ if (!class_exists("blackNewsEntry", false)) {
         /**
          *
          */
-        private static function createTitle(int $section_id = null)
+        private static function createTitle(?int $section_id = null)
         {
             if (!$section_id) {
                 global $section_id;
@@ -1039,8 +1039,8 @@ if (!class_exists("blackNewsEntry", false)) {
             if (!self::getInstance()->getProperty($prop)) {
                 return false;
             }
-            return strftime(
-                $format,
+            return date(
+                "Y-m-d H:i",
                 strtotime(self::getInstance()->getProperty($prop))
             );
         }
@@ -1058,8 +1058,8 @@ if (!class_exists("blackNewsEntry", false)) {
             if (!self::getInstance()->getProperty($prop)) {
                 return false;
             }
-            return strftime(
-                "%Y-%m-%d %H:%M:00",
+            return date(
+                "Y-m-d H:i:00",
                 strtotime(self::getInstance()->getProperty($prop))
             );
         }
@@ -1076,13 +1076,13 @@ if (!class_exists("blackNewsEntry", false)) {
         public function setProperty($key = null, $value = null)
         {
             if (
-                !self::getInstance()->getEventID() ||
+                !$this->entryID ||
                 !property_exists("blackNewsEntry", $key) ||
                 in_array($key, self::$staticVars)
             ) {
                 return false;
             } else {
-                self::getInstance()->$key = $value;
+                $this->$key = $value;
                 return $this;
             }
         }
@@ -1098,13 +1098,13 @@ if (!class_exists("blackNewsEntry", false)) {
         public function getProperty($key = null)
         {
             if (
-                !self::getInstance()->getEventID() ||
+                !$this->entryID ||
                 !property_exists("blackNewsEntry", $key) ||
                 in_array($key, self::$staticVars)
             ) {
                 return false;
             } else {
-                return self::getInstance()->$key;
+                return $this->$key;
             }
 
             /*				'INSERT INTO `:prefix:mod_blacknews_content`

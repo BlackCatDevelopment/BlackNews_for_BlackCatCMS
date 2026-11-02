@@ -121,7 +121,7 @@ class CC_SEOUrl
   private function validateRSScontent($data)
   {
     $newData = str_replace("&nbsp;", " ", $data);
-    return "<![CDATA[ " . utf8_encode($newData) . " ]]>";
+    return "<![CDATA[ " . mb_convert_encoding($newData, "UTF-8", "ISO-8859-1") . " ]]>";
   } // end validateRSScontent()
 
   /**

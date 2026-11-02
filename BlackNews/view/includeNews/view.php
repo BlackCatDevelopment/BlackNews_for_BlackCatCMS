@@ -81,10 +81,10 @@ if (defined("CAT_PATH")) {
 }
 // end include class.secure.php
 
-$bN = blackNews::getParserValue();
+$bN = $this->getParserValue();
 
-blackNews::setParserValue("firstEntry", array_shift($bN["entries"]));
-blackNews::setParserValue("catIcons", [
+$this->setParserValue("firstEntry", array_shift($bN["entries"] ?? []));
+$this->setParserValue("catIcons", [
     "ics-events" => "ics-star-full",
     "allgemeine-neuigkeiten" => "ics-ics-logo",
     "erfahrungsberichte" => "ics-quill",

@@ -47,6 +47,11 @@ class CC_SEOUrl
    * @var void
    */
   private static $instance = null;
+  private static $news_id = 0;
+  private static $page_id = 0;
+  private static $section_id = 0;
+  private static $permalink = "";
+  private static $options = [];
   private $seoPath = "";
   private $seoUrl = "";
   private $fileName = "";
@@ -217,7 +222,9 @@ class CC_SEOUrl
   {
     if (
       !$dir ||
-      strpos($dir, "../" || $dir == "" || self::getOptions("permalink") == "")
+      strpos($dir, "../") !== false ||
+      $dir == "" ||
+      self::getOptions("permalink") == ""
     ) {
       return false;
     }
@@ -241,10 +248,12 @@ class CC_SEOUrl
   /**
    *
    */
-  public static function getFileName()
+  public static function getFileName($title = null)
   {
-    // TODO: implement here
-    return self::$fileName;
+    if ($title === null || $title === true || $title === "") {
+      return "";
+    }
+    return CAT_Helper_Page::getFilename($title);
   }
 
   /**
@@ -258,6 +267,24 @@ class CC_SEOUrl
 
     self::$fileName = CAT_Helper_Page::getFilename($name);
     return self::$fileName;
+  }
+
+  /**
+   *
+   */
+  private static function getOptions($name = "")
+  {
+    return $name !== "" && isset(self::$options[$name])
+      ? self::$options[$name]
+      : "";
+  }
+
+  /**
+   *
+   */
+  private static function getEntryOptions($name = "", $news_id = null)
+  {
+    return "";
   }
 
   /**

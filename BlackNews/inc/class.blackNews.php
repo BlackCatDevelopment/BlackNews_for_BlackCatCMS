@@ -71,7 +71,7 @@ if (!class_exists("blackNews", false)) {
         protected static $home = "https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS";
         protected static $platform = "1.x";
 
-        public function __construct(int $section_id = null)
+        public function __construct(?int $section_id = null)
         {
             parent::__construct($section_id);
             $this->getRoute();
@@ -223,7 +223,7 @@ if (!class_exists("blackNews", false)) {
         /**
          *
          */
-        public function getAllNewsSections(int $section_id = null): array
+        public function getAllNewsSections(?int $section_id = null): array
         {
             // Get all options
             $result = self::$db->query(
@@ -404,12 +404,15 @@ if (!class_exists("blackNews", false)) {
          */
         private function getReferer(): int
         {
-            if ($_SERVER["HTTP_REFERER"] == "") {
+            if (($_SERVER["HTTP_REFERER"] ?? "") == "") {
                 return 0;
             }
 
             $route = array_filter(
-                explode("/", parse_url($_SERVER["HTTP_REFERER"], PHP_URL_PATH))
+                explode(
+                    "/",
+                    (string) parse_url($_SERVER["HTTP_REFERER"], PHP_URL_PATH)
+                )
             );
             $urls = [];
 
@@ -439,7 +442,7 @@ if (!class_exists("blackNews", false)) {
             return 0;
         }
 
-        public function getPermalink(int $secID = null): string
+        public function getPermalink(?int $secID = null): string
         {
             $result = self::$db
                 ->query(
@@ -537,7 +540,7 @@ if (!class_exists("blackNews", false)) {
             }
 
             if (rename($oDir, $nDir)) {
-                $this->setOption("permalink", $new);
+                self::$instance->setOption("permalink", $new);
                 return true;
             } else {
                 return false;
@@ -627,8 +630,8 @@ if (!class_exists("blackNews", false)) {
          *
          */
         public static function checkRedirect(
-            int $section_id = null,
-            int $page_id = null
+            ?int $section_id = null,
+            ?int $page_id = null
         ) {
             if (!$section_id) {
                 global $section_id;
@@ -637,19 +640,19 @@ if (!class_exists("blackNews", false)) {
                 global $page_id;
             }
             $rUrl = CAT_Registry::get("USE_SHORT_URLS")
-                ? CAT_URL . "/" . self::$routeUrls[$section_id]
+                ? CAT_URL . "/" . (self::$routeUrls[$section_id] ?? "")
                 : CAT_URL .
                     "/" .
                     trim(PAGES_DIRECTORY, "/") .
                     "/" .
-                    self::$routeUrls[$section_id];
+                    (self::$routeUrls[$section_id] ?? "");
             $sUrl = CAT_Helper_Page::getLink($page_id);
 
             $bNObj = new self($section_id);
 
             if (
                 $bNObj->getPermalink() . ".php" ==
-                self::$routeUrls[$section_id]
+                (self::$routeUrls[$section_id] ?? "")
             ) {
                 $redirect = CAT_Registry::get("USE_SHORT_URLS")
                     ? CAT_URL . "/" . $bNObj->getPermalink()
@@ -718,9 +721,9 @@ if (!class_exists("blackNews", false)) {
          */
         public function view(bool $output = true)
         {
-            global $parser;
+            global $parser, $section_id;
 
-            $this->setIDs($section_id);
+            $this->setIDs(isset($section_id) ? (int) $section_id : null);
 
             // Reset parserValues
             $this->initSetParserValue();
@@ -816,17 +819,18 @@ if (!class_exists("blackNews", false)) {
          *
          */
         public static function includeNews(
-            int $section_id = null,
+            ?int $section_id = null,
             string $template = "",
             bool $out = true,
             int $start = 0,
             int $limit = 0
         ) {
             global $parser;
-            $options = $this->getOption();
+            $obj = new self($section_id);
+            $options = $obj->getOption();
 
-            $this->setIDs($section_id);
-            $this->getVariant();
+            $obj->setIDs($section_id);
+            $obj->getVariant();
 
             /*			self::getRoute(PAGES_DIRECTORY);
 
@@ -846,33 +850,33 @@ if (!class_exists("blackNews", false)) {
         $this->template	= 'viewEntry';
       }
 */
-            $this->setParserValue("categories", $this->getCategories());
+            $obj->setParserValue("categories", $obj->getCategories());
 
             if ($options["category"]) {
-                $this->setParserValue(
+                $obj->setParserValue(
                     "entries",
-                    $this->getOverview(true, $options["category"])
+                    $obj->getOverview(true, $options["category"])
                 );
             } else {
-                $this->setParserValue(
+                $obj->setParserValue(
                     "entries",
-                    $this->getOverview(true, $start, $limit)
+                    $obj->getOverview(true, $start, $limit)
                 );
             }
 
-            $this->template = $template != "" ? $template : "view";
+            $obj->template = $template != "" ? $template : "view";
 
-            $this->setParserValue("options", $this->getOption());
+            $obj->setParserValue("options", $obj->getOption());
 
             // Muss ich noch checken... weiß ich selbst gerade nicht mehr, warum das gesetzt sein muss
-            $this->options["variant"] = $options["variant"];
+            $obj->options["variant"] = $options["variant"];
 
             $parser->setPath(
                 CAT_PATH .
                     "/modules/" .
                     static::$directory .
                     "/templates/" .
-                    $this->getVariant()
+                    $obj->getVariant()
             );
             $parser->setFallbackPath(
                 CAT_PATH .
@@ -882,11 +886,11 @@ if (!class_exists("blackNews", false)) {
             );
 
             if (!$out) {
-                return $parser->get($this->template, $this->getParserValue());
+                return $parser->get($obj->template, $obj->getParserValue());
             }
 
             if (!self::$parsed && $out) {
-                $parser->output($this->template, $this->getParserValue());
+                $parser->output($obj->template, $obj->getParserValue());
             }
 
             #self::$parsed = true;
@@ -922,7 +926,7 @@ if (!class_exists("blackNews", false)) {
                         strpos($_SERVER[$key], "?") &&
                         strpos($_SERVER[$key], "=")
                     ) {
-                        $tmp = explode("?", $_SERVER[$key]);
+                        $tmp = explode("?", $_SERVER[$key], 2);
                         $this->routeUrl = $tmp[0];
                     }
                     $this->routeQuery = "";
@@ -1296,7 +1300,7 @@ if (!class_exists("blackNews", false)) {
         public static function uninstall()
         {
             $errors = self::sqlProcess(
-                $CAT_PATH .
+                CAT_PATH .
                     "/modules/" .
                     static::$directory .
                     "/inc/db/uninstall.sql"

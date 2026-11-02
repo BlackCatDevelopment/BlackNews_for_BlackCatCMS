@@ -65,6 +65,7 @@ if (!class_exists("addOnMain", false)) {
         protected static $addonID = null;
 
         protected static $db = null;
+        protected static $instance = null;
 
         protected $page_id;
         protected $section_id;
@@ -80,7 +81,7 @@ if (!class_exists("addOnMain", false)) {
         /**
          *
          */
-        public function __construct(int $section_id = null)
+        public function __construct(?int $section_id = null)
         {
             // self::$_instances[] = $this;
             $this->setIDs($section_id);
@@ -161,7 +162,7 @@ if (!class_exists("addOnMain", false)) {
         /**
          * currently workaround to set $section_id and $page_id
          */
-        public function setIDs(int $section_id = null): self
+        public function setIDs(?int $section_id = null): self
         {
             // Try to set section_id
             $this->section_id = $section_id
@@ -254,7 +255,8 @@ if (!class_exists("addOnMain", false)) {
 
         public static function add()
         {
-            $this->setIDs();
+            global $page_id;
+            global $section_id;
 
             // Add a new news section
             if (
@@ -265,8 +267,8 @@ if (!class_exists("addOnMain", false)) {
             ( `page_id`, `section_id` ) VALUES
             ( :page_id, :section_id )',
                     [
-                        "page_id" => $this->page_id,
-                        "section_id" => $this->section_id,
+                        "page_id" => $page_id,
+                        "section_id" => $section_id,
                     ]
                 )
             ) {
@@ -548,7 +550,7 @@ if (!class_exists("addOnMain", false)) {
             $token_count = count($tokens);
             for ($i = 0; $i < $token_count; $i++) {
                 // Don't wanna add an empty string as the last thing in the array.
-                if ($i != $token_count - 1 || strlen($tokens[$i] > 0)) {
+                if ($i != $token_count - 1 || strlen($tokens[$i]) > 0) {
                     // This is the total number of single quotes in the token.
                     $total_quotes = preg_match_all(
                         "/'/",

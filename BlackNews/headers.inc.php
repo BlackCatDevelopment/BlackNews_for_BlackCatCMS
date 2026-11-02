@@ -57,7 +57,7 @@ if (defined("CAT_PATH")) {
 
 require_once "inc/class.blackNews.php";
 
-if ($section && $for) {
+if (!empty($section) && !empty($for)) {
   $bN = new blackNews();
   $bN->setIDs($section);
   $bN->getVariant();
