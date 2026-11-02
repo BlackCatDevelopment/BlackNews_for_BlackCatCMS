@@ -811,6 +811,29 @@ if (!class_exists("blackNews", false)) {
          * comma separated). Falls back to the types already present in the DB,
          * then to a generic default list.
          */
+        /**
+         * Distinct tag types already stored for this section (robust against
+         * DB wrappers without fetchAll(PDO::FETCH_COLUMN))
+         */
+        private function getExistingTagTypes(): array
+        {
+            try {
+                $r = self::$db->query(
+                    "SELECT DISTINCT `type` FROM `:prefix:mod_blackNewsTags` WHERE `section_id` = :sid ORDER BY `type`",
+                    ["sid" => $this->section_id]
+                );
+                $out = [];
+                if ($r && $r->rowCount() > 0) {
+                    while (false !== ($row = $r->fetch())) {
+                        $out[] = is_array($row) ? reset($row) : $row;
+                    }
+                }
+                return $out;
+            } catch (\Throwable $e) {
+                return [];
+            }
+        }
+
         public function getConfiguredTagTypes(): array
         {
             $conf = (string) $this->getOption("tagTypes");
@@ -820,12 +843,7 @@ if (!class_exists("blackNews", false)) {
                     return array_values($types);
                 }
             }
-            $existing = self::$db
-                ->query(
-                    "SELECT DISTINCT `type` FROM `:prefix:mod_blackNewsTags` WHERE `section_id` = :sid ORDER BY `type`",
-                    ["sid" => $this->section_id]
-                )
-                ->fetchAll(\PDO::FETCH_COLUMN);
+            $existing = $this->getExistingTagTypes();
             if (count($existing) > 0) {
                 return $existing;
             }
@@ -1634,12 +1652,7 @@ if (!class_exists("blackNews", false)) {
                         ),
                         "types" => array_values(array_unique(array_merge(
                             $this->getConfiguredTagTypes(),
-                            self::$db
-                                ->query(
-                                    "SELECT DISTINCT `type` FROM `:prefix:mod_blackNewsTags` WHERE `section_id` = :sid ORDER BY `type`",
-                                    ["sid" => $this->section_id]
-                                )
-                                ->fetchAll(\PDO::FETCH_COLUMN)
+                            $this->getExistingTagTypes()
                         ))),
                     ];
                     break;
@@ -1745,6 +1758,10 @@ if (!class_exists("blackNews", false)) {
             }
 
             if (CAT_Helper_Validate::sanitizePost("_cat_ajax") == 1) {
+                while (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                header("Content-type: application/json; charset=utf-8");
                 print json_encode($return);
                 exit();
             } else {
