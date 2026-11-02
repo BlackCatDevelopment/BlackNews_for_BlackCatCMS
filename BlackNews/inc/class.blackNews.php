@@ -260,7 +260,7 @@ if (!class_exists("blackNews", false)) {
         /**
          * Count entries matching the filters without loading rows
          */
-        public function countOverview(array $filters = []): int
+        public function countOverview(array $filters = [], bool $frontend = true): int
         {
             $section_id = $this->getOption("setNews")
                 ? $this->getOption("setNews")
@@ -302,9 +302,11 @@ if (!class_exists("blackNews", false)) {
                     ? "LEFT JOIN `:prefix:mod_blackNewsCategoryEntries` catE ON nE.`entryID` = catE.`entryID` "
                     : "") .
                 $where .
-                " AND ((nE.`publishDate` < CURRENT_TIMESTAMP OR nE.`publishDate` IS NULL) " .
-                "AND (nE.`unpublishDate` > CURRENT_TIMESTAMP OR nE.`unpublishDate` IS NULL)) " .
-                "AND publish IS NOT NULL " .
+                ($frontend
+                    ? " AND ((nE.`publishDate` < CURRENT_TIMESTAMP OR nE.`publishDate` IS NULL) " .
+                      "AND (nE.`unpublishDate` > CURRENT_TIMESTAMP OR nE.`unpublishDate` IS NULL)) " .
+                      "AND publish IS NOT NULL "
+                    : "") .
                 $filterSql;
             return (int) self::$db
                 ->query(
@@ -1556,7 +1558,7 @@ if (!class_exists("blackNews", false)) {
 
             $listLimit = 50;
             $this->setParserValue("entries", $this->getOverview(false, 0, $listLimit, false, [], true), true);
-            $this->setParserValue("entriesTotal", $this->countOverview(), true);
+            $this->setParserValue("entriesTotal", $this->countOverview([], false), true);
             $this->setParserValue("entriesLimit", $listLimit, true);
 
             $this->setParserValue("categories", $this->getCategories(), true);
@@ -1805,7 +1807,7 @@ if (!class_exists("blackNews", false)) {
                     $page = max(0, (int) CAT_Helper_Validate::sanitizePost("page"));
                     $limit = 50;
                     $entries = $this->getOverview(false, $page * $limit, $limit, false, [], true);
-                    $total = $this->countOverview();
+                    $total = $this->countOverview([], false);
                     $parser->setPath(
                         CAT_PATH . "/modules/" . static::$directory . "/templates/" . $this->getVariant() . "/modify/"
                     );
