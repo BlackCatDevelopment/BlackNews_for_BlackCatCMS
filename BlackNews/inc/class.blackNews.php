@@ -807,8 +807,112 @@ if (!class_exists("blackNews", false)) {
         }
 
         /**
-         * Assign tags to an entry; unknown names are created on the fly.
-         * $tags: array of ['type' => ..., 'name' => ...] or ['type'=>..., 'slug'=>...]
+         * Tag types configured in the general options (option "tagTypes",
+         * comma separated). Falls back to the types already present in the DB,
+         * then to a generic default list.
+         */
+        public function getConfiguredTagTypes(): array
+        {
+            $conf = (string) $this->getOption("tagTypes");
+            if ($conf !== "") {
+                $types = array_filter(array_map("trim", explode(",", $conf)));
+                if (count($types) > 0) {
+                    return array_values($types);
+                }
+            }
+            $existing = self::$db
+                ->query(
+                    "SELECT DISTINCT `type` FROM `:prefix:mod_blackNewsTags` WHERE `section_id` = :sid ORDER BY `type`",
+                    ["sid" => $this->section_id]
+                )
+                ->fetchAll(\PDO::FETCH_COLUMN);
+            if (count($existing) > 0) {
+                return $existing;
+            }
+            return ["quelle", "unternehmen", "verwalter", "filter", "typ"];
+        }
+
+        /**
+         * Types whose values are split into single tags on save
+         * (option "tagSplitTypes", comma separated, default: verwalter)
+         */
+        public function getSplitTagTypes(): array
+        {
+            $conf = (string) $this->getOption("tagSplitTypes");
+            $types = array_filter(array_map("trim", explode(",", $conf)));
+            return count($types) > 0 ? array_values($types) : ["verwalter"];
+        }
+
+        /**
+         * Normalize a tag name for comparison (umlauts, dashes, entities,
+         * whitespace, case) — used for fuzzy duplicate detection.
+         */
+        public static function normalizeTagName(string $name): string
+        {
+            $name = html_entity_decode($name, ENT_QUOTES | ENT_HTML5, "UTF-8");
+            $name = strtr($name, [
+                "\u{2013}" => "-", "\u{2014}" => "-", "\u{2212}" => "-",
+                "ä" => "ae", "ö" => "oe", "ü" => "ue", "ß" => "ss",
+                "Ä" => "Ae", "Ö" => "Oe", "Ü" => "Ue",
+            ]);
+            return mb_strtolower(preg_replace("/\s+/u", " ", trim($name)) ?? "");
+        }
+
+        /**
+         * Split a combined value ("A & B", "A, B", "A und B") into single
+         * names — only for types configured in tagSplitTypes.
+         */
+        public function splitTagValue(string $type, string $name): array
+        {
+            if (!in_array($type, $this->getSplitTagTypes(), true)) {
+                return [$name];
+            }
+            $parts = preg_split('/\s*(?:&|;|,)\s*|\s+und\s+/iu', html_entity_decode($name, ENT_QUOTES | ENT_HTML5, "UTF-8"));
+            $out = [];
+            foreach ($parts as $p) {
+                $p = trim(preg_replace("/\s+/u", " ", $p) ?? "");
+                if ($p !== "") {
+                    $out[] = $p;
+                }
+            }
+            return count($out) > 0 ? $out : [$name];
+        }
+
+        /**
+         * Find an existing tag of this section+type whose normalized name is
+         * similar (>= 0.85) to the given one — merges typos/variants instead
+         * of creating duplicates. Returns tagID or null.
+         */
+        private function findSimilarTag(string $type, string $name): ?int
+        {
+            $norm = self::normalizeTagName($name);
+            if ($norm === "") {
+                return null;
+            }
+            $r = self::$db->query(
+                "SELECT `tagID`, `name` FROM `:prefix:mod_blackNewsTags` WHERE `section_id` = :sid AND `type` = :type",
+                ["sid" => $this->section_id, "type" => $type]
+            );
+            $best = null;
+            $bestRatio = 0.0;
+            if ($r && $r->rowCount() > 0) {
+                while (false !== ($row = $r->fetch())) {
+                    $ratio = 0.0;
+                    similar_text($norm, self::normalizeTagName($row["name"]), $ratio);
+                    if ($ratio >= 85 && $ratio > $bestRatio) {
+                        $bestRatio = $ratio;
+                        $best = (int) $row["tagID"];
+                    }
+                }
+            }
+            return $best;
+        }
+
+        /**
+         * Assign tags to an entry; unknown names are created on the fly,
+         * combined values of split-types are split, similar existing names
+         * are reused (fuzzy merge).
+         * $tags: array of ['type' => ..., 'name' => ...]
          */
         public function setEntryTags(int $entryID, array $tags): bool
         {
@@ -823,45 +927,50 @@ if (!class_exists("blackNews", false)) {
                 if ($type === "" || $name === "") {
                     continue;
                 }
-                $slug = $t["slug"] ?? self::createTitleURL($name);
-                // ensure unique slug within section+type and against category urls
-                $base = $slug;
-                $i = 0;
-                while (
-                    self::$db
-                        ->query(
-                            "SELECT `tagID` FROM `:prefix:mod_blackNewsTags` " .
-                                "WHERE `section_id` = :sid AND `type` = :type AND `slug` = :slug " .
-                                "UNION SELECT `catID` FROM `:prefix:mod_blackNewsCategory` " .
-                                "WHERE `section_id` = :sid AND `url` = :slug",
-                            ["sid" => $this->section_id, "type" => $type, "slug" => $slug]
+                foreach ($this->splitTagValue($type, (string) $name) as $single) {
+                    $tagID = $this->findSimilarTag($type, $single);
+                    if ($tagID === null) {
+                        $slug = self::createTitleURL($single);
+                        $base = $slug;
+                        $i = 0;
+                        while (
+                            self::$db
+                                ->query(
+                                    "SELECT `tagID` FROM `:prefix:mod_blackNewsTags` " .
+                                        "WHERE `section_id` = :sid AND `type` = :type AND `slug` = :slug " .
+                                        "UNION SELECT `catID` FROM `:prefix:mod_blackNewsCategory` " .
+                                        "WHERE `section_id` = :sid AND `url` = :slug",
+                                    ["sid" => $this->section_id, "type" => $type, "slug" => $slug]
+                                )
+                                ->fetchColumn()
+                        ) {
+                            $slug = $base . "-" . ++$i;
+                        }
+                        self::$db->query(
+                            "INSERT INTO `:prefix:mod_blackNewsTags` (`section_id`, `type`, `name`, `slug`) " .
+                                "VALUES (:sid, :type, :name, :slug) ON DUPLICATE KEY UPDATE `name` = :name",
+                            ["sid" => $this->section_id, "type" => $type, "name" => $single, "slug" => $slug]
+                        );
+                        $tagID = self::$db->lastInsertId();
+                        if (!$tagID) {
+                            $tagID = self::$db
+                                ->query(
+                                    "SELECT `tagID` FROM `:prefix:mod_blackNewsTags` " .
+                                        "WHERE `section_id` = :sid AND `type` = :type AND `slug` = :slug",
+                                    ["sid" => $this->section_id, "type" => $type, "slug" => $slug]
+                                )
+                                ->fetchColumn();
+                        }
+                    }
+                    if (
+                        $tagID &&
+                        !self::$db->query(
+                            "INSERT IGNORE INTO `:prefix:mod_blackNewsEntryTags` (`entryID`, `tagID`) VALUES (:eid, :tid)",
+                            ["eid" => $entryID, "tid" => $tagID]
                         )
-                        ->fetchColumn()
-                ) {
-                    $slug = $base . "-" . ++$i;
-                }
-                self::$db->query(
-                    "INSERT INTO `:prefix:mod_blackNewsTags` (`section_id`, `type`, `name`, `slug`) " .
-                        "VALUES (:sid, :type, :name, :slug) ON DUPLICATE KEY UPDATE `name` = :name",
-                    ["sid" => $this->section_id, "type" => $type, "name" => $name, "slug" => $slug]
-                );
-                $tagID = self::$db->lastInsertId();
-                if (!$tagID) {
-                    $tagID = self::$db
-                        ->query(
-                            "SELECT `tagID` FROM `:prefix:mod_blackNewsTags` " .
-                                "WHERE `section_id` = :sid AND `type` = :type AND `slug` = :slug",
-                            ["sid" => $this->section_id, "type" => $type, "slug" => $slug]
-                        )
-                        ->fetchColumn();
-                }
-                if (
-                    !self::$db->query(
-                        "INSERT IGNORE INTO `:prefix:mod_blackNewsEntryTags` (`entryID`, `tagID`) VALUES (:eid, :tid)",
-                        ["eid" => $entryID, "tid" => $tagID]
-                    )
-                ) {
-                    $ok = false;
+                    ) {
+                        $ok = false;
+                    }
                 }
             }
             return $ok;
@@ -1349,6 +1458,8 @@ if (!class_exists("blackNews", false)) {
 
             $this->setParserValue("tags", $this->getTags(), true);
             $this->setParserValue("years", $this->getYears(), true);
+            $this->setParserValue("tagTypes", $this->getConfiguredTagTypes(), true);
+            $this->setParserValue("tagSplitTypes", $this->getSplitTagTypes(), true);
 
             // ToDo: wird von einer include-Variante auf eine andere geswitcht, bleibt die Option setNews bestehen! Zusätzlich variante auf include... untersuchen!
             if (
@@ -1518,23 +1629,39 @@ if (!class_exists("blackNews", false)) {
                         "tags" => $this->getTags(
                             (string) CAT_Helper_Validate::sanitizePost("type")
                         ),
-                        "types" => self::$db
-                            ->query(
-                                "SELECT DISTINCT `type` FROM `:prefix:mod_blackNewsTags` WHERE `section_id` = :sid ORDER BY `type`",
-                                ["sid" => $this->section_id]
-                            )
-                            ->fetchAll(\PDO::FETCH_COLUMN),
+                        "types" => array_values(array_unique(array_merge(
+                            $this->getConfiguredTagTypes(),
+                            self::$db
+                                ->query(
+                                    "SELECT DISTINCT `type` FROM `:prefix:mod_blackNewsTags` WHERE `section_id` = :sid ORDER BY `type`",
+                                    ["sid" => $this->section_id]
+                                )
+                                ->fetchAll(\PDO::FETCH_COLUMN)
+                        ))),
                     ];
                     break;
                 case "saveTags":
                     $tags = CAT_Helper_Validate::sanitizePost("tags");
                     $entryID = (int) CAT_Helper_Validate::sanitizePost("entryID");
+                    $ok = $this->setEntryTags(
+                        $entryID,
+                        is_array($tags) ? $tags : []
+                    );
+                    // remember newly used tag types in the general options
+                    if (is_array($tags)) {
+                        $known = $this->getConfiguredTagTypes();
+                        foreach ($tags as $t) {
+                            $type = trim((string) ($t["type"] ?? ""));
+                            if ($type !== "" && !in_array($type, $known, true)) {
+                                $known[] = $type;
+                                $this->setOption("tagTypes", implode(",", $known));
+                            }
+                        }
+                    }
                     $return = [
-                        "success" => $this->setEntryTags(
-                            $entryID,
-                            is_array($tags) ? $tags : []
-                        ),
+                        "success" => $ok,
                         "tags" => $this->getEntryTags($entryID),
+                        "types" => $this->getConfiguredTagTypes(),
                     ];
                     break;
                 case "getEntries":

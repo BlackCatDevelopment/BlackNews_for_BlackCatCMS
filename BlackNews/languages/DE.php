@@ -142,5 +142,9 @@ $LANG = [
     "Tags are filterable in the frontend via /tag/<slug>/ and /jahr/<year>/ URLs." => "Tags sind im Frontend \u00fcber /tag/<slug>/ und /jahr/<jahr>/ URLs filterbar.",
     "All years" => "Alle Jahre",
     "Load more" => "Mehr laden",
+    "Tag types (comma separated)" => "Tag-Typen (kommagetrennt)",
+    "Tag types to split on & / , / und (comma separated)" => "Tag-Typen, die beim Speichern an & / , / und geteilt werden (kommagetrennt)",
+    "Values of these types are split into single tags on save (e.g. 'A & B' becomes two tags)." => "Werte dieser Typen werden beim Speichern in einzelne Tags aufgeteilt (z. B. wird 'A & B' zu zwei Tags).",
+    "Tags are filterable in the frontend via /tag/<slug>/ and /jahr/<year>/ URLs. New tag types can be entered freely and are stored in the general options." => "Tags sind im Frontend \u00fcber /tag/<slug>/ und /jahr/<jahr>/ URLs filterbar. Neue Tag-Typen k\u00f6nnen frei eingegeben werden und werden in den allgemeinen Einstellungen gespeichert.",
 ];
 ?>
