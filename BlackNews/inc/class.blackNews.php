@@ -1658,10 +1658,12 @@ if (!class_exists("blackNews", false)) {
             if ($bnProf) {
                 $mark("includes");
                 $total = round((microtime(true) - ($prof["start"] ?? microtime(true))) * 1000, 1);
+                $line = "BN_PROF modify: " . json_encode($prof) . " total_ms=" . $total . "\n";
                 if (class_exists("CAT_Log")) {
-                    CAT_Log::getInstance()->log("BN_PROF modify: " . json_encode($prof) . " total_ms=" . $total, CAT_Log::DEBUG);
+                    CAT_Log::getInstance()->log($line, CAT_Log::DEBUG);
                 }
-                error_log("BN_PROF modify: " . json_encode($prof) . " total_ms=" . $total);
+                error_log($line);
+                @file_put_contents(CAT_PATH . "/temp/logs/bn_prof.log", $line, FILE_APPEND | LOCK_EX);
             }
             #if( !self::$parsed )
             $parser->output($this->template, $this->getParserValue());
