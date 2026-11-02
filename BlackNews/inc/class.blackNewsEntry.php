@@ -660,10 +660,11 @@ if (!class_exists("blackNewsEntry", false)) {
         {
             $this->entryID = CAT_Helper_Validate::sanitizePost("entryID");
 
-            $this->setEntryInfo(CAT_Helper_Validate::sanitizePost("values"));
+            $values = CAT_Helper_Validate::sanitizePost("values");
+            $this->setEntryInfo(is_array($values) ? $values : []);
 
             $this->setCategoryByID(
-                CAT_Helper_Validate::sanitizePost("category")
+                CAT_Helper_Validate::sanitizePost("category") ?: null
             );
 
             if ($tags = CAT_Helper_Validate::sanitizePost("tags")) {

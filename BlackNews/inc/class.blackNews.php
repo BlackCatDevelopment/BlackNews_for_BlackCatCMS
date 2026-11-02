@@ -1641,7 +1641,7 @@ if (!class_exists("blackNews", false)) {
                     $return = [
                         "message" => "Einträge sortiert",
                         "success" => self::order(
-                            CAT_Helper_Validate::sanitizePost("positions")
+                            (array) (CAT_Helper_Validate::sanitizePost("positions") ?: [])
                         ),
                     ];
                     break;
