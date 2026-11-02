@@ -54,6 +54,15 @@ function bN_fetchJSON(url, body) {
 
 function initTagEditor(bcID, initialTags) {
   var sid = bcID.section_id,
+    // re-init safe: alte Listener entfernen
+    typeSel0 = document.getElementById("bN_tagType_" + sid),
+    addBtn0 = document.getElementById("bN_tagAdd_" + sid);
+  if (typeSel0 && typeSel0.cloneNode) {
+    var t2 = typeSel0.cloneNode(true);
+    typeSel0.parentNode.replaceChild(t2, typeSel0);
+    var a2 = addBtn0.cloneNode(true);
+    addBtn0.parentNode.replaceChild(a2, addBtn0);
+  }
     typeSel = document.getElementById("bN_tagType_" + sid),
     typeListEl = document.getElementById("bN_tagTypeList_" + sid),
     nameIn = document.getElementById("bN_tagName_" + sid),

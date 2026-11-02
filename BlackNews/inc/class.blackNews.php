@@ -1060,7 +1060,8 @@ if (!class_exists("blackNews", false)) {
             if (self::checkOverview($rUrl) || self::checkCategory() || $this->hasFilters()) {
                 // 301 to canonical filter order (jahr first, then tags sorted)
                 $canonical = $this->getCanonicalRoute();
-                if ($canonical !== "" && $canonical !== $this->routeUrl && $this->hasFilters()) {
+                $currentFull = trim(($this->routeCategory !== "" ? $this->routeCategory . "/" : "") . $this->routeUrl, "/");
+                if ($canonical !== "" && $canonical !== $currentFull && $this->hasFilters()) {
                     $target = CAT_Registry::get("USE_SHORT_URLS")
                         ? CAT_URL . "/" . $canonical
                         : CAT_URL . "/" . trim(PAGES_DIRECTORY, "/") . "/" . $canonical;
@@ -1329,7 +1330,9 @@ if (!class_exists("blackNews", false)) {
                     break;
                 }
             }
-            // Remaining segments belong to the entry slug
+            // Remaining segments belong to the entry slug.
+            // routeUrl keeps only category + entry (filter segments are in routeFilters),
+            // so getCanonicalRoute() reproduces exactly this and the 301 check terminates.
             $rest = implode("/", array_slice($segments, $i));
             $this->routeUrl = trim(
                 ($this->routeCategory !== "" ? $this->routeCategory . "/" : "") . $rest,
