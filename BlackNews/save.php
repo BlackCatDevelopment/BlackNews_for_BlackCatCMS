@@ -59,15 +59,28 @@ ini_set("display_errors", 1);
 ini_set("display_startup_errors", 1);
 error_reporting(E_ALL);
 
+// Request-Logging fuer Hanging-Diagnose (immer aktiv, eine Zeile pro Call)
+$bnLog = function (string $msg) {
+    @file_put_contents(
+        CAT_PATH . "/temp/logs/bn_prof.log",
+        date("H:i:s") . " save.php " . $msg . "\n",
+        FILE_APPEND | LOCK_EX
+    );
+};
+$bnLog("start action=" . ($_POST["action"] ?? "?") . " entryID=" . ($_POST["entryID"] ?? "-") . " session=" . (session_status() === PHP_SESSION_ACTIVE ? "active" : "none"));
+
 // AJAX-Requests duerfen die Session nicht blockieren (Session-Lock):
 // nach dem Lesen sofort wieder freigeben.
 if (isset($_POST["_cat_ajax"]) && session_status() === PHP_SESSION_ACTIVE) {
     session_write_close();
+    $bnLog("session closed");
 }
 
 global $section_id;
 
+$t0 = microtime(true);
 $blackNews = new blackNews($section_id);
 $blackNews->save();
+$bnLog("done in " . round((microtime(true) - $t0) * 1000, 1) . "ms");
 
 ?>
