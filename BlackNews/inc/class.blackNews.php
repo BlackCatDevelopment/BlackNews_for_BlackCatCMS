@@ -562,7 +562,7 @@ if (!class_exists("blackNews", false)) {
                     ]
                 )
                 ->fetchColumn();
-            return trim($result, "/");
+            return trim((string) $result, "/");
         }
         /**
          *
@@ -1364,7 +1364,17 @@ if (!class_exists("blackNews", false)) {
                 "/"
             );
 
-            $this->parseFilters();
+            $segments = $this->routeUrl !== "" ? explode("/", $this->routeUrl) : [];
+            $mayHaveFilters = false;
+            foreach ($segments as $s) {
+                if ($s === "jahr" || $s === "tag") {
+                    $mayHaveFilters = true;
+                    break;
+                }
+            }
+            if ($mayHaveFilters) {
+                $this->parseFilters();
+            }
 
             return [$this->routeUrl, $this->routeQuery];
         } // end function initRoute()
