@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsTags` (
 	`section_id` int(11) unsigned NOT NULL DEFAULT 0,
 	`type` varchar(32) NOT NULL DEFAULT '',
 	`name` varchar(255) NOT NULL DEFAULT '',
-	`slug` varchar(191) NOT NULL DEFAULT '',
+	`slug` varchar(120) NOT NULL DEFAULT '',
 	PRIMARY KEY (`tagID`),
 	UNIQUE KEY `:prefix:secTypeSlug` (`section_id`, `type`, `slug`),
 	CONSTRAINT `:prefix:bN_TagSec` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
