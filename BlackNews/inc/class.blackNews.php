@@ -1867,6 +1867,17 @@ if (!class_exists("blackNews", false)) {
             }
 
             switch ($action) {
+                case "get":
+                case "copy":
+                case "publish":
+                case "remove":
+                case "uploadIMG":
+                    if (!$entryObj) {
+                        $entryObj = new blackNewsEntry(
+                            (int) CAT_Helper_Validate::sanitizePost("entryID")
+                        );
+                    }
+                    break;
                 case "setSkin":
                     $return = $this->setOption(
                         "variant",
