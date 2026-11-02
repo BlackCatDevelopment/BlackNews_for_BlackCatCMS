@@ -1713,6 +1713,22 @@ if (!class_exists("blackNews", false)) {
 
             $action = CAT_Helper_Validate::sanitizePost("action");
             $return = [];
+
+            // aktionsloser Aufruf (z. B. leeres Formular): nicht das komplette
+            // Backend booten, sondern sofort antworten
+            if (!$action) {
+                if ($isAjax) {
+                    while (ob_get_level() > 0) {
+                        ob_end_clean();
+                    }
+                    header("Content-type: application/json; charset=utf-8");
+                    print json_encode(["success" => false, "message" => "no action"]);
+                    exit();
+                }
+                header("Location: " . CAT_ADMIN_URL . "/pages/modify.php?page_id=" . (int) $this->page_id);
+                exit();
+            }
+
             $this->setIDs();
 
             $entryObj = null;
