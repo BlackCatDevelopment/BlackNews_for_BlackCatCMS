@@ -854,16 +854,25 @@ $(document).ready(function () {
         });
       });
 
-      // Infinite scroll for the entry list (first page rendered server-side)
+      // Infinite scroll for the entry list (first page rendered server-side).
+      // Loads only when the user really scrolled (scrollTop > 0) or a sentinel
+      // at the end of the list becomes visible - never on initial page load.
       (function () {
         var listEl = document.getElementById("blackNewsList_" + bcID.section_id);
         if (!listEl) return;
         var page = 0,
           loading = false,
-          limit = 50;
+          done = false,
+          sentinel = document.createElement("li");
+        sentinel.className = "bc_Entry bc_loading";
+        sentinel.style.display = "none";
+        sentinel.textContent = "...";
+        listEl.appendChild(sentinel);
+
         function loadMore() {
-          if (loading) return;
+          if (loading || done) return;
           loading = true;
+          sentinel.style.display = "";
           var b = new URLSearchParams();
           b.append("action", "getEntryList");
           b.append("_cat_ajax", "1");
@@ -871,25 +880,34 @@ $(document).ready(function () {
           b.append("page", ++page);
           bN_fetchJSON(CAT_URL + "/modules/blacknews/save.php", b).then(function (res) {
             loading = false;
+            sentinel.style.display = "none";
             if (!res || !res.success) return;
-            listEl.insertAdjacentHTML("beforeend", res.html);
+            if (res.html) {
+              sentinel.insertAdjacentHTML("beforebegin", res.html);
+            }
             if (!res.hasMore) {
-              window.removeEventListener("scroll", onScroll);
-              listEl.removeEventListener("scroll", onScroll);
+              done = true;
+              sentinel.remove();
+              if (io) io.disconnect();
             }
           });
         }
-        function onScroll() {
-          var el = listEl.scrollHeight - listEl.scrollTop - listEl.clientHeight < 200
-            ? listEl
-            : document.scrollingElement;
-          var nearBottom =
-            listEl.scrollHeight - listEl.scrollTop - listEl.clientHeight < 200 ||
-            window.innerHeight + window.scrollY >= document.body.scrollHeight - 200;
-          if (nearBottom) loadMore();
+
+        var io = null;
+        if ("IntersectionObserver" in window) {
+          io = new IntersectionObserver(function (entries) {
+            if (entries[0].isIntersecting && listEl.scrollTop > 0) loadMore();
+          });
+          io.observe(sentinel);
+        } else {
+          function onScroll() {
+            if (listEl.scrollTop > 0 &&
+                listEl.scrollHeight - listEl.scrollTop - listEl.clientHeight < 200) {
+              loadMore();
+            }
+          }
+          listEl.addEventListener("scroll", onScroll);
         }
-        window.addEventListener("scroll", onScroll);
-        listEl.addEventListener("scroll", onScroll);
       })();
 
       $sBar.sortable({
