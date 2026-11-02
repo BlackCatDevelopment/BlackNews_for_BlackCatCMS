@@ -1600,6 +1600,7 @@ if (!class_exists("blackNews", false)) {
             $return = [];
             $this->setIDs();
 
+            $entryObj = null;
             if (CAT_Helper_Validate::sanitizePost("entryID")) {
                 $entryObj = new blackNewsEntry(
                     CAT_Helper_Validate::sanitizePost("entryID")
@@ -1753,6 +1754,11 @@ if (!class_exists("blackNews", false)) {
 
                 default:
                     // save
+                    if (!$entryObj) {
+                        $entryObj = new blackNewsEntry(
+                            (int) CAT_Helper_Validate::sanitizePost("entryID")
+                        );
+                    }
                     $return = $entryObj->saveEntry();
                     break;
             }
