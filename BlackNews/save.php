@@ -69,9 +69,9 @@ $bnLog = function (string $msg) {
 };
 $bnLog("start action=" . ($_POST["action"] ?? "?") . " entryID=" . ($_POST["entryID"] ?? "-") . " session=" . (session_status() === PHP_SESSION_ACTIVE ? "active" : "none"));
 
-// AJAX-Requests duerfen die Session nicht blockieren (Session-Lock):
-// nach dem Lesen sofort wieder freigeben.
-if (isset($_POST["_cat_ajax"]) && session_status() === PHP_SESSION_ACTIVE) {
+// save.php ist ein reiner AJAX/Formular-Endpunkt: Session immer sofort
+// freigeben, sonst blockiert der Session-File-Lock parallele Requests.
+if (session_status() === PHP_SESSION_ACTIVE) {
     session_write_close();
     $bnLog("session closed");
 }
