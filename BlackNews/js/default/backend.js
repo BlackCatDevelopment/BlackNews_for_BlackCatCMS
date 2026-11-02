@@ -854,6 +854,44 @@ $(document).ready(function () {
         });
       });
 
+      // Infinite scroll for the entry list (first page rendered server-side)
+      (function () {
+        var listEl = document.getElementById("blackNewsList_" + bcID.section_id);
+        if (!listEl) return;
+        var page = 0,
+          loading = false,
+          limit = 50;
+        function loadMore() {
+          if (loading) return;
+          loading = true;
+          var b = new URLSearchParams();
+          b.append("action", "getEntryList");
+          b.append("_cat_ajax", "1");
+          b.append("section_id", bcID.section_id);
+          b.append("page", ++page);
+          bN_fetchJSON(CAT_URL + "/modules/blacknews/save.php", b).then(function (res) {
+            loading = false;
+            if (!res || !res.success) return;
+            listEl.insertAdjacentHTML("beforeend", res.html);
+            if (!res.hasMore) {
+              window.removeEventListener("scroll", onScroll);
+              listEl.removeEventListener("scroll", onScroll);
+            }
+          });
+        }
+        function onScroll() {
+          var el = listEl.scrollHeight - listEl.scrollTop - listEl.clientHeight < 200
+            ? listEl
+            : document.scrollingElement;
+          var nearBottom =
+            listEl.scrollHeight - listEl.scrollTop - listEl.clientHeight < 200 ||
+            window.innerHeight + window.scrollY >= document.body.scrollHeight - 200;
+          if (nearBottom) loadMore();
+        }
+        window.addEventListener("scroll", onScroll);
+        listEl.addEventListener("scroll", onScroll);
+      })();
+
       $sBar.sortable({
         axis: "y",
         update: function (event, ui) {

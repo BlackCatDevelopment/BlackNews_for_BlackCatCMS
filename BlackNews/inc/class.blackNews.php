@@ -326,7 +326,8 @@ if (!class_exists("blackNews", false)) {
             int $start = 0,
             int $limit = 0,
             bool $frontend = false,
-            array $filters = []
+            array $filters = [],
+            bool $light = false
         ): array {
             $catID = $this->getOption("category")
                 ? $this->getOption("category")
@@ -337,6 +338,12 @@ if (!class_exists("blackNews", false)) {
                 : 0;
 
             $between = $limit > 0 ? " LIMIT " . $start . "," . $limit : "";
+
+            $cols = $light
+                ? "nE.`entryID`, nE.`section_id`, nE.`title`, nE.`seoURL`, nE.`position`, nE.`publish`, " .
+                  'DATE_FORMAT(nE.`publishDate`, "%Y-%m-%d") AS publishDate, ' .
+                  "UNIX_TIMESTAMP(nE.`publishDate`) AS publishUT"
+                : "CURRENT_TIMESTAMP , nE.`entryID`, nE.`section_id`, `title`, `content`, `shortcontent`, `text`, `modified`, `created`, `userID`, `seoURL`, `position`, `publish`, `category`, `url`";
 
             // Build filter conditions: ['jahr' => [2026,...], 'tag' => ['slug',...], '<type>' => [...]]
             $filterSql = "";
@@ -368,12 +375,12 @@ if (!class_exists("blackNews", false)) {
             // Get all entries
             if ($catID > 0) {
                 $result = self::$db->query(
-                    "SELECT nE.`entryID`, nE.`section_id`, `title`, `content`, `shortcontent`, `text`, `modified`, `created`, `userID`, `seoURL`, `position`, `publish`, `category`, `url`, " .
+                    "SELECT " . $cols . ($light ? "" : " , " .
                         'DATE_FORMAT(nE.`publishDate`, "%Y-%m-%d") AS publishDate, ' .
                         'DATE_FORMAT(nE.`publishDate`, "%H:%i") AS publishTime, ' .
                         'DATE_FORMAT(nE.`unpublishDate`, "%Y-%m-%d") AS unpublishDate, ' .
                         'DATE_FORMAT(nE.`unpublishDate`, "%H:%i") AS unpublishTime, ' .
-                        "UNIX_TIMESTAMP(nE.`publishDate`) AS publishUT " .
+                        "UNIX_TIMESTAMP(nE.`publishDate`) AS publishUT ") .
                         "FROM `:prefix:mod_blackNewsEntry` nE " .
                         "LEFT JOIN `:prefix:mod_blackNewsCategoryEntries` catE " .
                         "ON nE.`entryID` = catE.`entryID` " .
@@ -401,12 +408,12 @@ if (!class_exists("blackNews", false)) {
                 );
             } else {
                 $result = self::$db->query(
-                    "SELECT CURRENT_TIMESTAMP , nE.`entryID`, nE.`section_id`, `title`, `content`, `shortcontent`, `text`, `modified`, `created`, `userID`, `seoURL`, `position`, `publish`, `category`, `url`, " .
+                    "SELECT " . $cols . ($light ? "" : " , " .
                         'DATE_FORMAT(nE.`publishDate`, "%Y-%m-%d") AS publishDate, ' .
                         'DATE_FORMAT(nE.`publishDate`, "%H:%i") AS publishTime, ' .
                         'DATE_FORMAT(nE.`unpublishDate`, "%Y-%m-%d") AS unpublishDate, ' .
                         'DATE_FORMAT(nE.`unpublishDate`, "%H:%i") AS unpublishTime, ' .
-                        "UNIX_TIMESTAMP(nE.`publishDate`) AS publishUT " .
+                        "UNIX_TIMESTAMP(nE.`publishDate`) AS publishUT ") .
                         "FROM `:prefix:mod_blackNewsEntry` nE " .
                         "LEFT JOIN `:prefix:mod_blackNewsCategoryEntries` catE ON nE.`entryID` = catE.`entryID`" .
                         "LEFT JOIN `:prefix:mod_blackNewsCategory` C ON catE.catID = C.catID " .
@@ -1537,7 +1544,10 @@ if (!class_exists("blackNews", false)) {
                 true
             );
 
-            $this->setParserValue("entries", $this->getOverview(false), true);
+            $listLimit = 50;
+            $this->setParserValue("entries", $this->getOverview(false, 0, $listLimit, false, [], true), true);
+            $this->setParserValue("entriesTotal", $this->countOverview(), true);
+            $this->setParserValue("entriesLimit", $listLimit, true);
 
             $this->setParserValue("categories", $this->getCategories(), true);
 
@@ -1779,6 +1789,30 @@ if (!class_exists("blackNews", false)) {
                         "perPage" => $perPage,
                         "page" => $page,
                         "hasMore" => ($page + 1) * $perPage < $total,
+                    ];
+                    break;
+                case "getEntryList":
+                    global $parser;
+                    $page = max(0, (int) CAT_Helper_Validate::sanitizePost("page"));
+                    $limit = 50;
+                    $entries = $this->getOverview(false, $page * $limit, $limit, false, [], true);
+                    $total = $this->countOverview();
+                    $parser->setPath(
+                        CAT_PATH . "/modules/" . static::$directory . "/templates/" . $this->getVariant() . "/modify/"
+                    );
+                    $parser->setFallbackPath(
+                        CAT_PATH . "/modules/" . static::$directory . "/templates/default/modify/"
+                    );
+                    $html = "";
+                    foreach ($entries as $entry) {
+                        $html .= $parser->get("entryList", ["entry" => $entry, "section_id" => $this->section_id]);
+                    }
+                    $return = [
+                        "success" => true,
+                        "html" => $html,
+                        "total" => $total,
+                        "limit" => $limit,
+                        "hasMore" => ($page + 1) * $limit < $total,
                     ];
                     break;
                 case "uploadIMG":
