@@ -59,6 +59,12 @@ ini_set("display_errors", 1);
 ini_set("display_startup_errors", 1);
 error_reporting(E_ALL);
 
+// AJAX-Requests duerfen die Session nicht blockieren (Session-Lock):
+// nach dem Lesen sofort wieder freigeben.
+if (isset($_POST["_cat_ajax"]) && session_status() === PHP_SESSION_ACTIVE) {
+    session_write_close();
+}
+
 global $section_id;
 
 $blackNews = new blackNews($section_id);
