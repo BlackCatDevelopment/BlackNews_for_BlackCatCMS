@@ -1664,6 +1664,7 @@ if (!class_exists("blackNews", false)) {
             $backend = $isAjax
                 ? null
                 : CAT_Backend::getInstance("Pages", "pages_modify");
+            $lang = CAT_Helper_I18n::getInstance(LANGUAGE)->lang();
 
             if ($backend) {
                 $backend->updateWhenModified();
@@ -1706,9 +1707,7 @@ if (!class_exists("blackNews", false)) {
                     break;
                 case "saveOptions":
                     $return = $this->saveOptions();
-                    $return["message"] = $backend
-                        ->lang()
-                        ->translate("Options saved");
+                    $return["message"] = $lang->translate("Options saved");
                     break;
                 case "orderEntries":
                     $return = [
@@ -1821,16 +1820,12 @@ if (!class_exists("blackNews", false)) {
                         $_FILES["bNimage"]["name"] != ""
                     ) {
                         $return = [
-                            "message" => $backend
-                                ->lang()
-                                ->translate("Image uploaded successfully!"),
+                            "message" => $lang->translate("Image uploaded successfully!"),
                             "success" => $entryObj->saveImage($_FILES),
                         ];
                     } else {
                         $ajax_return = [
-                            "message" => $backend
-                                ->lang()
-                                ->translate("No images to upload"),
+                            "message" => $lang->translate("No images to upload"),
                             "success" => false,
                         ];
                     }
@@ -1871,7 +1866,7 @@ if (!class_exists("blackNews", false)) {
                 $backend->print_success(
                     isset($return["message"])
                         ? $return["message"]
-                        : $backend->lang()->translate("Saved successfully"),
+                        : $lang->translate("Saved successfully"),
                     CAT_ADMIN_URL .
                         "/pages/modify.php?page_id=" .
                         $this->page_id
