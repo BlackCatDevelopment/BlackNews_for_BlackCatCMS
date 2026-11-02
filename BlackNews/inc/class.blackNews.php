@@ -1673,7 +1673,10 @@ if (!class_exists("blackNews", false)) {
         {
             $errors = [];
 
-            // Tag tables for filtering entries (jahr/tag/<slug> routes)
+            // Tag tables for filtering entries (jahr/tag/<slug> routes).
+            // No FK constraints here: on existing installations the referenced
+            // tables may differ in type/engine/collation, which makes MySQL fail
+            // with errno 150. PK + unique keys are sufficient.
             foreach ([
                 "CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsTags` (
                     `tagID` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -1682,20 +1685,18 @@ if (!class_exists("blackNews", false)) {
                     `name` varchar(255) NOT NULL DEFAULT '',
                     `slug` varchar(120) NOT NULL DEFAULT '',
                     PRIMARY KEY (`tagID`),
-                    UNIQUE KEY `:prefix:secTypeSlug` (`section_id`, `type`, `slug`),
-                    CONSTRAINT `:prefix:bN_TagSec` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
+                    UNIQUE KEY `:prefix:secTypeSlug` (`section_id`, `type`, `slug`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci'",
                 "CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntryTags` (
                     `entryID` int(11) unsigned NOT NULL,
                     `tagID` int(11) unsigned NOT NULL,
-                    PRIMARY KEY (`entryID`, `tagID`),
-                    CONSTRAINT `:prefix:bN_EntryTagEntry` FOREIGN KEY (`entryID`) REFERENCES `:prefix:mod_blackNewsEntry`(`entryID`) ON DELETE CASCADE,
-                    CONSTRAINT `:prefix:bN_EntryTagTag` FOREIGN KEY (`tagID`) REFERENCES `:prefix:mod_blackNewsTags`(`tagID`) ON DELETE CASCADE
+                    PRIMARY KEY (`entryID`, `tagID`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci'",
             ] as $sql) {
                 self::$db->query($sql);
                 if (self::$db->isError()) {
                     $errors[] = self::$db->getError();
+                    error_log("blackNews upgrade: " . self::$db->getError());
                 }
             }
 
@@ -1708,9 +1709,22 @@ if (!class_exists("blackNews", false)) {
             );
 
             // shortcontent column may be missing on older installations
-            self::$db->query(
-                "ALTER TABLE `:prefix:mod_blackNewsEntry` ADD COLUMN `shortcontent` text NULL AFTER `content`"
-            );
+            $hasShort = self::$db
+                ->query(
+                    "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS " .
+                        "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :t AND COLUMN_NAME = 'shortcontent'",
+                    ["t" => CAT_TABLE_PREFIX . "mod_blackNewsEntry"]
+                )
+                ->fetchColumn();
+            if (!$hasShort) {
+                self::$db->query(
+                    "ALTER TABLE `:prefix:mod_blackNewsEntry` ADD COLUMN `shortcontent` text NULL AFTER `content`"
+                );
+                if (self::$db->isError()) {
+                    $errors[] = self::$db->getError();
+                    error_log("blackNews upgrade: " . self::$db->getError());
+                }
+            }
 
             return $errors;
         }
