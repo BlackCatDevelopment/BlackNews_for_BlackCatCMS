@@ -54,7 +54,7 @@ class CC_SEOUrl
   private static $options = [];
   private $seoPath = "";
   private $seoUrl = "";
-  private $fileName = "";
+  private static $fileName = "";
   private $title = "";
 
   /**

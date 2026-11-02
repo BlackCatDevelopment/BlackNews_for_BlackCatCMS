@@ -34,7 +34,7 @@
 /**
  *
  */
-class CC_SEOUrl
+class CC_RSS
 {
   /**
    *

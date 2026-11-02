@@ -74,6 +74,7 @@ if (!class_exists("addOnMain", false)) {
         protected static $precheckVersion;
 
         protected static $templatePath = "";
+        protected $template = "modify";
         protected $variant = "default";
         protected static $allVariants = [];
 
@@ -250,7 +251,7 @@ if (!class_exists("addOnMain", false)) {
                     "/templates/default"
             );
 
-            $parser->output(self::$template, $this->getParserValue());
+            $parser->output($this->template, $this->getParserValue());
         }
 
         public static function add()
@@ -282,7 +283,7 @@ if (!class_exists("addOnMain", false)) {
         {
             global $parser;
 
-            self::$template = "view";
+            $this->template = "view";
 
             $parser->setPath(
                 CAT_PATH .
@@ -298,7 +299,7 @@ if (!class_exists("addOnMain", false)) {
                     "/templates/default"
             );
 
-            $parser->output(self::$template, $this->getParserValue());
+            $parser->output($this->template, $this->getParserValue());
         }
 
         public static function remove()

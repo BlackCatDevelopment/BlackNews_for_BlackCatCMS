@@ -13,11 +13,12 @@
 
 DROP TRIGGER IF EXISTS `:prefix:bNEntrIn`;
 DROP TRIGGER IF EXISTS `:prefix:bNEntrOptUp`;
-DROP TRIGGER IF EXISTS `blackNewsForm`;
+DROP TRIGGER IF EXISTS `:prefix:blackNewsForm`;
 
 DROP TABLE IF EXISTS
 `:prefix:mod_blackNewsForm`,
+`:prefix:mod_blackNewsCategoryEntries`,
+`:prefix:mod_blackNewsCategory`,
 `:prefix:mod_blackNewsOptions`,
 `:prefix:mod_blackNewsEntryOptions`,
-`:prefix:mod_blackNewsEntry`,
-`:prefix:mod_blackNews`;
+`:prefix:mod_blackNewsEntry`;

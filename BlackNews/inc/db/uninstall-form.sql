@@ -10,5 +10,5 @@
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
 
 
-DROP TRIGGER IF EXISTS `blackNewsForm`;
+DROP TRIGGER IF EXISTS `:prefix:blackNewsForm`;
 DROP TABLE IF EXISTS `:prefix:mod_blackNewsForm`;

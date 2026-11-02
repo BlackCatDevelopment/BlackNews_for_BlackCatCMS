@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntry` (
 	`section_id` int(11) NOT NULL DEFAULT 0,
 	`title` varchar(2047) NOT NULL DEFAULT '',
 	`content` text NULL,
+	`shortcontent` text NULL,
 	`text` text NULL,
 	`modified` DATETIME NULL DEFAULT NULL,
 	`created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -107,8 +108,8 @@ CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsForm` (
 	`entryID` int(11) unsigned NOT NULL,
 	`name` varchar(64) NOT NULL DEFAULT '',
 	`type` tinyint(1) unsigned NOT NULL DEFAULT 1,
-	`require` boolean NULL DEFAULT false,
-	`values` varchar(2047) NOT NULL DEFAULT '',
+	`required` boolean NULL DEFAULT false,
+	`value` varchar(2047) NOT NULL DEFAULT '',
 	`placeholder` varchar(512) NOT NULL DEFAULT '',
 	`width` tinyint(1) unsigned NOT NULL  DEFAULT 1,
 	`position` int(11) unsigned NOT NULL DEFAULT 1,
@@ -120,7 +121,7 @@ DEFAULT CHARSET=utf8
 COLLATE='utf8_general_ci';
 
 
-CREATE TRIGGER `:prefix:bN_Form` BEFORE INSERT ON `:prefix:mod_blackNewsForm` FOR EACH ROW 
+CREATE TRIGGER `:prefix:blackNewsForm` BEFORE INSERT ON `:prefix:mod_blackNewsForm` FOR EACH ROW 
 SET NEW.position = (
 SELECT CASE
 		WHEN (MAX(position) IS NULL) THEN 1
