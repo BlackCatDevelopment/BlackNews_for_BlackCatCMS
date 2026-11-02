@@ -855,14 +855,15 @@ $(document).ready(function () {
           done = false,
           sentinel = document.createElement("li");
         sentinel.className = "bc_Entry bc_loading";
-        sentinel.style.display = "none";
+        // muss sichtbar bleiben, sonst meldet der IntersectionObserver nie
+        sentinel.style.cssText = "height:1px;padding:0;margin:0;opacity:0;";
         sentinel.textContent = "...";
         listEl.appendChild(sentinel);
 
         function loadMore() {
           if (loading || done) return;
           loading = true;
-          sentinel.style.display = "";
+          sentinel.style.opacity = "1";
           var b = new URLSearchParams();
           b.append("action", "getEntryList");
           b.append("_cat_ajax", "1");
@@ -870,7 +871,7 @@ $(document).ready(function () {
           b.append("page", ++page);
           bN_fetchJSON(CAT_URL + "/modules/blacknews/save.php", b).then(function (res) {
             loading = false;
-            sentinel.style.display = "none";
+            sentinel.style.opacity = "0";
             if (!res || !res.success) return;
             if (res.html) {
               sentinel.insertAdjacentHTML("beforebegin", res.html);
@@ -886,7 +887,7 @@ $(document).ready(function () {
         var io = null;
         if ("IntersectionObserver" in window) {
           io = new IntersectionObserver(function (entries) {
-            if (entries[0].isIntersecting && listEl.scrollTop > 0) loadMore();
+            if (entries[0].isIntersecting) loadMore();
           });
           io.observe(sentinel);
         } else {
