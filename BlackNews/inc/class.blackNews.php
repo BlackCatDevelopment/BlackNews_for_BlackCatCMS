@@ -1725,7 +1725,9 @@ if (!class_exists("blackNews", false)) {
                     print json_encode(["success" => false, "message" => "no action"]);
                     exit();
                 }
-                header("Location: " . CAT_ADMIN_URL . "/pages/modify.php?page_id=" . (int) $this->page_id);
+                if (!headers_sent()) {
+                    header("Location: " . CAT_ADMIN_URL . "/pages/modify.php?page_id=" . (int) $this->page_id);
+                }
                 exit();
             }
 
