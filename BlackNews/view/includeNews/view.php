@@ -22,12 +22,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- *   @author			Matthias Glienke
- *   @copyright		2022, Black Cat Development
- *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
- *   @license			https://www.gnu.org/licenses/gpl-3.0.html
- *   @category		CAT_Modules
- *   @package			blackNews
+ *   @module			blacknews
+ *   @version			see info.php of this module
+ *   @author			Matthias Glienke, letima development
+ *   @copyright		2026, Black Cat Development
+ *   @link				http://blackcat-cms.org
+ *   @license			http://www.gnu.org/licenses/gpl.html
  *
  */
 
@@ -42,15 +42,14 @@ if (defined("CAT_PATH")) {
         $root .= $oneback;
         $level += 1;
     }
-    if (file_exists($root . "/framework/class.secure.php")) {
-        include $root . "/framework/class.secure.php";
+    if (file_exists($root . "framework/class.secure.php")) {
+        include $root . "framework/class.secure.php";
     } else {
-        trigger_error(
+        throw new \RuntimeException(
             sprintf(
-                "[ <b>%s</b> ] Can't include class.secure.php!",
+                "Cannot include class.secure.php at %s",
                 $_SERVER["SCRIPT_NAME"]
-            ),
-            E_USER_ERROR
+            )
         );
     }
 }
@@ -81,10 +80,10 @@ if (defined("CAT_PATH")) {
 }
 // end include class.secure.php
 
-$bN = blackNews::getParserValue();
+$bN = $this->getParserValue();
 
-blackNews::setParserValue("firstEntry", array_shift($bN["entries"]));
-blackNews::setParserValue("catIcons", [
+$this->setParserValue("firstEntry", array_shift($bN["entries"] ?? []));
+$this->setParserValue("catIcons", [
     "ics-events" => "ics-star-full",
     "allgemeine-neuigkeiten" => "ics-ics-logo",
     "erfahrungsberichte" => "ics-quill",

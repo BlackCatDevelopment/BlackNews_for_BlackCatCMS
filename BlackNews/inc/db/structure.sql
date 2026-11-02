@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntry` (
 	`section_id` int(11) NOT NULL DEFAULT 0,
 	`title` varchar(2047) NOT NULL DEFAULT '',
 	`content` text NULL,
+	`shortcontent` text NULL,
 	`text` text NULL,
 	`modified` DATETIME NULL DEFAULT NULL,
 	`created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -98,6 +99,40 @@ DEFAULT CHARSET=utf8
 COLLATE='utf8_general_ci';
 
 
+-- Tags for filtering entries (frontend routes: /<permalink>/<tagtype>/<slug>/ and /<permalink>/jahr/<year>/).
+-- `type` is free text (e.g. quelle, unternehmen, verwalter, typ); it is read dynamically
+-- via SELECT DISTINCT type, so new types can be added in the backend without code changes.
+-- `slug` is the URL segment and unique per (section_id, type); it is checked against
+-- category urls on save so a tag can never collide with a category slug.
+-- `section_id` must be signed int(11) to match sections.section_id for the FK (errno 150 otherwise).
+CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsTags` (
+	`tagID` int(11) unsigned NOT NULL AUTO_INCREMENT,
+	`section_id` int(11) NOT NULL DEFAULT 0,
+	`type` varchar(32) NOT NULL DEFAULT '',
+	`name` varchar(255) NOT NULL DEFAULT '',
+	`slug` varchar(120) NOT NULL DEFAULT '',
+	PRIMARY KEY (`tagID`),
+	UNIQUE KEY `:prefix:secTypeSlug` (`section_id`, `type`, `slug`),
+	CONSTRAINT `:prefix:bN_TagSec` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
+) COMMENT='Tags for filtering BlackNews entries'
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8
+COLLATE='utf8_general_ci';
+
+
+-- n:m relation between entries and tags (an entry can have many tags, a tag many entries)
+CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntryTags` (
+	`entryID` int(11) unsigned NOT NULL,
+	`tagID` int(11) unsigned NOT NULL,
+	PRIMARY KEY (`entryID`, `tagID`),
+	CONSTRAINT `:prefix:bN_EntryTagEntry` FOREIGN KEY (`entryID`) REFERENCES `:prefix:mod_blackNewsEntry`(`entryID`) ON DELETE CASCADE,
+	CONSTRAINT `:prefix:bN_EntryTagTag` FOREIGN KEY (`tagID`) REFERENCES `:prefix:mod_blackNewsTags`(`tagID`) ON DELETE CASCADE
+) COMMENT='Interconnection for BlackNews Entries and Tags'
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8
+COLLATE='utf8_general_ci';
+
+
 
 
 
@@ -107,8 +142,8 @@ CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsForm` (
 	`entryID` int(11) unsigned NOT NULL,
 	`name` varchar(64) NOT NULL DEFAULT '',
 	`type` tinyint(1) unsigned NOT NULL DEFAULT 1,
-	`require` boolean NULL DEFAULT false,
-	`values` varchar(2047) NOT NULL DEFAULT '',
+	`required` boolean NULL DEFAULT false,
+	`value` varchar(2047) NOT NULL DEFAULT '',
 	`placeholder` varchar(512) NOT NULL DEFAULT '',
 	`width` tinyint(1) unsigned NOT NULL  DEFAULT 1,
 	`position` int(11) unsigned NOT NULL DEFAULT 1,
@@ -120,7 +155,7 @@ DEFAULT CHARSET=utf8
 COLLATE='utf8_general_ci';
 
 
-CREATE TRIGGER `:prefix:bN_Form` BEFORE INSERT ON `:prefix:mod_blackNewsForm` FOR EACH ROW 
+CREATE TRIGGER `:prefix:blackNewsForm` BEFORE INSERT ON `:prefix:mod_blackNewsForm` FOR EACH ROW 
 SET NEW.position = (
 SELECT CASE
 		WHEN (MAX(position) IS NULL) THEN 1

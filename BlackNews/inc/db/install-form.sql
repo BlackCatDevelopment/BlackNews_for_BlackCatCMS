@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsForm` (
 	`entryID` int(11) unsigned NOT NULL,
 	`name` varchar(64) NOT NULL DEFAULT '',
 	`type` tinyint(1) unsigned NOT NULL DEFAULT 1,
-	`require` boolean NULL DEFAULT false,
-	`values` varchar(2047) NOT NULL DEFAULT '',
+	`required` boolean NULL DEFAULT false,
+	`value` varchar(2047) NOT NULL DEFAULT '',
 	`placeholder` varchar(512) NOT NULL DEFAULT '',
 	`width` tinyint(1) unsigned NOT NULL  DEFAULT 1,
 	`position` int(11) unsigned NOT NULL DEFAULT 1,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsForm` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-CREATE TRIGGER `blackNewsForm` BEFORE INSERT ON `:prefix:mod_blackNewsForm` FOR EACH ROW 
+CREATE TRIGGER `:prefix:blackNewsForm` BEFORE INSERT ON `:prefix:mod_blackNewsForm` FOR EACH ROW 
 SET NEW.position = (
 SELECT CASE
 		WHEN (MAX(position) IS NULL) THEN 1

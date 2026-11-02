@@ -20,14 +20,136 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- *   @author			Matthias Glienke
- *   @copyright		2022, Black Cat Development
- *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
- *   @license			https://www.gnu.org/licenses/gpl-3.0.html
- *   @category		CAT_Modules
- *   @package			blackNews
+ *   @module			blacknews
+ *   @version			see info.php of this module
+ *   @author			Matthias Glienke, letima development
+ *   @copyright		2026, Black Cat Development
+ *   @link				http://blackcat-cms.org
+ *   @license			http://www.gnu.org/licenses/gpl.html
  *
  */
+
+
+/**
+ * Tag-Editor: Autocomplete für Tag-Typen (konfiguriert + vorhandene) und
+ * Tag-Werte (bestehende Tags des Typs). Werte landen als JSON im hidden
+ * input "tags". Wird pro Sektion in initBackend() aufgerufen.
+ */
+
+/** fetch als JSON mit Fallback: liest Text und parst; bei Fehler null */
+function bN_fetchJSON(url, body) {
+  return fetch(url, { method: "POST", body: body.toString() })
+    .then(function (r) {
+      return r.text();
+    })
+    .then(function (txt) {
+      try {
+        return JSON.parse(txt);
+      } catch (e) {
+        console.warn("bN: non-JSON response from " + url, txt.slice(0, 200));
+        return null;
+      }
+    })
+    .catch(function (err) {
+      // network-level failure (aborted, offline, CORS): never unhandled
+      console.warn("bN: request failed " + url, err);
+      return null;
+    });
+}
+
+function initTagEditor(bcID, initialTags) {
+  var sid = bcID.section_id,
+    // re-init safe: alte Listener entfernen
+    typeSel0 = document.getElementById("bN_tagType_" + sid),
+    addBtn0 = document.getElementById("bN_tagAdd_" + sid);
+  if (typeSel0 && typeSel0.cloneNode) {
+    var t2 = typeSel0.cloneNode(true);
+    typeSel0.parentNode.replaceChild(t2, typeSel0);
+    var a2 = addBtn0.cloneNode(true);
+    addBtn0.parentNode.replaceChild(a2, addBtn0);
+  }
+    typeSel = document.getElementById("bN_tagType_" + sid),
+    typeListEl = document.getElementById("bN_tagTypeList_" + sid),
+    nameIn = document.getElementById("bN_tagName_" + sid),
+    listEl = document.getElementById("bN_tagList_" + sid),
+    addBtn = document.getElementById("bN_tagAdd_" + sid),
+    input = document.getElementById("bN_tagsInput_" + sid),
+    box = document.getElementById("bN_tags_" + sid);
+  if (!typeSel || !addBtn) return;
+
+  var current = [];
+
+  function refreshInput() {
+    input.value = JSON.stringify(current);
+    box.innerHTML = current
+      .map(function (t, i) {
+        return (
+          '<span class="bN_tag">' +
+          t.type +
+          ": " +
+          t.name +
+          ' <a href="#" data-i="' +
+          i +
+          '" class="bN_tagDel">&times;</a></span>'
+        );
+      })
+      .join(" ");
+    box.querySelectorAll(".bN_tagDel").forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        e.preventDefault();
+        current.splice(parseInt(a.getAttribute("data-i"), 10), 1);
+        refreshInput();
+      });
+    });
+  }
+
+  function loadTypes() {
+    var b = new URLSearchParams();
+    b.append("action", "getTags");
+    b.append("_cat_ajax", "1");
+    b.append("section_id", sid);
+    bN_fetchJSON(CAT_URL + "/modules/blacknews/save.php", b)
+      .then(function (res) {
+        if (!res || !res.success) return;
+        (res.types || []).forEach(function (t) {
+          var o = document.createElement("option");
+          o.value = t;
+          o.textContent = t;
+          typeListEl.appendChild(o);
+        });
+      });
+  }
+
+  function loadSuggestions() {
+    var b = new URLSearchParams();
+    b.append("action", "getTags");
+    b.append("_cat_ajax", "1");
+    b.append("section_id", sid);
+    b.append("type", typeSel.value);
+    bN_fetchJSON(CAT_URL + "/modules/blacknews/save.php", b)
+      .then(function (res) {
+        if (!res || !res.success) return;
+        listEl.innerHTML = "";
+        Object.keys(res.tags || {}).forEach(function (id) {
+          var t = res.tags[id];
+          var o = document.createElement("option");
+          o.value = t.name;
+          listEl.appendChild(o);
+        });
+      });
+  }
+
+  typeSel.addEventListener("change", loadSuggestions);
+  addBtn.addEventListener("click", function () {
+    var name = nameIn.value.trim();
+    if (typeSel.value && name) {
+      current.push({ type: typeSel.value, name: name });
+      nameIn.value = "";
+      refreshInput();
+    }
+  });
+  loadTypes();
+}
 
 if (typeof bN_PU !== "function") {
   function bN_PU(state) {
@@ -277,6 +399,8 @@ $(document).ready(function () {
         $table = $formular.children("table").children("tbody"),
         $prevIMG = $("#bN_previewIMG_" + bcID.section_id),
         $IMGs = $("#bN_imgs_" + bcID.section_id);
+
+      initTagEditor(bcID);
 
       $Form.find("input[type=date]").each(function () {
         if (this.type != "date") {
@@ -719,6 +843,75 @@ $(document).ready(function () {
           },
         });
       });
+
+      // Infinite scroll for the entry list (first page rendered server-side).
+      // Loads only when a sentinel at the end of the list becomes visible.
+      (function () {
+        console.log("[bN:scroll] init section", bcID.section_id);
+        var listEl = document.getElementById("blackNewsList_" + bcID.section_id);
+        if (!listEl) {
+          console.warn("[bN:scroll] list element not found for section", bcID.section_id);
+          return;
+        }
+        console.log("[bN:scroll] listEl found, children:", listEl.children.length,
+          "scrollable:", listEl.scrollHeight, ">", listEl.clientHeight,
+          "parent overflow:", getComputedStyle(listEl.parentNode).overflowY);
+        var page = 0,
+          loading = false,
+          done = false,
+          sentinel = document.createElement("li");
+        sentinel.className = "bc_Entry bc_loading";
+        // muss sichtbar bleiben, sonst meldet der IntersectionObserver nie
+        sentinel.style.cssText = "height:1px;padding:0;margin:0;opacity:0;";
+        sentinel.textContent = "...";
+        listEl.appendChild(sentinel);
+
+        function loadMore() {
+          console.log("[bN:scroll] loadMore called, page=", page, "loading=", loading, "done=", done);
+          if (loading || done) return;
+          loading = true;
+          sentinel.style.opacity = "1";
+          var b = new URLSearchParams();
+          b.append("action", "getEntryList");
+          b.append("_cat_ajax", "1");
+          b.append("section_id", bcID.section_id);
+          b.append("page", ++page);
+          console.log("[bN:scroll] fetching page", page);
+          bN_fetchJSON(CAT_URL + "/modules/blacknews/save.php", b).then(function (res) {
+            console.log("[bN:scroll] response:", res ? ("success=" + res.success + " html_len=" + (res.html ? res.html.length : 0) + " hasMore=" + res.hasMore) : "null");
+            loading = false;
+            sentinel.style.opacity = "0";
+            if (!res || !res.success) return;
+            if (res.html) {
+              sentinel.insertAdjacentHTML("beforebegin", res.html);
+            }
+            if (!res.hasMore) {
+              done = true;
+              sentinel.remove();
+              if (io) io.disconnect();
+            }
+          });
+        }
+
+        var io = null;
+        if ("IntersectionObserver" in window) {
+          io = new IntersectionObserver(function (entries) {
+            console.log("[bN:scroll] IO fired, intersecting=", entries[0].isIntersecting,
+              "scrollTop=", listEl.scrollTop, "scrollHeight=", listEl.scrollHeight, "clientHeight=", listEl.clientHeight);
+            if (entries[0].isIntersecting) loadMore();
+          });
+          io.observe(sentinel);
+        } else {
+          function onScroll() {
+            console.log("[bN:scroll] scroll event, scrollTop=", listEl.scrollTop);
+            if (listEl.scrollTop > 0 &&
+                listEl.scrollHeight - listEl.scrollTop - listEl.clientHeight < 200) {
+              loadMore();
+            }
+          }
+          listEl.addEventListener("scroll", onScroll);
+        }
+      })();
 
       $sBar.sortable({
         axis: "y",

@@ -22,12 +22,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- *   @author			Matthias Glienke
- *   @copyright		2022, Black Cat Development
- *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
- *   @license			https://www.gnu.org/licenses/gpl-3.0.html
- *   @category		CAT_Modules
- *   @package			blackNews
+ *   @module			blacknews
+ *   @version			see info.php of this module
+ *   @author			Matthias Glienke, letima development
+ *   @copyright		2026, Black Cat Development
+ *   @link				http://blackcat-cms.org
+ *   @license			http://www.gnu.org/licenses/gpl.html
  *
  */
 
@@ -58,7 +58,7 @@ if (!class_exists("blackNewsEntry", false)) {
         /**
          *
          */
-        public function __construct(int $entryID = null)
+        public function __construct(?int $entryID = null)
         {
             parent::__construct();
             $this->setEntryID($entryID);
@@ -100,6 +100,7 @@ if (!class_exists("blackNewsEntry", false)) {
                     ->translate("Post loaded"),
                 "options" => $this->getOption(),
                 "category" => $this->getCategory(),
+                "tags" => $this->getEntryTags(),
                 "success" => true,
             ]);
         }
@@ -244,8 +245,8 @@ if (!class_exists("blackNewsEntry", false)) {
 
             if (
                 isset($getEntry) &&
-                $getEntry->numRows() > 0 &&
-                !false == ($row = $getEntry->fetchRow())
+                $getEntry->rowCount() > 0 &&
+                false !== ($row = $getEntry->fetch())
             ) {
                 $this->info = $row;
                 $this->info["seoURLencode"] = urlencode($this->info["seoURL"]);
@@ -403,6 +404,32 @@ if (!class_exists("blackNewsEntry", false)) {
         }
 
         /**
+         * Get all tags of this section, optionally filtered by type
+         */
+        public function getEntryTags(string $type = ""): array
+        {
+            $r = self::$db->query(
+                "SELECT ent.`entryID`, ent.`tagID`, t.`type`, t.`name`, t.`slug` FROM `:prefix:mod_blackNewsEntryTags` AS ent " .
+                    "JOIN `:prefix:mod_blackNewsTags` AS t " .
+                    "ON ent.`tagID` = t.`tagID` " .
+                    "WHERE ent.`entryID` = :eId" .
+                    ($type !== "" ? " AND t.`type` = :type" : "") .
+                    " ORDER BY t.`type`, t.`name`",
+                array_merge(
+                    ["eId" => $this->getEntryID()],
+                    $type !== "" ? ["type" => $type] : []
+                )
+            );
+            $tags = [];
+            if ($r && $r->rowCount() > 0) {
+                while (false !== ($t = $r->fetch())) {
+                    $tags[$t["type"]] = $t;
+                }
+            }
+            return $tags;
+        }
+
+        /**
          *
          */
         public function getEntryID()
@@ -461,7 +488,7 @@ if (!class_exists("blackNewsEntry", false)) {
                         ":entryID )",
                     [
                         "url" => $url,
-                        "section_id" => parent::$section_id,
+                        "section_id" => $this->section_id,
                         "entryID" => $this->getEntryID(),
                     ]
                 )
@@ -606,7 +633,7 @@ if (!class_exists("blackNewsEntry", false)) {
         /**
          *
          */
-        public static function addEntry(int $section_id = null)
+        public static function addEntry(?int $section_id = null)
         {
             $title = self::createTitle($section_id);
 
@@ -659,11 +686,16 @@ if (!class_exists("blackNewsEntry", false)) {
         {
             $this->entryID = CAT_Helper_Validate::sanitizePost("entryID");
 
-            $this->setEntryInfo(CAT_Helper_Validate::sanitizePost("values"));
+            $values = CAT_Helper_Validate::sanitizePost("values");
+            $this->setEntryInfo(is_array($values) ? $values : []);
 
             $this->setCategoryByID(
-                CAT_Helper_Validate::sanitizePost("category")
+                CAT_Helper_Validate::sanitizePost("category") ?: null
             );
+
+            if ($tags = CAT_Helper_Validate::sanitizePost("tags")) {
+                $this->setEntryTags($this->getEntryID(), $tags);
+            }
 
             if ($options = CAT_Helper_Validate::sanitizePost("options")) {
                 foreach ($options as $opt) {
@@ -743,7 +775,7 @@ if (!class_exists("blackNewsEntry", false)) {
                         "( `section_id`, `title`, `content`, `shortcontent`, `text`, `userID` ) " .
                         "VALUES ( :section_id, :title, :content, :short, :text, :userID )",
                     [
-                        "section_id" => parent::$section_id,
+                        "section_id" => $this->section_id,
                         "title" => $this->info["title"],
                         "content" => $this->info["content"],
                         "short" => $this->info["shortcontent"],
@@ -952,7 +984,7 @@ if (!class_exists("blackNewsEntry", false)) {
         /**
          *
          */
-        private static function createTitle(int $section_id = null)
+        private static function createTitle(?int $section_id = null)
         {
             if (!$section_id) {
                 global $section_id;
@@ -1039,8 +1071,8 @@ if (!class_exists("blackNewsEntry", false)) {
             if (!self::getInstance()->getProperty($prop)) {
                 return false;
             }
-            return strftime(
-                $format,
+            return date(
+                "Y-m-d H:i",
                 strtotime(self::getInstance()->getProperty($prop))
             );
         }
@@ -1058,8 +1090,8 @@ if (!class_exists("blackNewsEntry", false)) {
             if (!self::getInstance()->getProperty($prop)) {
                 return false;
             }
-            return strftime(
-                "%Y-%m-%d %H:%M:00",
+            return date(
+                "Y-m-d H:i:00",
                 strtotime(self::getInstance()->getProperty($prop))
             );
         }
@@ -1076,13 +1108,13 @@ if (!class_exists("blackNewsEntry", false)) {
         public function setProperty($key = null, $value = null)
         {
             if (
-                !self::getInstance()->getEventID() ||
+                !$this->entryID ||
                 !property_exists("blackNewsEntry", $key) ||
                 in_array($key, self::$staticVars)
             ) {
                 return false;
             } else {
-                self::getInstance()->$key = $value;
+                $this->$key = $value;
                 return $this;
             }
         }
@@ -1098,13 +1130,13 @@ if (!class_exists("blackNewsEntry", false)) {
         public function getProperty($key = null)
         {
             if (
-                !self::getInstance()->getEventID() ||
+                !$this->entryID ||
                 !property_exists("blackNewsEntry", $key) ||
                 in_array($key, self::$staticVars)
             ) {
                 return false;
             } else {
-                return self::getInstance()->$key;
+                return $this->$key;
             }
 
             /*				'INSERT INTO `:prefix:mod_blacknews_content`

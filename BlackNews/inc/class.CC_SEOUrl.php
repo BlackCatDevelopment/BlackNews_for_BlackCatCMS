@@ -22,12 +22,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- *   @author			Matthias Glienke
- *   @copyright		2022, Black Cat Development
- *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
- *   @license			https://www.gnu.org/licenses/gpl-3.0.html
- *   @category		CAT_Modules
- *   @package			blackNews
+ *   @module			blacknews
+ *   @version			see info.php of this module
+ *   @author			Matthias Glienke, letima development
+ *   @copyright		2026, Black Cat Development
+ *   @link				http://blackcat-cms.org
+ *   @license			http://www.gnu.org/licenses/gpl.html
  *
  */
 
@@ -47,9 +47,14 @@ class CC_SEOUrl
    * @var void
    */
   private static $instance = null;
+  private static $news_id = 0;
+  private static $page_id = 0;
+  private static $section_id = 0;
+  private static $permalink = "";
+  private static $options = [];
   private $seoPath = "";
   private $seoUrl = "";
-  private $fileName = "";
+  private static $fileName = "";
   private $title = "";
 
   /**
@@ -217,7 +222,9 @@ class CC_SEOUrl
   {
     if (
       !$dir ||
-      strpos($dir, "../" || $dir == "" || self::getOptions("permalink") == "")
+      strpos($dir, "../") !== false ||
+      $dir == "" ||
+      self::getOptions("permalink") == ""
     ) {
       return false;
     }
@@ -241,10 +248,12 @@ class CC_SEOUrl
   /**
    *
    */
-  public static function getFileName()
+  public static function getFileName($title = null)
   {
-    // TODO: implement here
-    return self::$fileName;
+    if ($title === null || $title === true || $title === "") {
+      return "";
+    }
+    return CAT_Helper_Page::getFilename($title);
   }
 
   /**
@@ -258,6 +267,24 @@ class CC_SEOUrl
 
     self::$fileName = CAT_Helper_Page::getFilename($name);
     return self::$fileName;
+  }
+
+  /**
+   *
+   */
+  private static function getOptions($name = "")
+  {
+    return $name !== "" && isset(self::$options[$name])
+      ? self::$options[$name]
+      : "";
+  }
+
+  /**
+   *
+   */
+  private static function getEntryOptions($name = "", $news_id = null)
+  {
+    return "";
   }
 
   /**

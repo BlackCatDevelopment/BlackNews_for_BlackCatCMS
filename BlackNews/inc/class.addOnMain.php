@@ -22,12 +22,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- *   @author			Matthias Glienke
- *   @copyright		2022, Black Cat Development
- *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
- *   @license			https://www.gnu.org/licenses/gpl-3.0.html
- *   @category		CAT_Modules
- *   @package			blackNews
+ *   @module			blacknews
+ *   @version			see info.php of this module
+ *   @author			Matthias Glienke, letima development
+ *   @copyright		2026, Black Cat Development
+ *   @link				http://blackcat-cms.org
+ *   @license			http://www.gnu.org/licenses/gpl.html
  *
  */
 
@@ -65,6 +65,7 @@ if (!class_exists("addOnMain", false)) {
         protected static $addonID = null;
 
         protected static $db = null;
+        protected static $instance = null;
 
         protected $page_id;
         protected $section_id;
@@ -73,6 +74,7 @@ if (!class_exists("addOnMain", false)) {
         protected static $precheckVersion;
 
         protected static $templatePath = "";
+        protected $template = "modify";
         protected $variant = "default";
         protected static $allVariants = [];
 
@@ -80,7 +82,7 @@ if (!class_exists("addOnMain", false)) {
         /**
          *
          */
-        public function __construct(int $section_id = null)
+        public function __construct(?int $section_id = null)
         {
             // self::$_instances[] = $this;
             $this->setIDs($section_id);
@@ -161,7 +163,7 @@ if (!class_exists("addOnMain", false)) {
         /**
          * currently workaround to set $section_id and $page_id
          */
-        public function setIDs(int $section_id = null): self
+        public function setIDs(?int $section_id = null): self
         {
             // Try to set section_id
             $this->section_id = $section_id
@@ -249,12 +251,13 @@ if (!class_exists("addOnMain", false)) {
                     "/templates/default"
             );
 
-            $parser->output(self::$template, $this->getParserValue());
+            $parser->output($this->template, $this->getParserValue());
         }
 
         public static function add()
         {
-            $this->setIDs();
+            global $page_id;
+            global $section_id;
 
             // Add a new news section
             if (
@@ -265,8 +268,8 @@ if (!class_exists("addOnMain", false)) {
             ( `page_id`, `section_id` ) VALUES
             ( :page_id, :section_id )',
                     [
-                        "page_id" => $this->page_id,
-                        "section_id" => $this->section_id,
+                        "page_id" => $page_id,
+                        "section_id" => $section_id,
                     ]
                 )
             ) {
@@ -280,7 +283,7 @@ if (!class_exists("addOnMain", false)) {
         {
             global $parser;
 
-            self::$template = "view";
+            $this->template = "view";
 
             $parser->setPath(
                 CAT_PATH .
@@ -296,7 +299,7 @@ if (!class_exists("addOnMain", false)) {
                     "/templates/default"
             );
 
-            $parser->output(self::$template, $this->getParserValue());
+            $parser->output($this->template, $this->getParserValue());
         }
 
         public static function remove()
@@ -548,7 +551,7 @@ if (!class_exists("addOnMain", false)) {
             $token_count = count($tokens);
             for ($i = 0; $i < $token_count; $i++) {
                 // Don't wanna add an empty string as the last thing in the array.
-                if ($i != $token_count - 1 || strlen($tokens[$i] > 0)) {
+                if ($i != $token_count - 1 || strlen($tokens[$i]) > 0) {
                     // This is the total number of single quotes in the token.
                     $total_quotes = preg_match_all(
                         "/'/",

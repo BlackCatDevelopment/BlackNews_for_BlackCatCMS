@@ -34,7 +34,7 @@
 	<input type="hidden" name="section_id" value="{$section_id}">
     <input type="hidden" name="action" value="saveOptions">
     
-	<input type="hidden" name="saveOptions" value="permalink,text|usergroup,select|title,text|subtitle,text">
+	<input type="hidden" name="saveOptions" value="permalink,text|usergroup,select|title,text|subtitle,text|perPage,text|tagTypes,text|tagSplitTypes,text">
 
 	<h3>{translate("General options")}</h3>
     <hr>
@@ -48,6 +48,20 @@
     <input id="mainTitle_{$section_id}" type="text" name="title" value="{if $options.title}{$options.title}{/if}"><br>
     <label for="mainSubTitle_{$section_id}" class="bcLabel">{translate("Subtitle")}:</label>
     <input id="mainSubTitle_{$section_id}" type="text" name="subtitle" value="{if $options.subtitle}{$options.subtitle}{/if}">
+</p>
+<hr>
+<p>
+    <label for="perPage_{$section_id}" class="bcLabel">{translate("Entries per page (AJAX pagination)")}:</label>
+    <input id="perPage_{$section_id}" type="number" min="1" name="perPage" value="{if $options.perPage}{$options.perPage}{else}20{/if}">
+</p>
+<p>
+    <label for="tagTypes_{$section_id}" class="bcLabel">{translate("Tag types (comma separated)")}:</label>
+    <input id="tagTypes_{$section_id}" type="text" name="tagTypes" style="width:100%" value="{if $options.tagTypes}{$options.tagTypes}{else}quelle,unternehmen,verwalter,filter,typ{/if}" placeholder="quelle,unternehmen,verwalter,...">
+</p>
+<p>
+    <label for="tagSplitTypes_{$section_id}" class="bcLabel">{translate("Tag types to split on & / , / und (comma separated)")}:</label>
+    <input id="tagSplitTypes_{$section_id}" type="text" name="tagSplitTypes" style="width:100%" value="{if $options.tagSplitTypes}{$options.tagSplitTypes}{else}verwalter{/if}" placeholder="verwalter">
+    <small>{translate("Values of these types are split into single tags on save (e.g. 'A & B' becomes two tags).")}</small>
 </p>
 <hr>
 	<p>

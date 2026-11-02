@@ -11,8 +11,8 @@ class CC_Form extends blackNews
   protected static $instance = null;
   protected static $entryID = null;
   protected static $fieldID = null;
-  private static $value = [];
-  private static $missing = [];
+  private $value = [];
+  private $missing = [];
 
   private static $timestamp = null;
   private static $timeToFill = 8;
@@ -306,14 +306,14 @@ class CC_Form extends blackNews
         // Specials for ik
         switch ($field["name"]) {
           case "Anrede":
-            self::setParserValue("anrede", $getVal);
+            $this->setParserValue("anrede", $getVal);
             break;
           case "E-Mail":
-            self::setParserValue("email", $getVal);
+            $this->setParserValue("email", $getVal);
             break;
           case "Nachname":
             if ($getVal != "") {
-              self::setParserValue("nachname", $getVal);
+              $this->setParserValue("nachname", $getVal);
             }
             break;
         }
@@ -322,12 +322,12 @@ class CC_Form extends blackNews
       }
     }
 
-    self::setParserValue("value", $this->value);
-    self::setParserValue("missing", $this->missing);
+    $this->setParserValue("value", $this->value);
+    $this->setParserValue("missing", $this->missing);
 
     if (!count($this->missing)) {
-      self::setParserValue("SERVER_EMAIL", SERVER_EMAIL);
-      self::setParserValue(
+      $this->setParserValue("SERVER_EMAIL", SERVER_EMAIL);
+      $this->setParserValue(
         "CATMAILER_DEFAULT_SENDERNAME",
         CATMAILER_DEFAULT_SENDERNAME
       );
@@ -348,22 +348,22 @@ class CC_Form extends blackNews
     $path =
       CAT_PATH .
       "/modules/" .
-      parent::$directory .
+      static::$directory .
       "/templates/" .
-      parent::getVariant() .
+      $this->getVariant() .
       "/mail/";
 
     $parser->setPath($path);
 
-    self::setParserValue(
+    $this->setParserValue(
       "IP",
       empty($_SERVER["HTTP_X_FORWARDED_FOR"])
         ? $_SERVER["REMOTE_ADDR"]
         : $_SERVER["HTTP_X_FORWARDED_FOR"]
     );
-    self::setParserValue("BROWSER", $_SERVER["HTTP_USER_AGENT"]);
+    $this->setParserValue("BROWSER", $_SERVER["HTTP_USER_AGENT"] ?? "");
 
-    $value = self::getParserValue();
+    $value = $this->getParserValue();
 
     // Email an Kunden
     $MailHelper->sendMail(
@@ -384,7 +384,7 @@ class CC_Form extends blackNews
       $parser->get("mail_provider_html.tpl", $value)
     );
 
-    self::setParserValue("sendMail", true);
+    $this->setParserValue("sendMail", true);
   } // end sendMail();
 
   private function getMailer()
@@ -417,7 +417,7 @@ class CC_Form extends blackNews
         "/modules/" .
         static::$directory .
         "/templates/" .
-        parent::getVariant() .
+        $this->getVariant() .
         "/" .
         $folder .
         "/"

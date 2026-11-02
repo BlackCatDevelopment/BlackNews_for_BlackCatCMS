@@ -59,6 +59,24 @@
 </p>
 	<small>{translate("<strong>Note:</strong> Multiple selection (with pressed key - Windows: Ctrl; Mac: cmd/command) possible.<br>As soon as the first point &quot;No category&quot; is selected, all categories will be deleted!")}</small>
 <hr>
+<h3 class="bcLabel bN-icon-tags"> {translate("Tags")}</h3>
+<p id="bN_tags_{$section_id}">
+	{foreach $tags t}
+	<span class="bN_tag" data-tagid="{$t.tagID}" data-type="{$t.type}" data-slug="{$t.slug}">{$t.type}: {$t.name}</span>
+	{/foreach}
+</p>
+<p>
+	<input type="text" id="bN_tagType_{$section_id}" list="bN_tagTypeList_{$section_id}" placeholder="{translate("Tag type")}" value="">
+	<datalist id="bN_tagTypeList_{$section_id}">
+		{foreach $tagTypes tt}<option value="{$tt}">{/foreach}
+	</datalist>
+	<input type="text" id="bN_tagName_{$section_id}" list="bN_tagList_{$section_id}" placeholder="{translate("New or existing tag")}" autocomplete="off">
+	<datalist id="bN_tagList_{$section_id}"></datalist>
+	<button type="button" id="bN_tagAdd_{$section_id}" class="fc_gradient1 fc_gradient_hover">+</button>
+	<input type="hidden" name="tags" id="bN_tagsInput_{$section_id}" value="">
+</p>
+<small>{translate("Tags are filterable in the frontend via /tag/&lt;slug&gt;/ and /jahr/&lt;year&gt;/ URLs. New tag types can be entered freely and are stored in the general options.")}</small>
+<hr>
 <h3 class="bN-icon-images">  {translate("Gallery")}</h3>
 <button class="bc_addGallery fc_gradient1 fc_gradient_hover" name="bc_addGallery"> {translate("Add new gallery")}</button><br><br>
 ...{translate("or select gallery")}:

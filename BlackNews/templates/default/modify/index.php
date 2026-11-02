@@ -39,15 +39,14 @@ if (defined("CAT_PATH")) {
         $root .= $oneback;
         $level += 1;
     }
-    if (file_exists($root . "/framework/class.secure.php")) {
-        include $root . "/framework/class.secure.php";
+    if (file_exists($root . "framework/class.secure.php")) {
+        include $root . "framework/class.secure.php";
     } else {
-        trigger_error(
+        throw new \RuntimeException(
             sprintf(
-                "[ <b>%s</b> ] Can't include class.secure.php!",
+                "Cannot include class.secure.php at %s",
                 $_SERVER["SCRIPT_NAME"]
-            ),
-            E_USER_ERROR
+            )
         );
     }
 }

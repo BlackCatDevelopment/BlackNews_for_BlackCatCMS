@@ -22,12 +22,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- *   @author			Matthias Glienke
- *   @copyright		2022, Black Cat Development
- *   @link				https://github.com/BlackCatDevelopment/BlackNews_for_BlackCatCMS
- *   @license			https://www.gnu.org/licenses/gpl-3.0.html
- *   @category		CAT_Modules
- *   @package			blackNews
+ *   @module			blacknews
+ *   @version			see info.php of this module
+ *   @author			Matthias Glienke, letima development
+ *   @copyright		2026, Black Cat Development
+ *   @link				http://blackcat-cms.org
+ *   @license			http://www.gnu.org/licenses/gpl.html
  *
  */
 
@@ -38,19 +38,18 @@ if (defined("CAT_PATH")) {
     $oneback = "../";
     $root = $oneback;
     $level = 1;
-    while ($level < 10 && !file_exists($root . "/framework/class.secure.php")) {
+    while ($level < 10 && !file_exists($root . "framework/class.secure.php")) {
         $root .= $oneback;
         $level += 1;
     }
-    if (file_exists($root . "/framework/class.secure.php")) {
-        include $root . "/framework/class.secure.php";
+    if (file_exists($root . "framework/class.secure.php")) {
+        include $root . "framework/class.secure.php";
     } else {
-        trigger_error(
+        throw new \RuntimeException(
             sprintf(
-                "[ <b>%s</b> ] Can't include class.secure.php!",
+                "Cannot include class.secure.php at %s",
                 $_SERVER["SCRIPT_NAME"]
-            ),
-            E_USER_ERROR
+            )
         );
     }
 }
@@ -135,5 +134,16 @@ $LANG = [
     "All" => "Alle",
     "news" => "Neuigkeiten",
     "Short Description (optional)" => "Kurzbeschreibung (optional)",
+    "Entries per page (AJAX pagination)" => "Eintr\u00e4ge pro Seite (AJAX-Paginierung)",
+    "Tags" => "Tags",
+    "Tag type" => "Tag-Typ",
+    "New or existing tag" => "Neuer oder vorhandener Tag",
+    "Tags are filterable in the frontend via /tag/<slug>/ and /jahr/<year>/ URLs." => "Tags sind im Frontend \u00fcber /tag/<slug>/ und /jahr/<jahr>/ URLs filterbar.",
+    "All years" => "Alle Jahre",
+    "Load more" => "Mehr laden",
+    "Tag types (comma separated)" => "Tag-Typen (kommagetrennt)",
+    "Tag types to split on & / , / und (comma separated)" => "Tag-Typen, die beim Speichern an & / , / und geteilt werden (kommagetrennt)",
+    "Values of these types are split into single tags on save (e.g. 'A & B' becomes two tags)." => "Werte dieser Typen werden beim Speichern in einzelne Tags aufgeteilt (z. B. wird 'A & B' zu zwei Tags).",
+    "Tags are filterable in the frontend via /tag/<slug>/ and /jahr/<year>/ URLs. New tag types can be entered freely and are stored in the general options." => "Tags sind im Frontend \u00fcber /tag/<slug>/ und /jahr/<jahr>/ URLs filterbar. Neue Tag-Typen k\u00f6nnen frei eingegeben werden und werden in den allgemeinen Einstellungen gespeichert.",
 ];
 ?>
