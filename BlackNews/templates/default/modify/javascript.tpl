@@ -41,7 +41,7 @@
 	});
 
 	// Tag-Autocomplete im Entry-Formular
-	(function(){
+	(function()\{
 		var sid = {$section_id};
 		var typeSel = document.getElementById('bN_tagType_' + sid);
 		var nameIn  = document.getElementById('bN_tagName_' + sid);
@@ -53,59 +53,59 @@
 
 		var current = [];
 
-		function refreshInput(){
+		function refreshInput()\{
 			input.value = JSON.stringify(current);
-			box.innerHTML = current.map(function(t, i){
+			box.innerHTML = current.map(function(t, i)\{
 				return '<span class="bN_tag">' + t.type + ': ' + t.name +
 					' <a href="#" data-i="' + i + '" class="bN_tagDel">&times;</a></span>';
-			}).join(' ');
-			box.querySelectorAll('.bN_tagDel').forEach(function(a){
-				a.addEventListener('click', function(e){
+			\}).join(' ');
+			box.querySelectorAll('.bN_tagDel').forEach(function(a)\{
+				a.addEventListener('click', function(e)\{
 					e.preventDefault();
 					current.splice(parseInt(a.getAttribute('data-i'), 10), 1);
 					refreshInput();
-				});
-			});
-		}
+				\});
+			\});
+		\}
 
-		function loadTypes(){
+		function loadTypes()\{
 			var b = new URLSearchParams();
 			b.append('action', 'getTags'); b.append('_cat_ajax', '1'); b.append('section_id', sid);
-			fetch('{$CAT_URL}/modules/blackNews/save.php', {method:'POST', body:b.toString()})
-				.then(function(r){ return r.json(); })
-				.then(function(res){
+			fetch('{$CAT_URL}/modules/blackNews/save.php', \{method:'POST', body:b.toString()\})
+				.then(function(r)\{ return r.json(); \})
+				.then(function(res)\{
 					if (!res || !res.success) return;
-					(res.types || []).forEach(function(t){
+					(res.types || []).forEach(function(t)\{
 						var o = document.createElement('option'); o.value = t; o.textContent = t; typeSel.appendChild(o);
-					});
-				});
-		}
+					\});
+				\});
+		\}
 
-		function loadSuggestions(){
+		function loadSuggestions()\{
 			var b = new URLSearchParams();
 			b.append('action', 'getTags'); b.append('_cat_ajax', '1'); b.append('section_id', sid);
 			b.append('type', typeSel.value);
-			fetch('{$CAT_URL}/modules/blackNews/save.php', {method:'POST', body:b.toString()})
-				.then(function(r){ return r.json(); })
-				.then(function(res){
+			fetch('{$CAT_URL}/modules/blackNews/save.php', \{method:'POST', body:b.toString()\})
+				.then(function(r)\{ return r.json(); \})
+				.then(function(res)\{
 					if (!res || !res.success) return;
 					listEl.innerHTML = '';
-					Object.keys(res.tags || {}).forEach(function(id){
+					Object.keys(res.tags || \{\}).forEach(function(id)\{
 						var t = res.tags[id];
 						var o = document.createElement('option'); o.value = t.name; listEl.appendChild(o);
-					});
-				});
-		}
+					\});
+				\});
+		\}
 
 		typeSel.addEventListener('change', loadSuggestions);
-		addBtn.addEventListener('click', function(){
+		addBtn.addEventListener('click', function()\{
 			var name = nameIn.value.trim();
-			if (typeSel.value && name) {
-				current.push({type: typeSel.value, name: name});
+			if (typeSel.value && name) \{
+				current.push(\{type: typeSel.value, name: name\});
 				nameIn.value = '';
 				refreshInput();
-			}
-		});
+			\}
+		\});
 		loadTypes();
-	})();
+	\})();
 </script>

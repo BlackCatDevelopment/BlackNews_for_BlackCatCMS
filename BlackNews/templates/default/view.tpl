@@ -96,7 +96,7 @@
   <div class="c_1080"><button id="bN_more_{$section_id}" class="bN_more" style="display:none;">{translate("Load more")}</button></div>
 </section>
 <script>
-(function(){
+(function()\{
   var sec = document.getElementById('bN_List_{$section_id}');
   if (!sec) return;
   var sectionId = sec.getAttribute('data-section');
@@ -106,61 +106,61 @@
   var filters   = {json_encode($activeFilters)};
   var page      = 0;
 
-  function filterUrl(f){
+  function filterUrl(f)\{
     var parts = [];
-    Object.keys(f).sort().forEach(function(k){
-      f[k].forEach(function(s){ parts.push(k + '/' + s); });
-    });
+    Object.keys(f).sort().forEach(function(k)\{
+      f[k].forEach(function(s)\{ parts.push(k + '/' + s); \});
+    \});
     return base + parts.join('/');
-  }
+  \}
 
   // Filter-Wechsel: ohne JS normaler Link, mit JS per AJAX nachladen
   var selects = sec.querySelectorAll('.bN_Filters select');
-  selects.forEach(function(sel){
-    sel.addEventListener('change', function(){
+  selects.forEach(function(sel)\{
+    sel.addEventListener('change', function()\{
       var prefix = sel.getAttribute('data-prefix');
       var val = sel.value;
-      if (val) {
+      if (val) \{
         filters[prefix] = [val];
-      } else {
+      \} else \{
         delete filters[prefix];
-      }
+      \}
       page = 0;
       loadEntries(true);
-      if (history.replaceState) {
+      if (history.replaceState) \{
         history.replaceState(null, '', filterUrl(filters));
-      }
-    });
-  });
+      \}
+    \});
+  \});
 
-  function loadEntries(reset){
+  function loadEntries(reset)\{
     var body = new URLSearchParams();
     body.append('action', 'getEntries');
     body.append('_cat_ajax', '1');
     body.append('section_id', sectionId);
     body.append('page', page);
     body.append('filters', JSON.stringify(filters));
-    fetch('{$CAT_URL}/modules/blackNews/save.php', {
+    fetch('{$CAT_URL}/modules/blackNews/save.php', \{
       method: 'POST',
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      headers: \{'Content-Type': 'application/x-www-form-urlencoded'\},
       body: body.toString()
-    }).then(function(r){ return r.json(); }).then(function(res){
+    \}).then(function(r)\{ return r.json(); \}).then(function(res)\{
       if (!res || !res.success) return;
       var list = sec.querySelector('div.c_1080');
-      if (reset) { list.innerHTML = res.html; } else { list.insertAdjacentHTML('beforeend', res.html); }
+      if (reset) \{ list.innerHTML = res.html; \} else \{ list.insertAdjacentHTML('beforeend', res.html); \}
       var more = document.getElementById('bN_more_' + sectionId);
-      if (more) { more.style.display = res.hasMore ? '' : 'none'; }
-    }).catch(function(){});
-  }
+      if (more) \{ more.style.display = res.hasMore ? '' : 'none'; \}
+    \}).catch(function()\{\});
+  \}
 
   var moreBtn = document.getElementById('bN_more_{$section_id}');
-  if (moreBtn) {
-    var total = {if $totalEntries}{$totalEntries}{else}0{/if};
-    if (perPage < total) { moreBtn.style.display = ''; }
-    moreBtn.addEventListener('click', function(){
+  if (moreBtn) \{
+    var total = \{if $totalEntries\}{$totalEntries}\{else\}0\{/if\};
+    if (perPage < total) \{ moreBtn.style.display = ''; \}
+    moreBtn.addEventListener('click', function()\{
       page++;
       loadEntries(false);
-    });
-  }
-})();
+    \});
+  \}
+\})();
 </script>
