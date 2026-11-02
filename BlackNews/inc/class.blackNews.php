@@ -1658,6 +1658,9 @@ if (!class_exists("blackNews", false)) {
             if ($bnProf) {
                 $mark("includes");
                 $total = round((microtime(true) - ($prof["start"] ?? microtime(true))) * 1000, 1);
+                if (class_exists("CAT_Log")) {
+                    CAT_Log::getInstance()->log("BN_PROF modify: " . json_encode($prof) . " total_ms=" . $total, CAT_Log::DEBUG);
+                }
                 error_log("BN_PROF modify: " . json_encode($prof) . " total_ms=" . $total);
             }
             #if( !self::$parsed )
