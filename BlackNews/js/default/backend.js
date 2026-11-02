@@ -49,6 +49,11 @@ function bN_fetchJSON(url, body) {
         console.warn("bN: non-JSON response from " + url, txt.slice(0, 200));
         return null;
       }
+    })
+    .catch(function (err) {
+      // network-level failure (aborted, offline, CORS): never unhandled
+      console.warn("bN: request failed " + url, err);
+      return null;
     });
 }
 
