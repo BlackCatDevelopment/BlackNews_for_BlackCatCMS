@@ -79,8 +79,10 @@ if (isset($_POST["_cat_ajax"]) && session_status() === PHP_SESSION_ACTIVE) {
 global $section_id;
 
 $t0 = microtime(true);
+register_shutdown_function(function () use ($bnLog, $t0) {
+    $bnLog("done in " . round((microtime(true) - $t0) * 1000, 1) . "ms");
+});
 $blackNews = new blackNews($section_id);
 $blackNews->save();
-$bnLog("done in " . round((microtime(true) - $t0) * 1000, 1) . "ms");
 
 ?>
