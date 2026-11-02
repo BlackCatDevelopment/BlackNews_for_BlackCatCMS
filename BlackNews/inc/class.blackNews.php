@@ -76,10 +76,12 @@ if (!class_exists("blackNews", false)) {
         {
             parent::__construct($section_id);
             $this->getRoute();
+        }
 
         public function __destruct()
         {
             parent::__destruct();
+        }
 
         public static function init()
         {
