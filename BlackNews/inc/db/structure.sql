@@ -101,7 +101,7 @@ COLLATE='utf8_general_ci';
 
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsTags` (
 	`tagID` int(11) unsigned NOT NULL AUTO_INCREMENT,
-	`section_id` int(11) unsigned NOT NULL DEFAULT 0,
+	`section_id` int(11) NOT NULL DEFAULT 0,
 	`type` varchar(32) NOT NULL DEFAULT '',
 	`name` varchar(255) NOT NULL DEFAULT '',
 	`slug` varchar(120) NOT NULL DEFAULT '',

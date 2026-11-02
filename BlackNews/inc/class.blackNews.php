@@ -1674,23 +1674,27 @@ if (!class_exists("blackNews", false)) {
             $errors = [];
 
             // Tag tables for filtering entries (jahr/tag/<slug> routes).
-            // No FK constraints here: on existing installations the referenced
-            // tables may differ in type/engine/collation, which makes MySQL fail
-            // with errno 150. PK + unique keys are sufficient.
+            // section_id is signed (int(11)) on purpose: sections.section_id is
+            // signed in BlackCat CMS, and a FK requires identical column types
+            // (unsigned here caused errno 150 "Foreign key constraint is
+            // incorrectly formed" on existing installations).
             foreach ([
                 "CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsTags` (
                     `tagID` int(11) unsigned NOT NULL AUTO_INCREMENT,
-                    `section_id` int(11) unsigned NOT NULL DEFAULT 0,
+                    `section_id` int(11) NOT NULL DEFAULT 0,
                     `type` varchar(32) NOT NULL DEFAULT '',
                     `name` varchar(255) NOT NULL DEFAULT '',
                     `slug` varchar(120) NOT NULL DEFAULT '',
                     PRIMARY KEY (`tagID`),
-                    UNIQUE KEY `:prefix:secTypeSlug` (`section_id`, `type`, `slug`)
+                    UNIQUE KEY `:prefix:secTypeSlug` (`section_id`, `type`, `slug`),
+                    CONSTRAINT `:prefix:bN_TagSec` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci'",
                 "CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntryTags` (
                     `entryID` int(11) unsigned NOT NULL,
                     `tagID` int(11) unsigned NOT NULL,
-                    PRIMARY KEY (`entryID`, `tagID`)
+                    PRIMARY KEY (`entryID`, `tagID`),
+                    CONSTRAINT `:prefix:bN_EntryTagEntry` FOREIGN KEY (`entryID`) REFERENCES `:prefix:mod_blackNewsEntry`(`entryID`) ON DELETE CASCADE,
+                    CONSTRAINT `:prefix:bN_EntryTagTag` FOREIGN KEY (`tagID`) REFERENCES `:prefix:mod_blackNewsTags`(`tagID`) ON DELETE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci'",
             ] as $sql) {
                 self::$db->query($sql);
@@ -1710,12 +1714,8 @@ if (!class_exists("blackNews", false)) {
 
             // shortcontent column may be missing on older installations
             $hasShort = self::$db
-                ->query(
-                    "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS " .
-                        "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :t AND COLUMN_NAME = 'shortcontent'",
-                    ["t" => CAT_TABLE_PREFIX . "mod_blackNewsEntry"]
-                )
-                ->fetchColumn();
+                ->query("SHOW COLUMNS FROM `:prefix:mod_blackNewsEntry` LIKE 'shortcontent'")
+                ->rowCount() > 0;
             if (!$hasShort) {
                 self::$db->query(
                     "ALTER TABLE `:prefix:mod_blackNewsEntry` ADD COLUMN `shortcontent` text NULL AFTER `content`"
