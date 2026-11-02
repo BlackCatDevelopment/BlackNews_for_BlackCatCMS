@@ -99,6 +99,12 @@ DEFAULT CHARSET=utf8
 COLLATE='utf8_general_ci';
 
 
+-- Tags for filtering entries (frontend routes: /<permalink>/<tagtype>/<slug>/ and /<permalink>/jahr/<year>/).
+-- `type` is free text (e.g. quelle, unternehmen, verwalter, typ); it is read dynamically
+-- via SELECT DISTINCT type, so new types can be added in the backend without code changes.
+-- `slug` is the URL segment and unique per (section_id, type); it is checked against
+-- category urls on save so a tag can never collide with a category slug.
+-- `section_id` must be signed int(11) to match sections.section_id for the FK (errno 150 otherwise).
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsTags` (
 	`tagID` int(11) unsigned NOT NULL AUTO_INCREMENT,
 	`section_id` int(11) NOT NULL DEFAULT 0,
@@ -114,6 +120,7 @@ DEFAULT CHARSET=utf8
 COLLATE='utf8_general_ci';
 
 
+-- n:m relation between entries and tags (an entry can have many tags, a tag many entries)
 CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntryTags` (
 	`entryID` int(11) unsigned NOT NULL,
 	`tagID` int(11) unsigned NOT NULL,

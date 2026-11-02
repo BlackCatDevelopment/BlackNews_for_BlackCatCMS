@@ -1679,6 +1679,8 @@ if (!class_exists("blackNews", false)) {
             // (unsigned here caused errno 150 "Foreign key constraint is
             // incorrectly formed" on existing installations).
             foreach ([
+                // type = free-text tag type (quelle, unternehmen, ...), slug unique per (section_id,type);
+                // section_id signed to match sections.section_id (FK requirement, errno 150 otherwise)
                 "CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsTags` (
                     `tagID` int(11) unsigned NOT NULL AUTO_INCREMENT,
                     `section_id` int(11) NOT NULL DEFAULT 0,
@@ -1689,6 +1691,7 @@ if (!class_exists("blackNews", false)) {
                     UNIQUE KEY `:prefix:secTypeSlug` (`section_id`, `type`, `slug`),
                     CONSTRAINT `:prefix:bN_TagSec` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci'",
+                // n:m entry <-> tag
                 "CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntryTags` (
                     `entryID` int(11) unsigned NOT NULL,
                     `tagID` int(11) unsigned NOT NULL,
@@ -1704,7 +1707,7 @@ if (!class_exists("blackNews", false)) {
                 }
             }
 
-            // Default: entries per page for AJAX pagination
+            // Default: entries per page for AJAX pagination (option name "perPage", used by getEntries action)
             self::$db->query(
                 "INSERT INTO `:prefix:mod_blackNewsOptions` (`section_id`, `name`, `value`) " .
                     "SELECT `section_id`, 'perPage', '20' FROM `:prefix:sections` WHERE `module` = :dir " .
@@ -1712,7 +1715,7 @@ if (!class_exists("blackNews", false)) {
                 ["dir" => static::$directory]
             );
 
-            // shortcontent column may be missing on older installations
+            // shortcontent column may be missing on older installations (added in 0.7.1 structure.sql)
             $hasShort = self::$db
                 ->query("SHOW COLUMNS FROM `:prefix:mod_blackNewsEntry` LIKE 'shortcontent'")
                 ->rowCount() > 0;
