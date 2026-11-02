@@ -109,10 +109,10 @@
   function filterUrl(f)\{
     var parts = [];
     Object.keys(f).sort().forEach(function(k)\{
-      f[k].forEach(function(s)\{ parts.push(k + '/' + s); \});
-    \});
+      f[k].forEach(function(s)\{ parts.push(k + '/' + s); });
+    });
     return base + parts.join('/');
-  \}
+  }
 
   // Filter-Wechsel: ohne JS normaler Link, mit JS per AJAX nachladen
   var selects = sec.querySelectorAll('.bN_Filters select');
@@ -122,16 +122,16 @@
       var val = sel.value;
       if (val) \{
         filters[prefix] = [val];
-      \} else \{
+      } else \{
         delete filters[prefix];
-      \}
+      }
       page = 0;
       loadEntries(true);
       if (history.replaceState) \{
         history.replaceState(null, '', filterUrl(filters));
-      \}
-    \});
-  \});
+      }
+    });
+  });
 
   function loadEntries(reset)\{
     var body = new URLSearchParams();
@@ -142,25 +142,25 @@
     body.append('filters', JSON.stringify(filters));
     fetch('{$CAT_URL}/modules/blackNews/save.php', \{
       method: 'POST',
-      headers: \{'Content-Type': 'application/x-www-form-urlencoded'\},
+      headers: \{'Content-Type': 'application/x-www-form-urlencoded'},
       body: body.toString()
-    \}).then(function(r)\{ return r.json(); \}).then(function(res)\{
+    }).then(function(r)\{ return r.json(); }).then(function(res)\{
       if (!res || !res.success) return;
       var list = sec.querySelector('div.c_1080');
-      if (reset) \{ list.innerHTML = res.html; \} else \{ list.insertAdjacentHTML('beforeend', res.html); \}
+      if (reset) \{ list.innerHTML = res.html; } else \{ list.insertAdjacentHTML('beforeend', res.html); }
       var more = document.getElementById('bN_more_' + sectionId);
-      if (more) \{ more.style.display = res.hasMore ? '' : 'none'; \}
-    \}).catch(function()\{\});
-  \}
+      if (more) \{ more.style.display = res.hasMore ? '' : 'none'; }
+    }).catch(function()\{});
+  }
 
   var moreBtn = document.getElementById('bN_more_{$section_id}');
   if (moreBtn) \{
-    var total = \{if $totalEntries\}{$totalEntries}\{else\}0\{/if\};
-    if (perPage < total) \{ moreBtn.style.display = ''; \}
+    var total = \{if $totalEntries}{$totalEntries}\{else}0\{/if};
+    if (perPage < total) \{ moreBtn.style.display = ''; }
     moreBtn.addEventListener('click', function()\{
       page++;
       loadEntries(false);
-    \});
-  \}
-\})();
+    });
+  }
+})();
 </script>
