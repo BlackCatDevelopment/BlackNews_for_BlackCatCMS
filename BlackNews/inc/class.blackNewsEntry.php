@@ -665,6 +665,10 @@ if (!class_exists("blackNewsEntry", false)) {
                 CAT_Helper_Validate::sanitizePost("category")
             );
 
+            if ($tags = CAT_Helper_Validate::sanitizePost("tags")) {
+                $this->setEntryTags($this->getEntryID(), $tags);
+            }
+
             if ($options = CAT_Helper_Validate::sanitizePost("options")) {
                 foreach ($options as $opt) {
                     $this->setOption($opt["name"], $opt["value"]);

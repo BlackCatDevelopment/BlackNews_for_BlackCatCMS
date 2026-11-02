@@ -54,4 +54,9 @@ if (defined('CAT_PATH')) {
 # anpassen: mod_blacknews_content_options und mod_blacknews_options name = 127, value = 2047
 # delete mod_blacknews_content => id und primaray key to news_id, section_id, page_id
 
+require_once "inc/class.blackNews.php";
+
+// Migration: create tag tables for existing installations and set perPage default
+blackNews::upgrade();
+
 ?>

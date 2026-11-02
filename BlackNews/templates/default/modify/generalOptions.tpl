@@ -50,6 +50,11 @@
     <input id="mainSubTitle_{$section_id}" type="text" name="subtitle" value="{if $options.subtitle}{$options.subtitle}{/if}">
 </p>
 <hr>
+<p>
+    <label for="perPage_{$section_id}" class="bcLabel">{translate("Entries per page (AJAX pagination)")}:</label>
+    <input id="perPage_{$section_id}" type="number" min="1" name="perPage" value="{if $options.perPage}{$options.perPage}{else}20{/if}">
+</p>
+<hr>
 	<p>
 		<label for="usergroup_{$section_id}" class="bcLabel">{translate("Usergroup of editors")}:</label>
 		<select id="usergroup_{$section_id}" name="usergroup">

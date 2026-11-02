@@ -53,6 +53,8 @@ if (!class_exists("blackNews", false)) {
 
         private $routeUrl = "";
         private $routeQuery = null;
+        private $routeFilters = [];
+        private $routeCategory = "";
         private static $routeUrls = [];
         protected static $imageDir = "/media/blacknews/";
         protected static $imageName = "bNimage";
@@ -262,7 +264,8 @@ if (!class_exists("blackNews", false)) {
             bool $addOpt = false,
             int $start = 0,
             int $limit = 0,
-            bool $frontend = false
+            bool $frontend = false,
+            array $filters = []
         ): array {
             $catID = $this->getOption("category")
                 ? $this->getOption("category")
@@ -273,6 +276,33 @@ if (!class_exists("blackNews", false)) {
                 : 0;
 
             $between = $limit > 0 ? " LIMIT " . $start . "," . $limit : "";
+
+            // Build filter conditions: ['jahr' => [2026,...], 'tag' => ['slug',...], '<type>' => [...]]
+            $filterSql = "";
+            $filterParams = [];
+            $fi = 0;
+            foreach ($filters as $prefix => $slugs) {
+                foreach ((array) $slugs as $slug) {
+                    $fi++;
+                    if ($prefix === "jahr") {
+                        if (!preg_match("/^\d{4}$/", (string) $slug)) {
+                            continue;
+                        }
+                        $filterSql .= " AND YEAR(nE.`publishDate`) = :f" . $fi;
+                        $filterParams["f" . $fi] = (int) $slug;
+                    } else {
+                        $filterSql .=
+                            " AND EXISTS (SELECT 1 FROM `:prefix:mod_blackNewsEntryTags` et" . $fi .
+                            " JOIN `:prefix:mod_blackNewsTags` t" . $fi . " ON t" . $fi . ".`tagID` = et" . $fi . ".`tagID`" .
+                            " WHERE et" . $fi . ".`entryID` = nE.`entryID`" .
+                            " AND t" . $fi . ".`section_id` = nE.`section_id`" .
+                            " AND t" . $fi . ".`type` = :ft" . $fi .
+                            " AND t" . $fi . ".`slug` = :fs" . $fi . ")";
+                        $filterParams["ft" . $fi] = $prefix;
+                        $filterParams["fs" . $fi] = $slug;
+                    }
+                }
+            }
 
             // Get all entries
             if ($catID > 0) {
@@ -295,14 +325,18 @@ if (!class_exists("blackNews", false)) {
                                 "AND (nE.`unpublishDate` > CURRENT_TIMESTAMP OR nE.`unpublishDate` IS NULL)) " .
                                 "AND publish IS NOT NULL "
                             : "") .
+                        $filterSql .
                         "ORDER BY nE.`position` DESC, nE.`publishDate` DESC" .
                         $between,
-                    [
-                        "section_id" => $section_id
-                            ? $section_id
-                            : $this->section_id,
-                        "catID" => $catID,
-                    ]
+                    array_merge(
+                        [
+                            "section_id" => $section_id
+                                ? $section_id
+                                : $this->section_id,
+                            "catID" => $catID,
+                        ],
+                        $filterParams
+                    )
                 );
             } else {
                 $result = self::$db->query(
@@ -321,13 +355,17 @@ if (!class_exists("blackNews", false)) {
                                 "AND (nE.`unpublishDate` > CURRENT_TIMESTAMP OR nE.`unpublishDate` IS NULL)) " .
                                 "AND publish IS NOT NULL "
                             : "") .
+                        $filterSql .
                         "ORDER BY nE.`position` DESC, nE.`publishDate` DESC" .
                         $between,
-                    [
-                        "section_id" => $section_id
-                            ? $section_id
-                            : $this->section_id,
-                    ]
+                    array_merge(
+                        [
+                            "section_id" => $section_id
+                                ? $section_id
+                                : $this->section_id,
+                        ],
+                        $filterParams
+                    )
                 );
             }
             $entries = [];
@@ -701,19 +739,151 @@ if (!class_exists("blackNews", false)) {
          */
         public function checkCategory(): bool
         {
-            if ($this->routeUrl == "") {
+            if ($this->routeCategory == "") {
                 return false;
             }
-            $route = explode("/", $this->routeUrl);
 
             $this->getCategories();
             foreach ($this->categories as $ind) {
-                if ($ind["url"] == end($route)) {
+                if ($ind["url"] == $this->routeCategory) {
                     $this->options["category"] = $ind["catID"];
                     return true;
                 }
             }
             return false;
+        }
+
+        /**
+         * True if the current route carries jahr/tag filters
+         */
+        public function hasFilters(): bool
+        {
+            return count($this->routeFilters) > 0;
+        }
+
+        /**
+         * Get all tags of this section, optionally filtered by type
+         */
+        public function getTags(string $type = ""): array
+        {
+            $r = self::$db->query(
+                "SELECT `tagID`, `type`, `name`, `slug` FROM `:prefix:mod_blackNewsTags` " .
+                    "WHERE `section_id` = :sid" .
+                    ($type !== "" ? " AND `type` = :type" : "") .
+                    " ORDER BY `type`, `name`",
+                array_merge(
+                    ["sid" => $this->section_id],
+                    $type !== "" ? ["type" => $type] : []
+                )
+            );
+            $tags = [];
+            if ($r && $r->rowCount() > 0) {
+                while (false !== ($t = $r->fetch())) {
+                    $tags[$t["tagID"]] = $t;
+                }
+            }
+            return $tags;
+        }
+
+        /**
+         * Get tags assigned to an entry
+         */
+        public function getEntryTags(int $entryID): array
+        {
+            $r = self::$db->query(
+                "SELECT t.`tagID`, t.`type`, t.`name`, t.`slug` " .
+                    "FROM `:prefix:mod_blackNewsTags` t " .
+                    "JOIN `:prefix:mod_blackNewsEntryTags` et ON et.`tagID` = t.`tagID` " .
+                    "WHERE et.`entryID` = :eid ORDER BY t.`type`, t.`name`",
+                ["eid" => $entryID]
+            );
+            $tags = [];
+            if ($r && $r->rowCount() > 0) {
+                while (false !== ($t = $r->fetch())) {
+                    $tags[$t["tagID"]] = $t;
+                }
+            }
+            return $tags;
+        }
+
+        /**
+         * Assign tags to an entry; unknown names are created on the fly.
+         * $tags: array of ['type' => ..., 'name' => ...] or ['type'=>..., 'slug'=>...]
+         */
+        public function setEntryTags(int $entryID, array $tags): bool
+        {
+            $ok = true;
+            self::$db->query(
+                "DELETE FROM `:prefix:mod_blackNewsEntryTags` WHERE `entryID` = :eid",
+                ["eid" => $entryID]
+            );
+            foreach ($tags as $t) {
+                $type = $t["type"] ?? "";
+                $name = $t["name"] ?? "";
+                if ($type === "" || $name === "") {
+                    continue;
+                }
+                $slug = $t["slug"] ?? self::createTitleURL($name);
+                // ensure unique slug within section+type and against category urls
+                $base = $slug;
+                $i = 0;
+                while (
+                    self::$db
+                        ->query(
+                            "SELECT `tagID` FROM `:prefix:mod_blackNewsTags` " .
+                                "WHERE `section_id` = :sid AND `type` = :type AND `slug` = :slug " .
+                                "UNION SELECT `catID` FROM `:prefix:mod_blackNewsCategory` " .
+                                "WHERE `section_id` = :sid AND `url` = :slug",
+                            ["sid" => $this->section_id, "type" => $type, "slug" => $slug]
+                        )
+                        ->fetchColumn()
+                ) {
+                    $slug = $base . "-" . ++$i;
+                }
+                self::$db->query(
+                    "INSERT INTO `:prefix:mod_blackNewsTags` (`section_id`, `type`, `name`, `slug`) " .
+                        "VALUES (:sid, :type, :name, :slug) ON DUPLICATE KEY UPDATE `name` = :name",
+                    ["sid" => $this->section_id, "type" => $type, "name" => $name, "slug" => $slug]
+                );
+                $tagID = self::$db->lastInsertId();
+                if (!$tagID) {
+                    $tagID = self::$db
+                        ->query(
+                            "SELECT `tagID` FROM `:prefix:mod_blackNewsTags` " .
+                                "WHERE `section_id` = :sid AND `type` = :type AND `slug` = :slug",
+                            ["sid" => $this->section_id, "type" => $type, "slug" => $slug]
+                        )
+                        ->fetchColumn();
+                }
+                if (
+                    !self::$db->query(
+                        "INSERT IGNORE INTO `:prefix:mod_blackNewsEntryTags` (`entryID`, `tagID`) VALUES (:eid, :tid)",
+                        ["eid" => $entryID, "tid" => $tagID]
+                    )
+                ) {
+                    $ok = false;
+                }
+            }
+            return $ok;
+        }
+
+        /**
+         * Years available for the jahr/ filter
+         */
+        public function getYears(): array
+        {
+            $r = self::$db->query(
+                "SELECT DISTINCT YEAR(`publishDate`) AS y FROM `:prefix:mod_blackNewsEntry` " .
+                    "WHERE `section_id` = :sid AND `publishDate` IS NOT NULL ORDER BY y DESC",
+                ["sid" => $this->section_id]
+            );
+            $years = [];
+            if ($r && $r->rowCount() > 0) {
+                while (false !== ($row = $r->fetch())) {
+                    $years[] = (int) $row["y"];
+                }
+            }
+            return $years;
         }
 
         /**
@@ -757,15 +927,37 @@ if (!class_exists("blackNews", false)) {
                 )
             );
 
-            if (self::checkOverview($rUrl) || self::checkCategory()) {
+            if (self::checkOverview($rUrl) || self::checkCategory() || $this->hasFilters()) {
+                // 301 to canonical filter order (jahr first, then tags sorted)
+                $canonical = $this->getCanonicalRoute();
+                if ($canonical !== "" && $canonical !== $this->routeUrl && $this->hasFilters()) {
+                    $target = CAT_Registry::get("USE_SHORT_URLS")
+                        ? CAT_URL . "/" . $canonical
+                        : CAT_URL . "/" . trim(PAGES_DIRECTORY, "/") . "/" . $canonical;
+                    header("HTTP/1.1 301 Moved Permanently");
+                    header("Location:" . $target);
+                    exit();
+                }
+
                 $this->setParserValue(
                     "category",
                     $this->getOption("category"),
                     true
                 );
+
+                $perPage = (int) $this->getOption("perPage");
+                if ($perPage <= 0) {
+                    $perPage = 20;
+                }
+                $this->setParserValue("perPage", $perPage, true);
+                $this->setParserValue("activeFilters", $this->routeFilters, true);
+                $this->setParserValue("years", $this->getYears(), true);
+                $this->setParserValue("tags", $this->getTags(), true);
+                $this->setParserValue("totalEntries", count($this->getOverview(false, 0, 0, true, $this->routeFilters)), true);
+
                 $this->setParserValue(
                     "entries",
-                    $this->getOverview(true, 0, 0, true),
+                    $this->getOverview(true, 0, $perPage, true, $this->routeFilters),
                     true
                 );
                 $this->template = "view";
@@ -972,8 +1164,109 @@ if (!class_exists("blackNews", false)) {
                 CAT_Helper_Directory::sanitizePath($this->routeUrl),
                 "/"
             );
+
+            $this->parseFilters();
+
             return [$this->routeUrl, $this->routeQuery];
         } // end function initRoute()
+
+        /**
+         * Parse the route into category slug, filters (jahr/YYYY, tag/<slug>)
+         * and the remaining entry slug. Category is optional: a route may
+         * consist of filters only (e.g. "jahr/2026" or "tag/presse").
+         */
+        private function parseFilters(): void
+        {
+            $this->routeFilters = [];
+            $this->routeCategory = "";
+
+            $segments = $this->routeUrl !== "" ? explode("/", $this->routeUrl) : [];
+            $i = 0;
+            $count = count($segments);
+            while ($i < $count) {
+                $seg = $segments[$i];
+                if (
+                    $i + 1 < $count &&
+                    ($seg === "jahr" || $this->isTagType($seg)) &&
+                    $segments[$i + 1] !== ""
+                ) {
+                    $this->routeFilters[$seg][] = $segments[$i + 1];
+                    $i += 2;
+                } elseif ($this->routeCategory === "" && !$this->isTagType($seg) && $seg !== "jahr") {
+                    $this->routeCategory = $seg;
+                    $i++;
+                } else {
+                    break;
+                }
+            }
+            // Remaining segments belong to the entry slug
+            $rest = implode("/", array_slice($segments, $i));
+            $this->routeUrl = trim(
+                ($this->routeCategory !== "" ? $this->routeCategory . "/" : "") . $rest,
+                "/"
+            );
+        }
+
+        /**
+         * Check if a route prefix is a known tag type of this section
+         */
+        private function isTagType(string $type): bool
+        {
+            static $types = null;
+            if ($types === null) {
+                $types = [];
+                $r = self::$db->query(
+                    "SELECT DISTINCT `type` FROM `:prefix:mod_blackNewsTags` WHERE `section_id` = :sid",
+                    ["sid" => $this->section_id]
+                );
+                if ($r && $r->rowCount() > 0) {
+                    while (false !== ($row = $r->fetch())) {
+                        $types[] = $row["type"];
+                    }
+                }
+            }
+            return in_array($type, $types, true);
+        }
+
+        /**
+         * Canonical filter path: category first, then filters sorted by prefix
+         * (jahr before tag), so reordered filter URLs get a 301 to this form.
+         */
+        public function getCanonicalRoute(): string
+        {
+            $parts = [];
+            if ($this->routeCategory !== "") {
+                $parts[] = $this->routeCategory;
+            }
+            $prefixes = array_keys($this->routeFilters);
+            usort($prefixes, function ($a, $b) {
+                if ($a === $b) {
+                    return 0;
+                }
+                if ($a === "jahr") {
+                    return -1;
+                }
+                if ($b === "jahr") {
+                    return 1;
+                }
+                return strcmp($a, $b);
+            });
+            foreach ($prefixes as $p) {
+                $slugs = $this->routeFilters[$p];
+                sort($slugs);
+                foreach ($slugs as $s) {
+                    $parts[] = $p . "/" . $s;
+                }
+            }
+            $entrySlug = $this->routeUrl;
+            if ($this->routeCategory !== "" && strpos($entrySlug, $this->routeCategory . "/") === 0) {
+                $entrySlug = substr($entrySlug, strlen($this->routeCategory) + 1);
+            }
+            if ($entrySlug !== "" && $entrySlug !== $this->routeCategory) {
+                $parts[] = $entrySlug;
+            }
+            return implode("/", $parts);
+        }
 
         /**
          *
@@ -1053,6 +1346,9 @@ if (!class_exists("blackNews", false)) {
             $this->setParserValue("entries", $this->getOverview(true), true);
 
             $this->setParserValue("categories", $this->getCategories(), true);
+
+            $this->setParserValue("tags", $this->getTags(), true);
+            $this->setParserValue("years", $this->getYears(), true);
 
             // ToDo: wird von einer include-Variante auf eine andere geswitcht, bleibt die Option setNews bestehen! Zusätzlich variante auf include... untersuchen!
             if (
@@ -1216,6 +1512,68 @@ if (!class_exists("blackNews", false)) {
                         ),
                     ];
                     break;
+                case "getTags":
+                    $return = [
+                        "success" => true,
+                        "tags" => $this->getTags(
+                            (string) CAT_Helper_Validate::sanitizePost("type")
+                        ),
+                        "types" => self::$db
+                            ->query(
+                                "SELECT DISTINCT `type` FROM `:prefix:mod_blackNewsTags` WHERE `section_id` = :sid ORDER BY `type`",
+                                ["sid" => $this->section_id]
+                            )
+                            ->fetchAll(\PDO::FETCH_COLUMN),
+                    ];
+                    break;
+                case "saveTags":
+                    $tags = CAT_Helper_Validate::sanitizePost("tags");
+                    $entryID = (int) CAT_Helper_Validate::sanitizePost("entryID");
+                    $return = [
+                        "success" => $this->setEntryTags(
+                            $entryID,
+                            is_array($tags) ? $tags : []
+                        ),
+                        "tags" => $this->getEntryTags($entryID),
+                    ];
+                    break;
+                case "getEntries":
+                    global $parser;
+                    $filters = CAT_Helper_Validate::sanitizePost("filters");
+                    if (!is_array($filters)) {
+                        $filters = [];
+                    }
+                    $page = max(0, (int) CAT_Helper_Validate::sanitizePost("page"));
+                    $perPage = (int) $this->getOption("perPage");
+                    if ($perPage <= 0) {
+                        $perPage = 20;
+                    }
+                    $total = count($this->getOverview(false, 0, 0, true, $filters));
+                    $entries = $this->getOverview(true, $page * $perPage, $perPage, true, $filters);
+
+                    $parser->setPath(
+                        CAT_PATH . "/modules/" . static::$directory . "/templates/" . $this->getVariant() . "/view/"
+                    );
+                    $parser->setFallbackPath(
+                        CAT_PATH . "/modules/" . static::$directory . "/templates/default/view/"
+                    );
+                    $html = "";
+                    foreach ($entries as $entry) {
+                        $html .= $parser->get("entryList", [
+                            "entry" => $entry,
+                            "options" => $this->getOption(),
+                            "catIcons" => $this->parserValues["catIcons"] ?? [],
+                        ]);
+                    }
+                    $return = [
+                        "success" => true,
+                        "html" => $html,
+                        "total" => $total,
+                        "perPage" => $perPage,
+                        "page" => $page,
+                        "hasMore" => ($page + 1) * $perPage < $total,
+                    ];
+                    break;
                 case "uploadIMG":
                     if (
                         isset($_FILES["bNimage"]["name"]) &&
@@ -1313,7 +1671,48 @@ if (!class_exists("blackNews", false)) {
          */
         public static function upgrade()
         {
-            // TODO: implement here
+            $errors = [];
+
+            // Tag tables for filtering entries (jahr/tag/<slug> routes)
+            foreach ([
+                "CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsTags` (
+                    `tagID` int(11) unsigned NOT NULL AUTO_INCREMENT,
+                    `section_id` int(11) unsigned NOT NULL DEFAULT 0,
+                    `type` varchar(64) NOT NULL DEFAULT '',
+                    `name` varchar(255) NOT NULL DEFAULT '',
+                    `slug` varchar(255) NOT NULL DEFAULT '',
+                    PRIMARY KEY (`tagID`),
+                    UNIQUE KEY `:prefix:secTypeSlug` (`section_id`, `type`, `slug`),
+                    CONSTRAINT `:prefix:bN_TagSec` FOREIGN KEY (`section_id`) REFERENCES `:prefix:sections`(`section_id`) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci'",
+                "CREATE TABLE IF NOT EXISTS `:prefix:mod_blackNewsEntryTags` (
+                    `entryID` int(11) unsigned NOT NULL,
+                    `tagID` int(11) unsigned NOT NULL,
+                    PRIMARY KEY (`entryID`, `tagID`),
+                    CONSTRAINT `:prefix:bN_EntryTagEntry` FOREIGN KEY (`entryID`) REFERENCES `:prefix:mod_blackNewsEntry`(`entryID`) ON DELETE CASCADE,
+                    CONSTRAINT `:prefix:bN_EntryTagTag` FOREIGN KEY (`tagID`) REFERENCES `:prefix:mod_blackNewsTags`(`tagID`) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci'",
+            ] as $sql) {
+                self::$db->query($sql);
+                if (self::$db->isError()) {
+                    $errors[] = self::$db->getError();
+                }
+            }
+
+            // Default: entries per page for AJAX pagination
+            self::$db->query(
+                "INSERT INTO `:prefix:mod_blackNewsOptions` (`section_id`, `name`, `value`) " .
+                    "SELECT `section_id`, 'perPage', '20' FROM `:prefix:sections` WHERE `module` = :dir " .
+                    "ON DUPLICATE KEY UPDATE `value` = `value`",
+                ["dir" => static::$directory]
+            );
+
+            // shortcontent column may be missing on older installations
+            self::$db->query(
+                "ALTER TABLE `:prefix:mod_blackNewsEntry` ADD COLUMN `shortcontent` text NULL AFTER `content`"
+            );
+
+            return $errors;
         }
 
         public function generateHTACCESS(): string

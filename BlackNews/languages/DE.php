@@ -135,5 +135,12 @@ $LANG = [
     "All" => "Alle",
     "news" => "Neuigkeiten",
     "Short Description (optional)" => "Kurzbeschreibung (optional)",
+    "Entries per page (AJAX pagination)" => "Eintr\u00e4ge pro Seite (AJAX-Paginierung)",
+    "Tags" => "Tags",
+    "Tag type" => "Tag-Typ",
+    "New or existing tag" => "Neuer oder vorhandener Tag",
+    "Tags are filterable in the frontend via /tag/<slug>/ and /jahr/<year>/ URLs." => "Tags sind im Frontend \u00fcber /tag/<slug>/ und /jahr/<jahr>/ URLs filterbar.",
+    "All years" => "Alle Jahre",
+    "Load more" => "Mehr laden",
 ];
 ?>

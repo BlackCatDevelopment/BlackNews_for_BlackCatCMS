@@ -17,6 +17,8 @@ DROP TRIGGER IF EXISTS `:prefix:blackNewsForm`;
 
 DROP TABLE IF EXISTS
 `:prefix:mod_blackNewsForm`,
+`:prefix:mod_blackNewsEntryTags`,
+`:prefix:mod_blackNewsTags`,
 `:prefix:mod_blackNewsCategoryEntries`,
 `:prefix:mod_blackNewsCategory`,
 `:prefix:mod_blackNewsOptions`,
