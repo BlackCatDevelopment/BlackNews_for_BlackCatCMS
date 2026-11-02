@@ -1108,6 +1108,7 @@ if (!class_exists("blackNews", false)) {
                     $this->routeUrl;
 
             $this->setParserValue("options", $this->getOption(), true);
+            if ($bnProf) { $mark("options"); }
 
             $this->setParserValue("categories", $this->getCategories(), true);
 
@@ -1510,7 +1511,17 @@ if (!class_exists("blackNews", false)) {
         {
             global $parser, $section_id;
 
+            $bnProf = isset($_GET["bn_prof"]);
+            $t0 = microtime(true);
+            $prof = [];
+            $mark = function (string $label) use (&$prof, &$t0) {
+                $now = microtime(true);
+                $prof[$label] = round(($now - $t0) * 1000, 1);
+                $t0 = $now;
+            };
+
             $this->setIDs($section_id);
+            if ($bnProf) { $mark("setIDs"); }
 
             // Reset parserValues
             $this->parserValues = [];
@@ -1546,7 +1557,9 @@ if (!class_exists("blackNews", false)) {
                 $this->setParserValue("galleries", $gal);
             }
 
+            if ($bnProf) { $mark("catGallery"); }
             $this->setParserValue("htaccess", $this->generateHTACCESS());
+            if ($bnProf) { $mark("htaccess"); }
 
             $this->setParserValue("options", $this->getOption(), true);
 
@@ -1556,8 +1569,10 @@ if (!class_exists("blackNews", false)) {
                 true
             );
 
+            if ($bnProf) { $mark("sections"); }
             $listLimit = 50;
             $this->setParserValue("entries", $this->getOverview(false, 0, $listLimit, false, [], true), true);
+            if ($bnProf) { $mark("entries"); }
             $this->setParserValue("entriesTotal", $this->countOverview([], false), true);
             $this->setParserValue("entriesLimit", $listLimit, true);
 
@@ -1566,6 +1581,7 @@ if (!class_exists("blackNews", false)) {
             $this->setParserValue("tags", $this->getTags(), true);
             $this->setParserValue("years", $this->getYears(), true);
             $this->setParserValue("tagTypes", $this->getConfiguredTagTypes(), true);
+            if ($bnProf) { $mark("cats+tags+years"); }
             $this->setParserValue("tagSplitTypes", $this->getSplitTagTypes(), true);
 
             // ToDo: wird von einer include-Variante auf eine andere geswitcht, bleibt die Option setNews bestehen! Zusätzlich variante auf include... untersuchen!
@@ -1582,6 +1598,7 @@ if (!class_exists("blackNews", false)) {
                 );
             }
 
+            if ($bnProf) { $mark("setNews-check"); }
             $this->setParserValue("usergroups", CAT_Users::getGroups(), true);
             $getGroupMembers = isset(
                 $this->parserValues["options"]["usergroup"]
@@ -1593,6 +1610,7 @@ if (!class_exists("blackNews", false)) {
                 CAT_Users::getMembers($getGroupMembers)
             );
 
+            if ($bnProf) { $mark("users"); }
             if (
                 file_exists(
                     CAT_PATH .
@@ -1637,6 +1655,11 @@ if (!class_exists("blackNews", false)) {
                     "/templates/default"
             );
 
+            if ($bnProf) {
+                $mark("includes");
+                $total = round((microtime(true) - ($prof["start"] ?? microtime(true))) * 1000, 1);
+                error_log("BN_PROF modify: " . json_encode($prof) . " total_ms=" . $total);
+            }
             #if( !self::$parsed )
             $parser->output($this->template, $this->getParserValue());
 
