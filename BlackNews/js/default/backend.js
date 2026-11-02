@@ -845,11 +845,17 @@ $(document).ready(function () {
       });
 
       // Infinite scroll for the entry list (first page rendered server-side).
-      // Loads only when the user really scrolled (scrollTop > 0) or a sentinel
-      // at the end of the list becomes visible - never on initial page load.
+      // Loads only when a sentinel at the end of the list becomes visible.
       (function () {
+        console.log("[bN:scroll] init section", bcID.section_id);
         var listEl = document.getElementById("blackNewsList_" + bcID.section_id);
-        if (!listEl) return;
+        if (!listEl) {
+          console.warn("[bN:scroll] list element not found for section", bcID.section_id);
+          return;
+        }
+        console.log("[bN:scroll] listEl found, children:", listEl.children.length,
+          "scrollable:", listEl.scrollHeight, ">", listEl.clientHeight,
+          "parent overflow:", getComputedStyle(listEl.parentNode).overflowY);
         var page = 0,
           loading = false,
           done = false,
@@ -861,6 +867,7 @@ $(document).ready(function () {
         listEl.appendChild(sentinel);
 
         function loadMore() {
+          console.log("[bN:scroll] loadMore called, page=", page, "loading=", loading, "done=", done);
           if (loading || done) return;
           loading = true;
           sentinel.style.opacity = "1";
@@ -869,7 +876,9 @@ $(document).ready(function () {
           b.append("_cat_ajax", "1");
           b.append("section_id", bcID.section_id);
           b.append("page", ++page);
+          console.log("[bN:scroll] fetching page", page);
           bN_fetchJSON(CAT_URL + "/modules/blacknews/save.php", b).then(function (res) {
+            console.log("[bN:scroll] response:", res ? ("success=" + res.success + " html_len=" + (res.html ? res.html.length : 0) + " hasMore=" + res.hasMore) : "null");
             loading = false;
             sentinel.style.opacity = "0";
             if (!res || !res.success) return;
@@ -887,11 +896,14 @@ $(document).ready(function () {
         var io = null;
         if ("IntersectionObserver" in window) {
           io = new IntersectionObserver(function (entries) {
+            console.log("[bN:scroll] IO fired, intersecting=", entries[0].isIntersecting,
+              "scrollTop=", listEl.scrollTop, "scrollHeight=", listEl.scrollHeight, "clientHeight=", listEl.clientHeight);
             if (entries[0].isIntersecting) loadMore();
           });
           io.observe(sentinel);
         } else {
           function onScroll() {
+            console.log("[bN:scroll] scroll event, scrollTop=", listEl.scrollTop);
             if (listEl.scrollTop > 0 &&
                 listEl.scrollHeight - listEl.scrollTop - listEl.clientHeight < 200) {
               loadMore();
