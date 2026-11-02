@@ -349,6 +349,7 @@ if (!class_exists("blackNews", false)) {
         /**
          *
          */
+
         public function getOverview(
             bool $addOpt = false,
             int $start = 0,
@@ -371,152 +372,203 @@ if (!class_exists("blackNews", false)) {
                 ? "nE.`entryID`, nE.`section_id`, nE.`title`, nE.`seoURL`, nE.`position`, nE.`publish`, " .
                     'DATE_FORMAT(nE.`publishDate`, "%Y-%m-%d") AS publishDate, ' .
                     "UNIX_TIMESTAMP(nE.`publishDate`) AS publishUT "
-                : "CURRENT_TIMESTAMP , nE.`entryID`, nE.`section_id`, `title`, `content`, `shortcontent`, `text`, `modified`, `created`, `userID`, `seoURL`, `position`, `publish`, `category`, `url`";
+                : "CURRENT_TIMESTAMP, nE.`entryID`, nE.`section_id`, nE.`title`, nE.`content`, nE.`shortcontent`, nE.`text`, nE.`modified`, nE.`created`, nE.`userID`, nE.`seoURL`, nE.`position`, nE.`publish`";
 
-            // Build filter conditions: ['jahr' => [2026,...], 'tag' => ['slug',...], '<type>' => [...]]
+            // Tags als JSON-Array ergänzen.
+            $cols .= ", COALESCE(tagData.tags, '[]') AS tags ";
+
+            // Tags pro Entry und Section aggregieren.
+            $tagJoin = "
+                LEFT JOIN (
+                    SELECT
+                        et.`entryID`,
+                        t.`section_id`,
+                        CONCAT(
+                            '[',
+                            GROUP_CONCAT(
+                                JSON_OBJECT(
+                                    'tagID', t.`tagID`,
+                                    'type', t.`type`,
+                                    'name', t.`name`,
+                                    'slug', t.`slug`
+                                )
+                                SEPARATOR ','
+                            ),
+                            ']'
+                        ) AS tags
+                    FROM `:prefix:mod_blackNewsEntryTags` et
+                    INNER JOIN `:prefix:mod_blackNewsTags` t
+                        ON t.`tagID` = et.`tagID`
+                    GROUP BY et.`entryID`, t.`section_id`
+                ) AS tagData
+                    ON tagData.`entryID` = nE.`entryID`
+                    AND tagData.`section_id` = nE.`section_id`
+            ";
+
+            // Filterbedingungen aufbauen.
             $filterSql = "";
             $filterParams = [];
             $fi = 0;
+
             foreach ($filters as $prefix => $slugs) {
                 foreach ((array) $slugs as $slug) {
                     $fi++;
+
                     if ($prefix === "jahr") {
                         if (!preg_match("/^\d{4}$/", (string) $slug)) {
                             continue;
                         }
+
                         $filterSql .= " AND YEAR(nE.`publishDate`) = :f" . $fi;
                         $filterParams["f" . $fi] = (int) $slug;
                     } else {
                         $filterSql .=
-                            " AND EXISTS (SELECT 1 FROM `:prefix:mod_blackNewsEntryTags` et" .
+                            " AND EXISTS (
+                                SELECT 1
+                                FROM `:prefix:mod_blackNewsEntryTags` et" .
                             $fi .
-                            " JOIN `:prefix:mod_blackNewsTags` t" .
+                            "
+                                INNER JOIN `:prefix:mod_blackNewsTags` t" .
                             $fi .
-                            " ON t" .
+                            "
+                                    ON t" .
                             $fi .
                             ".`tagID` = et" .
                             $fi .
-                            ".`tagID`" .
-                            " WHERE et" .
+                            ".`tagID`
+                                WHERE et" .
                             $fi .
-                            ".`entryID` = nE.`entryID`" .
-                            " AND t" .
+                            ".`entryID` = nE.`entryID`
+                                    AND t" .
                             $fi .
-                            ".`section_id` = nE.`section_id`" .
-                            " AND t" .
+                            ".`section_id` = nE.`section_id`
+                                    AND t" .
                             $fi .
                             ".`type` = :ft" .
                             $fi .
-                            " AND t" .
+                            "
+                                    AND t" .
                             $fi .
                             ".`slug` = :fs" .
                             $fi .
-                            ")";
+                            "
+                            )";
+
                         $filterParams["ft" . $fi] = $prefix;
                         $filterParams["fs" . $fi] = $slug;
                     }
                 }
             }
 
-            // Get all entries
+            // Zusätzliche Datumsfelder für die vollständige Ausgabe.
+            $extraCols = $light
+                ? ""
+                : " , " .
+                    'DATE_FORMAT(nE.`publishDate`, "%Y-%m-%d") AS publishDate, ' .
+                    'DATE_FORMAT(nE.`publishDate`, "%H:%i") AS publishTime, ' .
+                    'DATE_FORMAT(nE.`unpublishDate`, "%Y-%m-%d") AS unpublishDate, ' .
+                    'DATE_FORMAT(nE.`unpublishDate`, "%H:%i") AS unpublishTime, ' .
+                    "UNIX_TIMESTAMP(nE.`publishDate`) AS publishUT ";
+
+            $frontendSql = $frontend
+                ? " AND (
+                        (nE.`publishDate` < CURRENT_TIMESTAMP OR nE.`publishDate` IS NULL)
+                        AND
+                        (nE.`unpublishDate` > CURRENT_TIMESTAMP OR nE.`unpublishDate` IS NULL)
+                    )
+                    AND nE.`publish` IS NOT NULL "
+                : "";
+
+            $params = array_merge(
+                [
+                    "section_id" => $section_id
+                        ? $section_id
+                        : $this->section_id,
+                ],
+                $filterParams
+            );
+
+            // SQL-Abfrage mit oder ohne Kategorieeinschränkung.
             if ($catID > 0) {
-                $result = self::$db->query(
+                $sql =
                     "SELECT " .
-                        $cols .
-                        ($light
-                            ? ""
-                            : " , " .
-                                'DATE_FORMAT(nE.`publishDate`, "%Y-%m-%d") AS publishDate, ' .
-                                'DATE_FORMAT(nE.`publishDate`, "%H:%i") AS publishTime, ' .
-                                'DATE_FORMAT(nE.`unpublishDate`, "%Y-%m-%d") AS unpublishDate, ' .
-                                'DATE_FORMAT(nE.`unpublishDate`, "%H:%i") AS unpublishTime, ' .
-                                "UNIX_TIMESTAMP(nE.`publishDate`) AS publishUT ") .
-                        "FROM `:prefix:mod_blackNewsEntry` nE " .
-                        "LEFT JOIN `:prefix:mod_blackNewsCategoryEntries` catE " .
-                        "ON nE.`entryID` = catE.`entryID` " .
-                        "LEFT JOIN `:prefix:mod_blackNewsCategory` cat " .
-                        "ON cat.`catID` = catE.`catID` " .
-                        "WHERE catE.`catID` = :catID " .
-                        "AND nE.`section_id` = :section_id " .
-                        ($frontend
-                            ? "AND ((nE.`publishDate` < CURRENT_TIMESTAMP OR nE.`publishDate` IS NULL) " .
-                                "AND (nE.`unpublishDate` > CURRENT_TIMESTAMP OR nE.`unpublishDate` IS NULL)) " .
-                                "AND publish IS NOT NULL "
-                            : "") .
-                        $filterSql .
-                        "ORDER BY nE.`position` DESC, nE.`publishDate` DESC" .
-                        $between,
-                    array_merge(
-                        [
-                            "section_id" => $section_id
-                                ? $section_id
-                                : $this->section_id,
-                            "catID" => $catID,
-                        ],
-                        $filterParams
-                    )
-                );
+                    $cols .
+                    $extraCols .
+                    " FROM `:prefix:mod_blackNewsEntry` nE " .
+                    $tagJoin .
+                    " LEFT JOIN `:prefix:mod_blackNewsCategoryEntries` catE
+                        ON nE.`entryID` = catE.`entryID`
+                    LEFT JOIN `:prefix:mod_blackNewsCategory` cat
+                        ON cat.`catID` = catE.`catID`
+                    WHERE catE.`catID` = :catID
+                        AND nE.`section_id` = :section_id " .
+                    $frontendSql .
+                    $filterSql .
+                    " ORDER BY nE.`position` DESC, nE.`publishDate` DESC" .
+                    $between;
+
+                $params["catID"] = $catID;
             } else {
-                $result = self::$db->query(
+                $sql =
                     "SELECT " .
-                        $cols .
-                        ($light
-                            ? ""
-                            : " , " .
-                                'DATE_FORMAT(nE.`publishDate`, "%Y-%m-%d") AS publishDate, ' .
-                                'DATE_FORMAT(nE.`publishDate`, "%H:%i") AS publishTime, ' .
-                                'DATE_FORMAT(nE.`unpublishDate`, "%Y-%m-%d") AS unpublishDate, ' .
-                                'DATE_FORMAT(nE.`unpublishDate`, "%H:%i") AS unpublishTime, ' .
-                                "UNIX_TIMESTAMP(nE.`publishDate`) AS publishUT ") .
-                        "FROM `:prefix:mod_blackNewsEntry` nE " .
-                        "LEFT JOIN `:prefix:mod_blackNewsCategoryEntries` catE ON nE.`entryID` = catE.`entryID`" .
-                        "LEFT JOIN `:prefix:mod_blackNewsCategory` C ON catE.catID = C.catID " .
-                        "WHERE nE.`section_id` = :section_id " .
-                        ($frontend
-                            ? "AND ((nE.`publishDate` < CURRENT_TIMESTAMP OR nE.`publishDate` IS NULL) " .
-                                "AND (nE.`unpublishDate` > CURRENT_TIMESTAMP OR nE.`unpublishDate` IS NULL)) " .
-                                "AND publish IS NOT NULL "
-                            : "") .
-                        $filterSql .
-                        "ORDER BY nE.`position` DESC, nE.`publishDate` DESC" .
-                        $between,
-                    array_merge(
-                        [
-                            "section_id" => $section_id
-                                ? $section_id
-                                : $this->section_id,
-                        ],
-                        $filterParams
-                    )
-                );
+                    $cols .
+                    $extraCols .
+                    " FROM `:prefix:mod_blackNewsEntry` nE " .
+                    $tagJoin .
+                    " LEFT JOIN `:prefix:mod_blackNewsCategoryEntries` catE
+                        ON nE.`entryID` = catE.`entryID`
+                    LEFT JOIN `:prefix:mod_blackNewsCategory` C
+                        ON catE.`catID` = C.`catID`
+                    WHERE nE.`section_id` = :section_id " .
+                    $frontendSql .
+                    $filterSql .
+                    " ORDER BY nE.`position` DESC, nE.`publishDate` DESC" .
+                    $between;
             }
+
+            $result = self::$db->query($sql, $params);
+
             $entries = [];
 
             if ($result && $result->rowCount() > 0) {
                 $i = 0;
+
                 while (false !== ($entry = $result->fetch())) {
+                    $tags = json_decode($entry["tags"] ?? "[]", true) ?: [];
+                    $entry["tags"] = [];
+
+                    foreach ($tags as $tag) {
+                        $entry["tags"][$tag["type"]][] = $tag;
+                    }
+
                     $entries[++$i] = $entry;
+
                     if ($addOpt) {
                         $getEntry = new blackNewsEntry($entry["entryID"]);
+
                         foreach ($getEntry->getOption() as $name => $value) {
                             $entries[$i][$name] = $value;
                         }
+
                         $entries[$i][
                             "username"
                         ] = CAT_Users::getInstance()->get_user_details(
                             $entries[$i]["userID"],
                             "username"
                         );
+
                         $entries[$i][
                             "display_name"
                         ] = CAT_Users::getInstance()->get_user_details(
                             $entries[$i]["userID"],
                             "display_name"
                         );
+
                         $entries[$i]["image"] = $getEntry->getImage();
                     }
                 }
             }
+
             return $entries;
         }
 
@@ -910,23 +962,23 @@ if (!class_exists("blackNews", false)) {
         /**
          * Get tags assigned to an entry
          */
-        public function getEntryTags(int $entryID): array
-        {
-            $r = self::$db->query(
-                "SELECT t.`tagID`, t.`type`, t.`name`, t.`slug` " .
-                    "FROM `:prefix:mod_blackNewsTags` t " .
-                    "JOIN `:prefix:mod_blackNewsEntryTags` et ON et.`tagID` = t.`tagID` " .
-                    "WHERE et.`entryID` = :eid ORDER BY t.`type`, t.`name`",
-                ["eid" => $entryID]
-            );
-            $tags = [];
-            if ($r && $r->rowCount() > 0) {
-                while (false !== ($t = $r->fetch())) {
-                    $tags[$t["tagID"]] = $t;
-                }
-            }
-            return $tags;
-        }
+        // public function getEntryTags(int $entryID): array
+        // {
+        //     $r = self::$db->query(
+        //         "SELECT t.`tagID`, t.`type`, t.`name`, t.`slug` " .
+        //             "FROM `:prefix:mod_blackNewsTags` t " .
+        //             "JOIN `:prefix:mod_blackNewsEntryTags` et ON et.`tagID` = t.`tagID` " .
+        //             "WHERE et.`entryID` = :eid ORDER BY t.`type`, t.`name`",
+        //         ["eid" => $entryID]
+        //     );
+        //     $tags = [];
+        //     if ($r && $r->rowCount() > 0) {
+        //         while (false !== ($t = $r->fetch())) {
+        //             $tags[$t["tagID"]] = $t;
+        //         }
+        //     }
+        //     return $tags;
+        // }
 
         /**
          * Tag types configured in the general options (option "tagTypes",
@@ -1817,6 +1869,7 @@ if (!class_exists("blackNews", false)) {
         public function save()
         {
             $isAjax = CAT_Helper_Validate::sanitizePost("_cat_ajax") == 1;
+
             if ($isAjax) {
                 header("Content-type: application/json; charset=utf-8");
             }
@@ -1862,22 +1915,11 @@ if (!class_exists("blackNews", false)) {
             $entryObj = null;
             if (CAT_Helper_Validate::sanitizePost("entryID")) {
                 $entryObj = new blackNewsEntry(
-                    CAT_Helper_Validate::sanitizePost("entryID")
+                    (int) CAT_Helper_Validate::sanitizePost("entryID")
                 );
             }
 
             switch ($action) {
-                case "get":
-                case "copy":
-                case "publish":
-                case "remove":
-                case "uploadIMG":
-                    if (!$entryObj) {
-                        $entryObj = new blackNewsEntry(
-                            (int) CAT_Helper_Validate::sanitizePost("entryID")
-                        );
-                    }
-                    break;
                 case "setSkin":
                     $return = $this->setOption(
                         "variant",
@@ -1937,7 +1979,7 @@ if (!class_exists("blackNews", false)) {
                     $entryID = (int) CAT_Helper_Validate::sanitizePost(
                         "entryID"
                     );
-                    $ok = $this->setEntryTags(
+                    $ok = $entryObj->setEntryTags(
                         $entryID,
                         is_array($tags) ? $tags : []
                     );
@@ -1966,6 +2008,7 @@ if (!class_exists("blackNews", false)) {
                     break;
                 case "getEntries":
                     global $parser;
+
                     $filters = CAT_Helper_Validate::sanitizePost("filters");
                     if (!is_array($filters)) {
                         $filters = [];

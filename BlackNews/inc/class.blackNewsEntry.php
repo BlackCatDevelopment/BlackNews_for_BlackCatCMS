@@ -100,6 +100,7 @@ if (!class_exists("blackNewsEntry", false)) {
                     ->translate("Post loaded"),
                 "options" => $this->getOption(),
                 "category" => $this->getCategory(),
+                "tags" => $this->getEntryTags(),
                 "success" => true,
             ]);
         }
@@ -400,6 +401,32 @@ if (!class_exists("blackNewsEntry", false)) {
                         : null,
                 ]
             );
+        }
+
+        /**
+         * Get all tags of this section, optionally filtered by type
+         */
+        public function getEntryTags(string $type = ""): array
+        {
+            $r = self::$db->query(
+                "SELECT ent.`entryID`, ent.`tagID`, t.`type`, t.`name`, t.`slug` FROM `:prefix:mod_blackNewsEntryTags` AS ent " .
+                    "JOIN `:prefix:mod_blackNewsTags` AS t " .
+                    "ON ent.`tagID` = t.`tagID` " .
+                    "WHERE ent.`entryID` = :eId" .
+                    ($type !== "" ? " AND t.`type` = :type" : "") .
+                    " ORDER BY t.`type`, t.`name`",
+                array_merge(
+                    ["eId" => $this->getEntryID()],
+                    $type !== "" ? ["type" => $type] : []
+                )
+            );
+            $tags = [];
+            if ($r && $r->rowCount() > 0) {
+                while (false !== ($t = $r->fetch())) {
+                    $tags[$t["type"]] = $t;
+                }
+            }
+            return $tags;
         }
 
         /**
