@@ -38,7 +38,6 @@ error_reporting(E_ALL);
 if (!class_exists("blackNews", false)) {
     if (!class_exists("addOnMain", false)) {
         require_once dirname(__FILE__) . "/class.addOnMain.php";
-    }
 
     class blackNews extends addOnMain
     {
@@ -77,12 +76,10 @@ if (!class_exists("blackNews", false)) {
         {
             parent::__construct($section_id);
             $this->getRoute();
-        }
 
         public function __destruct()
         {
             parent::__destruct();
-        }
 
         public static function init()
         {
@@ -114,7 +111,6 @@ if (!class_exists("blackNews", false)) {
                     }
                 }
             }
-        }
 
         public static function getInstance()
         {
@@ -122,7 +118,6 @@ if (!class_exists("blackNews", false)) {
                 self::$instance = new self();
             }
             return self::$instance;
-        }
 
         /**
          *
@@ -132,7 +127,6 @@ if (!class_exists("blackNews", false)) {
             // set and get variant of module
             $this->variant = $this->getOption("variant", $fromDB);
             return $this->variant ? $this->variant : "default";
-        }
 
         /**
          * @param void $name
@@ -195,7 +189,6 @@ if (!class_exists("blackNews", false)) {
                 return $this->options[$name];
             } elseif ($name == "" && !$fromDB && count($this->options) > 0) {
                 return $this->options;
-            }
 
             // Get all options
             $result = self::$db->query(
@@ -211,16 +204,13 @@ if (!class_exists("blackNews", false)) {
                 while (false !== ($option = $result->fetch())) {
                     $this->options[$option["name"]] = $option["value"];
                 }
-            }
 
             if ($name != "") {
                 return isset($this->options[$name])
                     ? $this->options[$name]
                     : "";
-            }
 
             return $this->options;
-        }
 
         /**
          *
@@ -255,7 +245,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return $sections;
-        }
 
         /**
          * Count entries matching the filters without loading rows
@@ -290,7 +279,6 @@ if (!class_exists("blackNews", false)) {
                         $filterParams["fs" . $fi] = $slug;
                     }
                 }
-            }
 
             $catID = $this->getOption("category") ? $this->getOption("category") : 0;
             $where = $catID > 0
@@ -318,7 +306,6 @@ if (!class_exists("blackNews", false)) {
                     )
                 )
                 ->fetchColumn();
-        }
 
         /**
          *
@@ -372,7 +359,6 @@ if (!class_exists("blackNews", false)) {
                         $filterParams["fs" . $fi] = $slug;
                     }
                 }
-            }
 
             // Get all entries
             if ($catID > 0) {
@@ -466,7 +452,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return $entries;
-        }
 
         /**
          *
@@ -514,7 +499,6 @@ if (!class_exists("blackNews", false)) {
         {
             if (($_SERVER["HTTP_REFERER"] ?? "") == "") {
                 return 0;
-            }
 
             $route = array_filter(
                 explode(
@@ -529,7 +513,6 @@ if (!class_exists("blackNews", false)) {
                     (count($urls) > 0 ? $urls[$k - 1] : "") .
                     "/" .
                     trim($r, ".php");
-            }
 
             // Wenn Referrer in Kategorien vorkommt, dann leite Zurückbutton auf Kategorie zurück
             $this->getCategories();
@@ -548,7 +531,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return 0;
-        }
 
         public function getPermalink(?int $secID = null): string
         {
@@ -580,7 +562,6 @@ if (!class_exists("blackNews", false)) {
                     "/"
                 )
             );
-        }
 
         /**
          *
@@ -589,7 +570,6 @@ if (!class_exists("blackNews", false)) {
         {
             if (count($this->categories) > 0) {
                 return $this->categories;
-            }
 
             // Get all categories
             $r = self::$db->query(
@@ -606,7 +586,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return $this->categories;
-        }
 
         /**
          * @param void $dir
@@ -625,7 +604,6 @@ if (!class_exists("blackNews", false)) {
             } else {
                 return false;
             }
-        }
 
         /**
          * @param void $old
@@ -638,14 +616,12 @@ if (!class_exists("blackNews", false)) {
             }
             if (trim($new, "/") == trim($old, "/")) {
                 return true;
-            }
 
             $nDir = CAT_PATH . "/" . trim($new, "/");
             $oDir = CAT_PATH . "/" . trim($old, "/");
 
             if ((file_exists($nDir) && is_dir($nDir)) || !is_dir($oDir)) {
                 return false;
-            }
 
             if (rename($oDir, $nDir)) {
                 self::$instance->setOption("permalink", $new);
@@ -653,7 +629,6 @@ if (!class_exists("blackNews", false)) {
             } else {
                 return false;
             }
-        }
 
         /**
          * get all offers from database
@@ -668,7 +643,6 @@ if (!class_exists("blackNews", false)) {
         {
             if (!$title) {
                 return false;
-            }
 
             return CAT_Helper_Page::getFilename($title);
         } // end createTitleURL()
@@ -683,7 +657,6 @@ if (!class_exists("blackNews", false)) {
         {
             if (!$arr || !is_array($arr)) {
                 return false;
-            }
 
             $ts = [];
             foreach ($arr as $date) {
@@ -724,7 +697,6 @@ if (!class_exists("blackNews", false)) {
             } else {
                 return false;
             }
-        }
 
         /**
          *
@@ -732,7 +704,6 @@ if (!class_exists("blackNews", false)) {
         public static function update()
         {
             // Currently empty - placeholder for future updates
-        }
 
         /**
          *
@@ -772,7 +743,6 @@ if (!class_exists("blackNews", false)) {
                 header("HTTP/1.1 301 Moved Permanently");
                 header("Location:" . $redirect);
                 exit();
-            }
 
             /*			if( $rUrl == $sUrl && ( $rUrl == CAT_URL . $_SERVER['REQUEST_URI'] ) )
       {
@@ -783,7 +753,6 @@ if (!class_exists("blackNews", false)) {
         header("Location:" . $redirect );
         exit();
       }*/
-        }
 
         /**
          *
@@ -802,7 +771,6 @@ if (!class_exists("blackNews", false)) {
             } else {
                 return false;
             }
-        }
 
         /**
          *
@@ -811,7 +779,6 @@ if (!class_exists("blackNews", false)) {
         {
             if ($this->routeCategory == "") {
                 return false;
-            }
 
             $this->getCategories();
             foreach ($this->categories as $ind) {
@@ -821,7 +788,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return false;
-        }
 
         /**
          * True if the current route carries jahr/tag filters
@@ -829,7 +795,6 @@ if (!class_exists("blackNews", false)) {
         public function hasFilters(): bool
         {
             return count($this->routeFilters) > 0;
-        }
 
         /**
          * Get all tags of this section, optionally filtered by type
@@ -853,7 +818,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return $tags;
-        }
 
         /**
          * Get tags assigned to an entry
@@ -874,7 +838,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return $tags;
-        }
 
         /**
          * Tag types configured in the general options (option "tagTypes",
@@ -902,7 +865,6 @@ if (!class_exists("blackNews", false)) {
             } catch (\Throwable $e) {
                 return [];
             }
-        }
 
         public function getConfiguredTagTypes(): array
         {
@@ -918,7 +880,6 @@ if (!class_exists("blackNews", false)) {
                 return $existing;
             }
             return ["quelle", "unternehmen", "verwalter", "filter", "typ"];
-        }
 
         /**
          * Types whose values are split into single tags on save
@@ -929,7 +890,6 @@ if (!class_exists("blackNews", false)) {
             $conf = (string) $this->getOption("tagSplitTypes");
             $types = array_filter(array_map("trim", explode(",", $conf)));
             return count($types) > 0 ? array_values($types) : ["verwalter"];
-        }
 
         /**
          * Normalize a tag name for comparison (umlauts, dashes, entities,
@@ -944,7 +904,6 @@ if (!class_exists("blackNews", false)) {
                 "Ä" => "Ae", "Ö" => "Oe", "Ü" => "Ue",
             ]);
             return mb_strtolower(preg_replace("/\s+/u", " ", trim($name)) ?? "");
-        }
 
         /**
          * Split a combined value ("A & B", "A, B", "A und B") into single
@@ -964,7 +923,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return count($out) > 0 ? $out : [$name];
-        }
 
         /**
          * Find an existing tag of this section+type whose normalized name is
@@ -994,7 +952,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return $best;
-        }
 
         /**
          * Assign tags to an entry; unknown names are created on the fly,
@@ -1062,7 +1019,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return $ok;
-        }
 
         /**
          * Years available for the jahr/ filter
@@ -1081,7 +1037,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return $years;
-        }
 
         /**
          *
@@ -1108,7 +1063,6 @@ if (!class_exists("blackNews", false)) {
                     $this->routeUrl;
 
             $this->setParserValue("options", $this->getOption(), true);
-            if ($bnProf) { $mark("options"); }
 
             $this->setParserValue("categories", $this->getCategories(), true);
 
@@ -1139,7 +1093,6 @@ if (!class_exists("blackNews", false)) {
                     header("HTTP/1.1 301 Moved Permanently");
                     header("Location:" . $target);
                     exit();
-                }
 
                 $this->setParserValue(
                     "category",
@@ -1207,7 +1160,6 @@ if (!class_exists("blackNews", false)) {
                 return $this->getParserValue();
             }
             #self::$parsed = true;
-        }
 
         /**
          *
@@ -1256,7 +1208,6 @@ if (!class_exists("blackNews", false)) {
                     "entries",
                     $obj->getOverview(true, $start, $limit)
                 );
-            }
 
             $obj->template = $template != "" ? $template : "view";
 
@@ -1281,14 +1232,11 @@ if (!class_exists("blackNews", false)) {
 
             if (!$out) {
                 return $parser->get($obj->template, $obj->getParserValue());
-            }
 
             if (!self::$parsed && $out) {
                 $parser->output($obj->template, $obj->getParserValue());
-            }
 
             #self::$parsed = true;
-        }
 
         /**
          * retrieve the route
@@ -1335,7 +1283,6 @@ if (!class_exists("blackNews", false)) {
             }
             if (!$this->routeUrl) {
                 $this->routeUrl = "/";
-            }
 
             // remove params
             if (stripos($this->routeUrl, "?")) {
@@ -1344,7 +1291,6 @@ if (!class_exists("blackNews", false)) {
                     $this->routeUrl,
                     2
                 );
-            }
 
             $path_prefix = str_ireplace(
                 CAT_Helper_Directory::sanitizePath($_SERVER["DOCUMENT_ROOT"]),
@@ -1359,7 +1305,6 @@ if (!class_exists("blackNews", false)) {
                     "",
                     $this->routeUrl
                 );
-            }
 
             // Remove leading and ending "/" and multiple slashes
             $this->routeUrl = trim(
@@ -1377,7 +1322,6 @@ if (!class_exists("blackNews", false)) {
             }
             if ($mayHaveFilters) {
                 $this->parseFilters();
-            }
 
             return [$this->routeUrl, $this->routeQuery];
         } // end function initRoute()
@@ -1419,7 +1363,6 @@ if (!class_exists("blackNews", false)) {
                 ($this->routeCategory !== "" ? $this->routeCategory . "/" : "") . $rest,
                 "/"
             );
-        }
 
         /**
          * Check if a route prefix is a known tag type of this section
@@ -1440,7 +1383,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return in_array($type, $types, true);
-        }
 
         /**
          * Canonical filter path: category first, then filters sorted by prefix
@@ -1480,7 +1422,6 @@ if (!class_exists("blackNews", false)) {
                 $parts[] = $entrySlug;
             }
             return implode("/", $parts);
-        }
 
         /**
          *
@@ -1502,7 +1443,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return true;
-        }
 
         /**
          *
@@ -1511,18 +1451,12 @@ if (!class_exists("blackNews", false)) {
         {
             global $parser, $section_id;
 
-            $bnProf = isset($_GET["bn_prof"]);
-            $tStart = microtime(true);
-            $t0 = $tStart;
-            $prof = [];
-            $mark = function (string $label) use (&$prof, &$t0) {
                 $now = microtime(true);
                 $prof[$label] = round(($now - $t0) * 1000, 1);
                 $t0 = $now;
             };
 
             $this->setIDs($section_id);
-            if ($bnProf) { $mark("setIDs"); }
 
             // Reset parserValues
             $this->parserValues = [];
@@ -1553,14 +1487,10 @@ if (!class_exists("blackNews", false)) {
                     while (!false == ($id = $getGal->fetch())) {
                         $gal[$id["gallery_id"]] = $id["title"];
                     }
-                }
 
                 $this->setParserValue("galleries", $gal);
-            }
 
-            if ($bnProf) { $mark("catGallery"); }
             $this->setParserValue("htaccess", $this->generateHTACCESS());
-            if ($bnProf) { $mark("htaccess"); }
 
             $this->setParserValue("options", $this->getOption(), true);
 
@@ -1570,10 +1500,8 @@ if (!class_exists("blackNews", false)) {
                 true
             );
 
-            if ($bnProf) { $mark("sections"); }
             $listLimit = 50;
             $this->setParserValue("entries", $this->getOverview(false, 0, $listLimit, false, [], true), true);
-            if ($bnProf) { $mark("entries"); }
             $this->setParserValue("entriesTotal", $this->countOverview([], false), true);
             $this->setParserValue("entriesLimit", $listLimit, true);
 
@@ -1582,7 +1510,6 @@ if (!class_exists("blackNews", false)) {
             $this->setParserValue("tags", $this->getTags(), true);
             $this->setParserValue("years", $this->getYears(), true);
             $this->setParserValue("tagTypes", $this->getConfiguredTagTypes(), true);
-            if ($bnProf) { $mark("cats+tags+years"); }
             $this->setParserValue("tagSplitTypes", $this->getSplitTagTypes(), true);
 
             // ToDo: wird von einer include-Variante auf eine andere geswitcht, bleibt die Option setNews bestehen! Zusätzlich variante auf include... untersuchen!
@@ -1597,9 +1524,7 @@ if (!class_exists("blackNews", false)) {
                     ),
                     true
                 );
-            }
 
-            if ($bnProf) { $mark("setNews-check"); }
             $this->setParserValue("usergroups", CAT_Users::getGroups(), true);
             $getGroupMembers = isset(
                 $this->parserValues["options"]["usergroup"]
@@ -1611,7 +1536,6 @@ if (!class_exists("blackNews", false)) {
                 CAT_Users::getMembers($getGroupMembers)
             );
 
-            if ($bnProf) { $mark("users"); }
             if (
                 file_exists(
                     CAT_PATH .
@@ -1640,7 +1564,6 @@ if (!class_exists("blackNews", false)) {
                     "/modules/" .
                     static::$directory .
                     "/modify/default/modify.php";
-            }
 
             $parser->setPath(
                 CAT_PATH .
@@ -1657,20 +1580,16 @@ if (!class_exists("blackNews", false)) {
             );
 
             if ($bnProf) {
-                $mark("includes");
                 $total = round((microtime(true) - $tStart) * 1000, 1);
-                $line = "BN_PROF modify: " . json_encode($prof) . " total_ms=" . $total . "\n";
                 if (class_exists("CAT_Log")) {
                     CAT_Log::getInstance()->log($line, CAT_Log::DEBUG);
                 }
                 error_log($line);
-                @file_put_contents(CAT_PATH . "/temp/logs/bn_prof.log", $line, FILE_APPEND | LOCK_EX);
             }
             #if( !self::$parsed )
             $parser->output($this->template, $this->getParserValue());
 
             #self::$parsed = true;
-        }
 
         /**
          *
@@ -1691,7 +1610,6 @@ if (!class_exists("blackNews", false)) {
                         ? array_merge($this->parserValues[$name], $value)
                         : $value;
             }
-        }
 
         /**
          *
@@ -1709,7 +1627,6 @@ if (!class_exists("blackNews", false)) {
 
             if ($backend) {
                 $backend->updateWhenModified();
-            }
 
             $action = CAT_Helper_Validate::sanitizePost("action");
             $return = [];
@@ -1729,7 +1646,6 @@ if (!class_exists("blackNews", false)) {
                     header("Location: " . CAT_ADMIN_URL . "/pages/modify.php?page_id=" . (int) $this->page_id);
                 }
                 exit();
-            }
 
             $this->setIDs();
 
@@ -1738,7 +1654,6 @@ if (!class_exists("blackNews", false)) {
                 $entryObj = new blackNewsEntry(
                     CAT_Helper_Validate::sanitizePost("entryID")
                 );
-            }
 
             switch ($action) {
                 case "setSkin":
@@ -1912,7 +1827,6 @@ if (!class_exists("blackNews", false)) {
                     }
                     $return = $entryObj->saveEntry();
                     break;
-            }
 
             if ($isAjax) {
                 while (ob_get_level() > 0) {
@@ -1954,7 +1868,6 @@ if (!class_exists("blackNews", false)) {
                 }
             }
             return count($id) > 0 ? true : false;
-        }
 
         /**
          *
@@ -1968,7 +1881,6 @@ if (!class_exists("blackNews", false)) {
                     "/inc/db/uninstall.sql"
             );
             return $errors;
-        }
 
         /**
          *
@@ -2009,7 +1921,6 @@ if (!class_exists("blackNews", false)) {
                     $errors[] = self::$db->getError();
                     error_log("blackNews upgrade: " . self::$db->getError());
                 }
-            }
 
             // Default: entries per page for AJAX pagination (option name "perPage", used by getEntries action)
             self::$db->query(
@@ -2031,10 +1942,8 @@ if (!class_exists("blackNews", false)) {
                     $errors[] = self::$db->getError();
                     error_log("blackNews upgrade: " . self::$db->getError());
                 }
-            }
 
             return $errors;
-        }
 
         public function generateHTACCESS(): string
         {

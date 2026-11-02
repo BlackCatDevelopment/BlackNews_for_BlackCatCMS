@@ -60,14 +60,11 @@ ini_set("display_startup_errors", 1);
 error_reporting(E_ALL);
 
 // Request-Logging fuer Hanging-Diagnose (immer aktiv, eine Zeile pro Call)
-$bnLog = function (string $msg) {
     @file_put_contents(
-        CAT_PATH . "/temp/logs/bn_prof.log",
         date("H:i:s") . " save.php " . $msg . "\n",
         FILE_APPEND | LOCK_EX
     );
 };
-$bnLog("start action=" . ($_POST["action"] ?? "?") . " entryID=" . ($_POST["entryID"] ?? "-") . " session=" . (session_status() === PHP_SESSION_ACTIVE ? "active" : "none"));
 
 // Nur bei echten AJAX-Requests die Session sofort freigeben (Session-Lock).
 // Bei Nicht-AJAX darf sie nicht geschlossen werden, sonst greift das CMS
@@ -75,15 +72,10 @@ $bnLog("start action=" . ($_POST["action"] ?? "?") . " entryID=" . ($_POST["entr
 // Antwort statt JSON).
 if (isset($_POST["_cat_ajax"]) && session_status() === PHP_SESSION_ACTIVE) {
     session_write_close();
-    $bnLog("session closed");
 }
 
 global $section_id;
 
-$t0 = microtime(true);
-register_shutdown_function(function () use ($bnLog, $t0) {
-    $bnLog("done in " . round((microtime(true) - $t0) * 1000, 1) . "ms");
-});
 $blackNews = new blackNews($section_id);
 $blackNews->save();
 
