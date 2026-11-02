@@ -308,6 +308,7 @@ if (!class_exists("blackNews", false)) {
                     )
                 )
                 ->fetchColumn();
+        }
 
         /**
          *
