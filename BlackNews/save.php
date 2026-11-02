@@ -55,16 +55,6 @@ if (defined("CAT_PATH")) {
 // end include class.secure.php
 
 require_once "inc/class.blackNews.php";
-ini_set("display_errors", 1);
-ini_set("display_startup_errors", 1);
-error_reporting(E_ALL);
-
-// Request-Logging fuer Hanging-Diagnose (immer aktiv, eine Zeile pro Call)
-    @file_put_contents(
-        date("H:i:s") . " save.php " . $msg . "\n",
-        FILE_APPEND | LOCK_EX
-    );
-};
 
 // Nur bei echten AJAX-Requests die Session sofort freigeben (Session-Lock).
 // Bei Nicht-AJAX darf sie nicht geschlossen werden, sonst greift das CMS
