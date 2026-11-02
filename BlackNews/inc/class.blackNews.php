@@ -38,6 +38,7 @@ error_reporting(E_ALL);
 if (!class_exists("blackNews", false)) {
     if (!class_exists("addOnMain", false)) {
         require_once dirname(__FILE__) . "/class.addOnMain.php";
+    }
 
     class blackNews extends addOnMain
     {
