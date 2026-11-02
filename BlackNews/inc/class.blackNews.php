@@ -258,6 +258,67 @@ if (!class_exists("blackNews", false)) {
         }
 
         /**
+         * Count entries matching the filters without loading rows
+         */
+        public function countOverview(array $filters = []): int
+        {
+            $section_id = $this->getOption("setNews")
+                ? $this->getOption("setNews")
+                : 0;
+
+            $filterSql = "";
+            $filterParams = [];
+            $fi = 0;
+            foreach ($filters as $prefix => $slugs) {
+                foreach ((array) $slugs as $slug) {
+                    $fi++;
+                    if ($prefix === "jahr") {
+                        if (!preg_match("/^\d{4}$/", (string) $slug)) {
+                            continue;
+                        }
+                        $filterSql .= " AND YEAR(nE.`publishDate`) = :f" . $fi;
+                        $filterParams["f" . $fi] = (int) $slug;
+                    } else {
+                        $filterSql .=
+                            " AND EXISTS (SELECT 1 FROM `:prefix:mod_blackNewsEntryTags` et" . $fi .
+                            " JOIN `:prefix:mod_blackNewsTags` t" . $fi . " ON t" . $fi . ".`tagID` = et" . $fi . ".`tagID`" .
+                            " WHERE et" . $fi . ".`entryID` = nE.`entryID`" .
+                            " AND t" . $fi . ".`section_id` = nE.`section_id`" .
+                            " AND t" . $fi . ".`type` = :ft" . $fi .
+                            " AND t" . $fi . ".`slug` = :fs" . $fi . ")";
+                        $filterParams["ft" . $fi] = $prefix;
+                        $filterParams["fs" . $fi] = $slug;
+                    }
+                }
+            }
+
+            $catID = $this->getOption("category") ? $this->getOption("category") : 0;
+            $where = $catID > 0
+                ? "WHERE catE.`catID` = :catID AND nE.`section_id` = :section_id"
+                : "WHERE nE.`section_id` = :section_id";
+            $sql =
+                "SELECT COUNT(DISTINCT nE.`entryID`) FROM `:prefix:mod_blackNewsEntry` nE " .
+                ($catID > 0
+                    ? "LEFT JOIN `:prefix:mod_blackNewsCategoryEntries` catE ON nE.`entryID` = catE.`entryID` "
+                    : "") .
+                $where .
+                " AND ((nE.`publishDate` < CURRENT_TIMESTAMP OR nE.`publishDate` IS NULL) " .
+                "AND (nE.`unpublishDate` > CURRENT_TIMESTAMP OR nE.`unpublishDate` IS NULL)) " .
+                "AND publish IS NOT NULL " .
+                $filterSql;
+            return (int) self::$db
+                ->query(
+                    $sql,
+                    array_merge(
+                        ["section_id" => $section_id ? $section_id : $this->section_id]
+                            + ($catID > 0 ? ["catID" => $catID] : []),
+                        $filterParams
+                    )
+                )
+                ->fetchColumn();
+        }
+
+        /**
          *
          */
         public function getOverview(
@@ -1084,7 +1145,7 @@ if (!class_exists("blackNews", false)) {
                 $this->setParserValue("activeFilters", $this->routeFilters, true);
                 $this->setParserValue("years", $this->getYears(), true);
                 $this->setParserValue("tags", $this->getTags(), true);
-                $this->setParserValue("totalEntries", count($this->getOverview(false, 0, 0, true, $this->routeFilters)), true);
+                $this->setParserValue("totalEntries", $this->countOverview($this->routeFilters), true);
 
                 $this->setParserValue(
                     "entries",
@@ -1476,7 +1537,7 @@ if (!class_exists("blackNews", false)) {
                 true
             );
 
-            $this->setParserValue("entries", $this->getOverview(true), true);
+            $this->setParserValue("entries", $this->getOverview(false), true);
 
             $this->setParserValue("categories", $this->getCategories(), true);
 
@@ -1694,7 +1755,7 @@ if (!class_exists("blackNews", false)) {
                     if ($perPage <= 0) {
                         $perPage = 20;
                     }
-                    $total = count($this->getOverview(false, 0, 0, true, $filters));
+                    $total = $this->countOverview($filters);
                     $entries = $this->getOverview(true, $page * $perPage, $perPage, true, $filters);
 
                     $parser->setPath(
